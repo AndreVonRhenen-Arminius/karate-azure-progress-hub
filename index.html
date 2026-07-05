@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="Offline-first karate and AZ-104 progress tracker with optional Supabase cloud sync.">
+  <title>Karate & Azure Progress Hub</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app-shell">
+    <aside class="sidebar" aria-label="Main navigation">
+      <div class="brand">
+        <div class="brand-mark">KA</div>
+        <div>
+          <strong>Progress Hub</strong>
+          <small>Karate + AZ-104</small>
+        </div>
+      </div>
+      <nav id="side-nav" class="nav-list">
+        <button data-view="today" class="active"><span>⌂</span>Today</button>
+        <button data-view="week"><span>▦</span>Weekly Plan</button>
+        <button data-view="azure"><span>☁</span>AZ-104</button>
+        <button data-view="dan"><span>拳</span>3rd Dan</button>
+        <button data-view="kata"><span>型</span>Kata</button>
+        <button data-view="progress"><span>↗</span>Progress</button>
+        <button data-view="notes"><span>✎</span>Notes & Reviews</button>
+        <button data-view="settings"><span>⚙</span>Settings</button>
+      </nav>
+      <div class="sidebar-footer">
+        <div id="sync-pill" class="sync-pill local">Local only</div>
+        <button id="install-btn" class="secondary-btn hidden">Install app</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow" id="page-eyebrow">YOUR PLAN</p>
+          <h1 id="page-title">Today</h1>
+        </div>
+        <div class="topbar-actions">
+          <button id="timer-btn" class="icon-btn" title="Open session timer">⏱</button>
+          <button id="sync-btn" class="icon-btn" title="Sync now">↻</button>
+          <div id="account-badge" class="account-badge">A</div>
+        </div>
+      </header>
+
+      <section id="view-today" class="view active"></section>
+      <section id="view-week" class="view"></section>
+      <section id="view-azure" class="view"></section>
+      <section id="view-dan" class="view"></section>
+      <section id="view-kata" class="view"></section>
+      <section id="view-progress" class="view"></section>
+      <section id="view-notes" class="view"></section>
+      <section id="view-settings" class="view"></section>
+    </main>
+
+    <nav id="bottom-nav" class="bottom-nav" aria-label="Mobile navigation">
+      <button data-view="today" class="active"><span>⌂</span><small>Today</small></button>
+      <button data-view="week"><span>▦</span><small>Week</small></button>
+      <button data-view="azure"><span>☁</span><small>AZ-104</small></button>
+      <button data-view="kata"><span>型</span><small>Kata</small></button>
+      <button data-view="progress"><span>↗</span><small>Progress</small></button>
+    </nav>
+  </div>
+
+  <dialog id="timer-dialog" class="dialog">
+    <form method="dialog" class="dialog-card timer-card">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">SESSION TIMER</p>
+          <h2>Focus timer</h2>
+        </div>
+        <button value="cancel" class="icon-btn">✕</button>
+      </div>
+      <label>Session label
+        <input id="timer-label" type="text" value="Focused session" maxlength="80">
+      </label>
+      <div class="timer-presets">
+        <button type="button" data-minutes="20">20 min</button>
+        <button type="button" data-minutes="25">25 min</button>
+        <button type="button" data-minutes="45" class="selected">45 min</button>
+        <button type="button" data-minutes="60">60 min</button>
+      </div>
+      <div id="timer-display" class="timer-display">45:00</div>
+      <div class="timer-actions">
+        <button type="button" id="timer-start" class="primary-btn">Start</button>
+        <button type="button" id="timer-reset" class="secondary-btn">Reset</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="confirm-dialog" class="dialog">
+    <form method="dialog" class="dialog-card">
+      <h2 id="confirm-title">Confirm</h2>
+      <p id="confirm-message"></p>
+      <div class="dialog-actions">
+        <button value="cancel" class="secondary-btn">Cancel</button>
+        <button id="confirm-ok" value="default" class="danger-btn">Continue</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

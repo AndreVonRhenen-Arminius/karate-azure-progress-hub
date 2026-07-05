@@ -1,0 +1,36 @@
+KARATE & AZURE PROGRESS HUB — QUICK SETUP
+
+A. TEST ON YOUR WINDOWS LAPTOP
+1. Extract the ZIP file completely. Do not run it from inside the ZIP.
+2. Double-click run-local.bat.
+3. Windows PowerShell starts a small local web server using software already included with Windows.
+4. Your browser opens at http://localhost:8080.
+5. Keep the PowerShell window open while using the app.
+6. Press Ctrl+C in that window when you want to stop the app.
+
+No Python installation is required.
+
+B. ENABLE CLOUD SYNC
+1. Create a Supabase project.
+2. In Supabase, open SQL Editor.
+3. Run all commands from supabase-schema.sql.
+4. Copy the project URL and publishable/anon key from Project Settings > API.
+5. In the app, open Settings > Cloud synchronisation.
+6. Paste both values and save.
+7. Create an account, confirm the email if required, and sign in.
+8. Sign in with the same account on the phone and laptop.
+
+C. INSTALL ON PHONE AND LAPTOP
+The folder must be published on an HTTPS website. Netlify and GitHub Pages can host it.
+
+Android Chrome:
+Open the hosted address > browser menu > Install app or Add to Home screen.
+
+Windows Microsoft Edge:
+Open the hosted address > Apps > Install this site as an app.
+
+IMPORTANT
+- Use only the Supabase publishable/anon key.
+- Never enter a service-role key.
+- Keep Row Level Security enabled.
+- Export a backup from Settings regularly.
