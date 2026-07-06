@@ -1,82 +1,37 @@
-# Karate & Azure Progress Hub
+# Karate & Azure Progress Hub — v1.3
 
-An installable, offline-first Progressive Web App for André's weekly family, AZ-104, 3rd Dan and kata programme.
+An installable, offline-first Progressive Web App for André's AZ-104 study, JKA 3rd Dan preparation, kata sequence learning, notes, progress tracking and Supabase cloud synchronisation.
 
-## Included
+## Morning programme
 
-- Today dashboard with tick-off tasks and notes
-- Monday-to-Sunday plan
-- Six AZ-104 learning paths and module tracking
-- 3rd Dan kihon and kumite tracking
-- Kata sequence and retention tracking
-- Progress dashboard
-- Weekly reviews and general notes
-- Minimum-week mode
-- Session timer
-- JSON backup and restore
-- Optional Supabase account and cloud synchronisation
-- Installable PWA for Android and Windows
+- Programme starts Saturday 11 July 2026.
+- Normal start time: 5:30 am.
+- Office-day sessions finish by 7:00 am so work travel can begin at 8:00 am.
+- Tuesday and Thursday combine 3rd Dan work and kata before dojo in the evening.
+- Friday is deliberately lighter.
+- Saturday is the main AZ-104 practical and kata development morning.
+- Sunday contains weekly review, kata retention and planning.
+- A reduced minimum-week mode is included.
 
-## 1. Test it on a Windows laptop
+## Updating an existing GitHub Pages installation
 
-1. Extract the ZIP completely. Do not run it from inside the ZIP.
-2. Double-click `run-local.bat`.
-3. Windows PowerShell starts the included local server; Python is not required.
-4. The app opens at `http://localhost:8080`.
-5. Keep the PowerShell window open while using the app. Press `Ctrl+C` in that window to stop it.
+Upload the contents of this folder to the root of the existing `karate-azure-progress-hub` GitHub repository and commit the replacements. GitHub Pages will redeploy automatically.
 
-It can be used locally immediately. Cloud sync requires the Supabase steps below. Do not open `index.html` directly with `file://`; service workers and installation require a local web server or HTTPS hosting.
+The installed Android and Windows PWAs do not need to be reinstalled. Close and reopen them after the GitHub deployment. Refresh once if an older cached version remains visible.
 
-## 2. Create the cloud database
+## Cloud synchronisation
 
-1. Create a free Supabase project.
-2. Open **SQL Editor**.
-3. Copy and run all SQL from `supabase-schema.sql`.
-4. Open **Project Settings > API**.
-5. Copy the **Project URL** and **publishable/anon key**.
-6. In the app, open **Settings > Cloud synchronisation**.
-7. Paste the URL and key, then select **Save cloud configuration**.
-8. Create an account with your email and password.
-9. Sign in on your phone and laptop with the same account.
+The existing Supabase project and `user_app_state` table remain compatible. Version 1.3 migrates older app state to the morning schedule while preserving study, syllabus, kata, note and review data.
 
-The SQL enables Row Level Security so each authenticated user can read and update only their own record.
+Use only the Supabase project URL and publishable/anon key in the app. Never place a service-role or secret key in browser code.
 
-## 3. Host it so it can be installed on both devices
+## Files
 
-The PWA must be hosted over HTTPS. Suitable options include GitHub Pages, Netlify, Cloudflare Pages or another static HTTPS host.
-
-### Simple Netlify method
-
-1. Sign in to Netlify.
-2. Drag the extracted app folder into the manual deployment area.
-3. Open the generated HTTPS site.
-4. On Android Chrome, open the browser menu and choose **Install app** or **Add to Home screen**.
-5. On Microsoft Edge, open the Apps menu and choose **Install this site as an app**.
-
-### GitHub Pages method
-
-1. Create a new GitHub repository.
-2. Upload all files from this folder to the repository root.
-3. Open repository **Settings > Pages**.
-4. Deploy from the main branch and root folder.
-5. Open the generated HTTPS address and install the app.
-
-## 4. How synchronisation works
-
-- Every change is saved immediately on the current device.
-- When signed in and online, changes are uploaded after a short delay.
-- When the app opens or returns to the foreground, it checks for newer cloud data.
-- If offline, continue using the app. It syncs after the connection returns.
-- The most recently updated full app state is used.
-- Use **Export backup** regularly for an additional copy.
-
-## 5. Important security notes
-
-- Use only the Supabase publishable/anon key in the browser app.
-- Never paste a Supabase service-role key into the app.
-- Keep Row Level Security enabled.
-- Use a strong, unique password.
-
-## 6. Resetting
-
-Settings contains a **Reset all local data** button. This does not automatically delete the cloud row. To replace cloud data, reset locally and then use **Push local to cloud**.
+- `index.html` — application shell
+- `app.js` — schedule, tracking, cloud sync and data migration
+- `styles.css` — responsive desktop and phone layout
+- `manifest.webmanifest` — installable PWA definition
+- `service-worker.js` — offline cache and update handling
+- `supabase-schema.sql` — Supabase table and security policies
+- `UPDATE-v1.3.txt` — concise update instructions
+- `run-local.bat` and `local-server.ps1` — optional Windows local test server

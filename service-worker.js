@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ka-progress-hub-v1.0.0';
+const CACHE_NAME = 'ka-progress-hub-v1.3.0';
 const CORE_ASSETS = [
   './',
   './index.html',

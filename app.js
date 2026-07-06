@@ -23,66 +23,72 @@ const AZ_STATUS_OPTIONS = [
   ['complete', 'Completed']
 ];
 
+const APP_VERSION = '1.3.0';
+const PROGRAMME_START_DATE = '2026-07-11';
+
 const DAY_PLANS = {
   normal: {
     Monday: {
-      family: 'Housework, children and family from 5:30–9:00 pm.',
+      family: 'Office day. Wake at 5:15 am, start at 5:30 am, finish by 7:00 am and leave for work at 8:00 am. Family and housework remain protected from 5:30–9:00 pm.',
       tasks: [
-        { id: 'az-theory', time: '9:00–10:30 pm', title: 'AZ-104 theory', type: 'azure', items: ['Complete Microsoft Learn modules', 'Take concise notes', 'Explain the topic aloud without notes'] },
-        { id: 'kata-retention', time: '10:40–11:20 pm', title: 'Existing kata retention', type: 'kata', items: ['Perform selected kata slowly', 'Perform at normal speed', 'Record any forgotten transitions'] }
+        { id: 'az-theory-am', time: '5:30–6:20 am', title: 'AZ-104 theory', type: 'azure', items: ['Complete the planned Microsoft Learn module', 'Write concise notes while learning', 'Mark difficult concepts for revision'] },
+        { id: 'az-recall-am', time: '6:30–7:00 am', title: 'Recall and app update', type: 'azure', items: ['Explain the topic without notes', 'Record one troubleshooting example', 'Update progress and prepare the next session'] }
       ]
     },
     Tuesday: {
-      family: 'Dojo 6:00–7:30 pm. Wife looks after the children.',
+      family: 'Work-from-home day and dojo from 6:00–7:30 pm. Wife looks after the children during dojo.',
       tasks: [
-        { id: 'dan-group-a', time: '9:00–9:50 pm', title: '3rd Dan kihon — Group A', type: 'dan', items: ['Free kamae and stepping', 'Punching and blocking combinations', 'Record one technical issue'] },
-        { id: 'new-kata', time: '10:00–10:45 pm', title: 'Current kata sequence', type: 'kata', items: ['Review the previous section', 'Learn one new section', 'Join the sections slowly'] }
+        { id: 'dan-group-a-am', time: '5:30–6:15 am', title: '3rd Dan kihon — Group A', type: 'dan', items: ['Free kamae and controlled stepping', 'Punching and blocking combinations', 'Practise right and left sides', 'Record one technical issue'] },
+        { id: 'new-kata-am', time: '6:20–6:50 am', title: 'Current kata sequence', type: 'kata', items: ['Review the previous section', 'Learn one new section', 'Join the sections slowly'] },
+        { id: 'tue-log-am', time: '6:50–7:00 am', title: 'Progress update', type: 'review', items: ['Add notes and tick off the session'] }
       ]
     },
     Wednesday: {
-      family: 'Housework, children and family from 5:30–9:00 pm.',
+      family: 'Office day. Wake at 5:15 am, start at 5:30 am, finish by 7:00 am and leave for work at 8:00 am. Family and housework remain protected from 5:30–9:00 pm.',
       tasks: [
-        { id: 'az-lab', time: '9:00–10:45 pm', title: 'AZ-104 practical lab', type: 'azure', items: ['Complete a practical portal or command-line exercise', 'Record what was configured', 'Remove unnecessary lab resources'] },
-        { id: 'az-recall', time: '10:55–11:20 pm', title: 'Recall and troubleshooting', type: 'azure', items: ['Explain why the configuration was needed', 'List likely failure points', 'Describe how to troubleshoot it'] }
+        { id: 'az-lab-am', time: '5:30–6:40 am', title: 'AZ-104 practical lab', type: 'azure', items: ['Complete a portal or command-line exercise', 'Record what was configured and why', 'Remove unnecessary lab resources'] },
+        { id: 'az-troubleshoot-am', time: '6:40–7:00 am', title: 'Troubleshooting recall', type: 'azure', items: ['List likely failure points', 'Explain how you would verify and fix them', 'Update the app'] }
       ]
     },
     Thursday: {
-      family: 'Dojo 6:00–7:30 pm. Wife looks after the children.',
+      family: 'Work-from-home day and dojo from 6:00–7:30 pm. Wife looks after the children during dojo.',
       tasks: [
-        { id: 'kata-sequence', time: '9:00–9:45 pm', title: 'Current kata sequence', type: 'kata', items: ['Review Tuesday’s section', 'Add the next section', 'Complete one full slow walkthrough'] },
-        { id: 'dan-group-b', time: '9:55–10:40 pm', title: '3rd Dan kihon — Group B', type: 'dan', items: ['Kicking combinations', 'Right and left sides', 'Focus on balance and correct return'] }
+        { id: 'kata-sequence-am', time: '5:30–6:15 am', title: 'Current kata sequence', type: 'kata', items: ['Review Tuesday’s section', 'Add the next section', 'Complete one full slow walkthrough'] },
+        { id: 'dan-group-b-am', time: '6:20–6:50 am', title: '3rd Dan kihon — Group B', type: 'dan', items: ['Practise kicking combinations', 'Work both right and left sides', 'Focus on balance and correct return'] },
+        { id: 'thu-log-am', time: '6:50–7:00 am', title: 'Progress update', type: 'review', items: ['Add notes and tick off the session'] }
       ]
     },
     Friday: {
-      family: 'Housework, children and family from 5:30–9:00 pm.',
+      family: 'Office day. This is the lighter morning so recovery remains manageable before the weekend.',
       tasks: [
-        { id: 'az-light', time: '9:00–9:45 pm', title: 'Light AZ-104 revision', type: 'azure', items: ['Review notes or flashcards', 'Revisit incorrect knowledge checks', 'Prepare next week’s modules'] }
+        { id: 'az-light-am', time: '5:30–6:15 am', title: 'Light AZ-104 revision', type: 'azure', items: ['Review notes or flashcards', 'Revisit incorrect knowledge checks', 'Prepare the next practical task'] },
+        { id: 'fri-plan-am', time: '6:15–6:30 am', title: 'Short catch-up and planning', type: 'review', items: ['Complete one small unfinished item or stop early', 'Confirm Saturday’s task'] }
       ]
     },
     Saturday: {
-      family: 'Family and household responsibilities.',
+      family: 'Main development morning. Start at 5:30 am before normal family and household activity.',
       tasks: [
-        { id: 'az-scenario', time: '9:00–10:30 pm', title: 'AZ-104 practical scenario', type: 'azure', items: ['Complete a larger practical scenario', 'Write a short troubleshooting summary'] },
-        { id: 'kata-main', time: '10:40–11:40 pm', title: 'Main kata session', type: 'kata', items: ['Review an older kata', 'Develop the current kata', 'Record one full performance'] }
+        { id: 'az-scenario-am', time: '5:30–6:45 am', title: 'AZ-104 focused study and lab', type: 'azure', items: ['Continue the current learning path', 'Complete a practical exercise suited to the current topic', 'Record what worked, what failed and what to repeat'] },
+        { id: 'kata-main-am', time: '6:55–7:45 am', title: 'Main kata session', type: 'kata', items: ['Review one older kata', 'Develop the current kata sequence', 'Record one full performance or memory test'] }
       ]
     },
     Sunday: {
-      family: 'Church, family and household responsibilities.',
+      family: 'Church and family day. Complete the review before the household routine and church preparation begin.',
       tasks: [
-        { id: 'az-weekly', time: '9:00–10:15 pm', title: 'AZ-104 weekly review', type: 'azure', items: ['Review this week’s modules', 'Repeat important settings or commands', 'Identify one weak topic'] },
-        { id: 'kata-test', time: '10:25–11:15 pm', title: 'Kata memory test', type: 'kata', items: ['Perform the current kata without assistance', 'Test selected older kata', 'Record any sequence gaps'] },
-        { id: 'weekly-plan', time: '11:15–11:30 pm', title: 'Weekly review and planning', type: 'review', items: ['Complete the weekly review', 'Choose next week’s priorities'] }
+        { id: 'az-weekly-am', time: '5:30–6:30 am', title: 'AZ-104 weekly review', type: 'azure', items: ['Review this week’s modules', 'Repeat important settings or commands', 'Identify one weak topic'] },
+        { id: 'kata-test-am', time: '6:40–7:25 am', title: 'Kata memory test', type: 'kata', items: ['Perform the current kata without assistance', 'Test selected older kata', 'Record any sequence gaps'] },
+        { id: 'weekly-plan-am', time: '7:25–7:40 am', title: 'Weekly review and planning', type: 'review', items: ['Complete the weekly review', 'Choose next week’s priorities'] }
       ]
     }
   },
   minimum: {
-    Monday: { family: 'Housework, children and family from 5:30–9:00 pm.', tasks: [{ id: 'min-az', time: '9:00–9:45 pm', title: 'Minimum AZ-104 session', type: 'azure', items: ['Complete one focused 45-minute study block'] }] },
-    Tuesday: { family: 'Dojo 6:00–7:30 pm. Wife looks after the children.', tasks: [{ id: 'min-kihon', time: 'After dojo or 9:00 pm', title: 'Minimum 3rd Dan kihon', type: 'dan', items: ['Practise one syllabus group for 20 minutes'] }] },
-    Wednesday: { family: 'Housework, children and family from 5:30–9:00 pm.', tasks: [{ id: 'min-rest-wed', time: 'Evening', title: 'Recovery evening', type: 'recovery', items: ['No scheduled study or personal karate'] }] },
-    Thursday: { family: 'Dojo 6:00–7:30 pm. Wife looks after the children.', tasks: [{ id: 'min-kata', time: 'After dojo or 9:00 pm', title: 'Minimum kata session', type: 'kata', items: ['Review the current kata for 20 minutes'] }] },
-    Friday: { family: 'Housework, children and family from 5:30–9:00 pm.', tasks: [{ id: 'min-rest-fri', time: 'Evening', title: 'Recovery evening', type: 'recovery', items: ['No scheduled study or personal karate'] }] },
-    Saturday: { family: 'Family and household responsibilities.', tasks: [{ id: 'min-sat-az', time: '9:00–10:00 pm', title: 'AZ-104 focused session', type: 'azure', items: ['Complete one hour of theory or lab work'] }, { id: 'min-sat-kata', time: '10:10–10:40 pm', title: 'Kata sequence session', type: 'kata', items: ['Practise the current kata for 30 minutes'] }] },
-    Sunday: { family: 'Church, family and household responsibilities.', tasks: [{ id: 'min-review', time: '9:00–9:30 pm', title: 'Weekly review', type: 'review', items: ['Record progress and plan the next week'] }] }
+    Monday: { family: 'Office day. Use one focused block only.', tasks: [{ id: 'min-az-am', time: '5:30–6:15 am', title: 'Minimum AZ-104 session', type: 'azure', items: ['Complete one focused 45-minute study block'] }] },
+    Tuesday: { family: 'Work-from-home and dojo day.', tasks: [{ id: 'min-kihon-am', time: '5:30–6:00 am', title: 'Minimum 3rd Dan kihon', type: 'dan', items: ['Practise one syllabus combination slowly on both sides'] }] },
+    Wednesday: { family: 'Office day.', tasks: [{ id: 'min-rest-wed-am', time: 'Morning', title: 'Recovery morning', type: 'recovery', items: ['No scheduled study or personal karate'] }] },
+    Thursday: { family: 'Work-from-home and dojo day.', tasks: [{ id: 'min-kata-am', time: '5:30–6:00 am', title: 'Minimum kata session', type: 'kata', items: ['Review the current kata sequence for 30 minutes'] }] },
+    Friday: { family: 'Office day.', tasks: [{ id: 'min-rest-fri-am', time: 'Morning', title: 'Recovery morning', type: 'recovery', items: ['No scheduled study or personal karate'] }] },
+    Saturday: { family: 'Short combined development morning.', tasks: [{ id: 'min-sat-az-am', time: '5:30–6:30 am', title: 'AZ-104 focused session', type: 'azure', items: ['Complete one hour of theory or lab work'] }, { id: 'min-sat-kata-am', time: '6:35–7:00 am', title: 'Kata sequence session', type: 'kata', items: ['Practise the current kata for 25 minutes'] }] },
+    Sunday: { family: 'Church and family day.', tasks: [{ id: 'min-review-am', time: '5:30–6:00 am', title: 'Weekly review', type: 'review', items: ['Record progress and plan the next week'] }] }
   }
 };
 
@@ -180,9 +186,9 @@ const DEFAULT_KATAS = [
 
 function defaultState() {
   return {
-    version: 1,
+    version: 2,
     profile: { name: 'André' },
-    settings: { programmeMode: 'normal', preferredEnd: '23:30', timezone: 'Pacific/Auckland' },
+    settings: { programmeMode: 'normal', programmeStartDate: PROGRAMME_START_DATE, sessionStart: '05:30', preferredEnd: '07:00', timezone: 'Pacific/Auckland' },
     azPaths: DEFAULT_AZ_PATHS.map(p => ({ ...p, status: 'not-started', confidence: 1, notes: '', modules: p.modules.map((name, i) => ({ id: `${p.id}-m${i + 1}`, name, complete: false })) })),
     syllabus: DEFAULT_SYLLABUS.map(s => ({ ...s, status: 'not-started', confidence: 1, notes: '', lastPractised: '', rightComplete: false, leftComplete: false, practiceCount: 0, checkpoints: s.checkpoints.map((name, i) => ({ id: `${s.id}-c${i + 1}`, name, complete: false })) })),
     katas: structuredClone(DEFAULT_KATAS),
@@ -214,6 +220,15 @@ function mergeDefaults(saved) {
   merged.daily = saved.daily && typeof saved.daily === 'object' ? saved.daily : {};
   merged.notes = Array.isArray(saved.notes) ? saved.notes : [];
   merged.weeklyReviews = Array.isArray(saved.weeklyReviews) ? saved.weeklyReviews : [];
+
+  // Version 2 moves the programme from late evenings to mornings and sets the
+  // agreed launch date. Existing study, kata, syllabus and note data is kept.
+  if (Number(saved.version || 1) < 2) {
+    merged.version = 2;
+    merged.settings.programmeStartDate = PROGRAMME_START_DATE;
+    merged.settings.sessionStart = '05:30';
+    merged.settings.preferredEnd = '07:00';
+  }
   return merged;
 }
 
@@ -235,6 +250,7 @@ function loadState() {
   }
 }
 
+let hasLocalState = localStorage.getItem(STORAGE_KEY) !== null;
 let state = loadState();
 let currentView = 'today';
 let cloudClient = null;
@@ -269,6 +285,7 @@ function loadCloudConfig() {
 function saveState({ render = false, sync = true } = {}) {
   state.updatedAt = new Date().toISOString();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  hasLocalState = true;
   if (sync) {
     cloudDirty = true;
     scheduleCloudSync();
@@ -321,6 +338,8 @@ function getDailyRecord(key = getNZDateKey()) {
 function taskSubKey(taskId, index) { return `${taskId}::${index}`; }
 
 function dayCompletion(key) {
+  const startDate = state.settings.programmeStartDate || PROGRAMME_START_DATE;
+  if (key < startDate) return 0;
   const plan = DAY_PLANS[state.settings.programmeMode][getDayName(key)];
   if (!plan) return 0;
   const total = plan.tasks.reduce((sum, task) => sum + task.items.length, 0);
@@ -383,17 +402,49 @@ function renderCurrentView() {
 function renderToday() {
   const key = getNZDateKey();
   const day = getDayName(key);
-  const record = getDailyRecord(key);
+  const startDate = state.settings.programmeStartDate || PROGRAMME_START_DATE;
   const plan = DAY_PLANS[state.settings.programmeMode][day];
-  const progress = dayCompletion(key);
   const az = currentAZPath();
   const kata = currentKata();
   const modeLabel = state.settings.programmeMode === 'minimum' ? 'Minimum programme' : 'Normal programme';
 
+  if (key < startDate) {
+    const startDay = getDayName(startDate);
+    const startPlan = DAY_PLANS[state.settings.programmeMode][startDay];
+    const daysToStart = Math.max(0, Math.ceil((parseDateKey(startDate) - parseDateKey(key)) / 86400000));
+    document.getElementById('view-today').innerHTML = `
+      <div class="hero">
+        <p class="eyebrow">PROGRAMME STARTS ${escapeHTML(formatDateKey(startDate).toUpperCase())}</p>
+        <h2>Morning programme begins in ${daysToStart} day${daysToStart === 1 ? '' : 's'}</h2>
+        <p>Your first session starts at <strong>${escapeHTML(state.settings.sessionStart || '05:30')} am</strong>. Until then, use this time to prepare your study area, karate space and sleep routine.</p>
+        <div class="hero-meta">
+          <span class="badge green">Start: ${escapeHTML(formatDateKey(startDate, { weekday:'long', day:'numeric', month:'long', year:'numeric' }))}</span>
+          <span class="badge blue">Morning start: ${escapeHTML(state.settings.sessionStart || '05:30')} am</span>
+          <span class="badge red">Current kata: ${escapeHTML(kata.name)}</span>
+        </div>
+      </div>
+      <div class="section-heading"><div><h2>First morning preview</h2><p>${escapeHTML(startPlan.family)}</p></div></div>
+      <div class="grid two">
+        ${startPlan.tasks.map(task => `<article class="card task-card"><div class="task-top"><div><span class="task-time">${escapeHTML(task.time)}</span><h3>${escapeHTML(task.title)}</h3></div><span class="badge amber">Preview</span></div><div class="checklist">${task.items.map(item => `<div class="check-row"><span>○</span><label>${escapeHTML(item)}</label></div>`).join('')}</div></article>`).join('')}
+      </div>
+      <article class="card flat" style="margin-top:16px">
+        <h2>Preparation before the start date</h2>
+        <div class="checklist">
+          <div class="check-row"><span>○</span><label>Aim to be in bed by about 9:45–10:00 pm.</label></div>
+          <div class="check-row"><span>○</span><label>Set out clothing and prepare the laptop the night before.</label></div>
+          <div class="check-row"><span>○</span><label>Choose a quiet karate practice area and keep the first sessions controlled.</label></div>
+        </div>
+      </article>`;
+    return;
+  }
+
+  const record = getDailyRecord(key);
+  const progress = dayCompletion(key);
+
   document.getElementById('view-today').innerHTML = `
     <div class="hero">
       <p class="eyebrow">${escapeHTML(formatDateKey(key).toUpperCase())}</p>
-      <h2>${escapeHTML(day)} evening plan</h2>
+      <h2>${escapeHTML(day)} morning plan</h2>
       <p>${escapeHTML(plan.family)}</p>
       <div class="hero-meta">
         <span class="badge ${state.settings.programmeMode === 'minimum' ? 'amber' : 'green'}">${modeLabel}</span>
@@ -403,7 +454,7 @@ function renderToday() {
     </div>
 
     <div class="section-heading">
-      <div><h2>Tonight’s sessions</h2><p>Tick each step as you complete it.</p></div>
+      <div><h2>This morning’s sessions</h2><p>Tick each step as you complete it.</p></div>
       <strong>${progress}%</strong>
     </div>
     <div class="progress-line" aria-label="Daily completion"><span style="width:${progress}%"></span></div>
@@ -415,11 +466,11 @@ function renderToday() {
       <article class="card flat">
         <h2>Session notes</h2>
         <label>What did you learn, notice or struggle with?
-          <textarea data-daily-field="notes" data-date="${key}" placeholder="Add notes for tonight...">${escapeHTML(record.notes)}</textarea>
+          <textarea data-daily-field="notes" data-date="${key}" placeholder="Add notes for this morning...">${escapeHTML(record.notes)}</textarea>
         </label>
       </article>
       <article class="card flat">
-        <h2>End-of-evening check</h2>
+        <h2>End-of-session check</h2>
         <div class="form-grid">
           <label>Energy and recovery
             <select data-daily-field="energy" data-date="${key}">
@@ -465,25 +516,27 @@ function renderTaskCard(task, key, record) {
 function renderWeek() {
   const start = getWeekStart();
   const today = getNZDateKey();
+  const programmeStart = state.settings.programmeStartDate || PROGRAMME_START_DATE;
   const planSet = DAY_PLANS[state.settings.programmeMode];
   const days = Array.from({ length: 7 }, (_, i) => addDays(start, i));
   document.getElementById('view-week').innerHTML = `
     <div class="hero">
       <p class="eyebrow">WEEK OF ${escapeHTML(formatDateKey(start, { day:'numeric', month:'long', year:'numeric' }).toUpperCase())}</p>
-      <h2>${state.settings.programmeMode === 'normal' ? 'Standard weekly programme' : 'Reduced minimum programme'}</h2>
-      <p>Your 5:30–9:00 pm family and household block remains protected. The structured sessions begin after 9:00 pm.</p>
-      <div class="hero-meta"><button class="secondary-btn" data-action="toggle-mode">Use ${state.settings.programmeMode === 'normal' ? 'minimum' : 'normal'} programme</button></div>
+      <h2>${state.settings.programmeMode === 'normal' ? 'Standard morning programme' : 'Reduced minimum programme'}</h2>
+      <p>Morning sessions start at ${escapeHTML(state.settings.sessionStart || '05:30')} am. Office-day sessions finish by ${escapeHTML(state.settings.preferredEnd || '07:00')} am so you can prepare and leave for work at 8:00 am.</p>
+      <div class="hero-meta"><span class="badge green">Programme starts ${escapeHTML(formatDateKey(programmeStart, { day:'numeric', month:'long', year:'numeric' }))}</span><button class="secondary-btn" data-action="toggle-mode">Use ${state.settings.programmeMode === 'normal' ? 'minimum' : 'normal'} programme</button></div>
     </div>
     <div class="section-heading"><div><h2>Monday to Sunday</h2><p>Swipe horizontally on a phone.</p></div></div>
     <div class="week-grid">
       ${days.map(key => {
         const day = getDayName(key);
         const plan = planSet[day];
-        return `<article class="card day-card ${key === today ? 'today' : ''}">
+        const beforeStart = key < programmeStart;
+        return `<article class="card day-card ${key === today ? 'today' : ''} ${beforeStart ? 'before-start' : ''}">
           <h3>${day}<span class="day-date">${formatDateKey(key, { day:'numeric', month:'short' })}</span></h3>
-          <span class="badge ${dayCompletion(key) === 100 ? 'green' : 'blue'}">${dayCompletion(key)}% complete</span>
-          <div class="day-block"><strong>5:30–9:00 pm</strong><p>${escapeHTML(plan.family)}</p></div>
-          ${plan.tasks.map(task => `<div class="day-block"><strong>${escapeHTML(task.time)} — ${escapeHTML(task.title)}</strong><p>${escapeHTML(task.items.join(' · '))}</p></div>`).join('')}
+          ${beforeStart ? '<span class="badge amber">Before programme start</span>' : `<span class="badge ${dayCompletion(key) === 100 ? 'green' : 'blue'}">${dayCompletion(key)}% complete</span>`}
+          <div class="day-block"><strong>Daily context</strong><p>${escapeHTML(plan.family)}</p></div>
+          ${beforeStart ? '<div class="day-block"><strong>No session required</strong><p>The programme begins on Saturday 11 July 2026.</p></div>' : plan.tasks.map(task => `<div class="day-block"><strong>${escapeHTML(task.time)} — ${escapeHTML(task.title)}</strong><p>${escapeHTML(task.items.join(' · '))}</p></div>`).join('')}
         </article>`;
       }).join('')}
     </div>`;
@@ -497,7 +550,7 @@ function renderAzure() {
     <div class="hero">
       <p class="eyebrow">SIX LEARNING PATHS ONLY</p>
       <h2>AZ-104 study tracker</h2>
-      <p>Use Monday for theory, Wednesday and Saturday for practical work, Friday for light revision and Sunday for retrieval practice.</p>
+      <p>Use Monday for theory, Wednesday and Saturday for practical work, Friday for light revision and Sunday for retrieval practice. All sessions are scheduled in the morning.</p>
       <div class="hero-meta"><span class="badge blue">${completedModules}/${totalModules} topics</span><span class="badge green">${overall}% overall</span></div>
     </div>
     <div class="section-heading"><div><h2>Learning paths</h2><p>Update status, confidence, modules and notes.</p></div></div>
@@ -705,8 +758,13 @@ function renderSettings() {
       <article class="card">
         <h2>Programme settings</h2>
         <div class="toggle-row"><div><strong>Minimum-week mode</strong><div class="muted small">Use the reduced programme during difficult weeks.</div></div><label class="switch"><input id="mode-toggle" type="checkbox" ${state.settings.programmeMode === 'minimum' ? 'checked' : ''}><span></span></label></div>
-        <label style="margin-top:13px">Preferred finishing time<input id="preferred-end" type="text" value="${escapeHTML(state.settings.preferredEnd)}" placeholder="23:30"></label>
+        <div class="form-grid" style="margin-top:13px">
+          <label>Programme start date<input id="programme-start-date" type="date" value="${escapeHTML(state.settings.programmeStartDate || PROGRAMME_START_DATE)}"></label>
+          <label>Morning start time<input id="session-start" type="time" value="${escapeHTML(state.settings.sessionStart || '05:30')}"></label>
+          <label>Office-day finish time<input id="preferred-end" type="time" value="${escapeHTML(state.settings.preferredEnd || '07:00')}"></label>
+        </div>
         <div class="form-actions"><button class="primary-btn" data-action="save-programme-settings">Save programme settings</button></div>
+        <p class="muted small" style="margin-top:12px">App version ${APP_VERSION}</p>
       </article>
       <article class="card">
         <h2>Backup and restore</h2>
@@ -904,15 +962,19 @@ async function pullCloud({ initial = false, force = false } = {}) {
     if (error) throw error;
     if (!data) {
       await cloudClient.from('user_app_state').insert({ user_id: cloudUser.id, state });
+      hasLocalState = true;
       cloudDirty = false;
       updateSyncPill('synced', 'Initial cloud copy saved');
       return;
     }
     const remoteTime = data.state?.updatedAt ? Date.parse(data.state.updatedAt) : 0;
     const localTime = state.updatedAt ? Date.parse(state.updatedAt) : 0;
-    if (force || remoteTime > localTime) {
+    // On a newly installed device, prefer the existing cloud copy even if the
+    // freshly generated default local state has a newer timestamp.
+    if (force || !hasLocalState || remoteTime > localTime) {
       state = mergeDefaults(data.state);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      hasLocalState = true;
       cloudDirty = false;
       renderCurrentView();
       updateSyncPill('synced', 'Cloud data loaded');
@@ -1017,7 +1079,7 @@ document.addEventListener('click', async event => {
   if (action === 'delete-note') { if (await confirmAction('Delete note?', 'This note will be permanently removed.')) { state.notes=state.notes.filter(n=>n.id!==id); saveState({render:true}); } return; }
   if (action === 'export-backup') return exportBackup();
   if (action === 'choose-import') return document.getElementById('import-file').click();
-  if (action === 'save-programme-settings') { state.settings.programmeMode=document.getElementById('mode-toggle').checked?'minimum':'normal'; state.settings.preferredEnd=document.getElementById('preferred-end').value.trim()||'23:30'; saveState({render:true}); toast('Programme settings saved.'); return; }
+  if (action === 'save-programme-settings') { state.settings.programmeMode=document.getElementById('mode-toggle').checked?'minimum':'normal'; state.settings.programmeStartDate=document.getElementById('programme-start-date').value||PROGRAMME_START_DATE; state.settings.sessionStart=document.getElementById('session-start').value||'05:30'; state.settings.preferredEnd=document.getElementById('preferred-end').value||'07:00'; saveState({render:true}); toast('Programme settings saved.'); return; }
   if (action === 'save-cloud-config') {
     const url=document.getElementById('supabase-url').value.trim().replace(/\/$/,'');
     const key=document.getElementById('supabase-key').value.trim();
@@ -1030,7 +1092,7 @@ document.addEventListener('click', async event => {
   if (action === 'push-cloud') { if(await confirmAction('Replace cloud data with this device?','The local app state will be uploaded as the current cloud version.')) return pushCloud({force:true}); return; }
   if (action === 'sign-out') { await cloudClient?.auth.signOut(); toast('Signed out.'); return; }
   if (action === 'install-app') return requestInstall();
-  if (action === 'reset-data') { if(await confirmAction('Reset all local data?','This removes progress, notes and reviews from this device.')) { state=defaultState(); localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); cloudDirty=true; renderCurrentView(); toast('Local data reset.'); } return; }
+  if (action === 'reset-data') { if(await confirmAction('Reset all local data?','This removes progress, notes and reviews from this device.')) { state=defaultState(); localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); hasLocalState=true; cloudDirty=true; renderCurrentView(); toast('Local data reset.'); } return; }
 });
 
 document.addEventListener('change', event => {
@@ -1090,7 +1152,17 @@ window.addEventListener('online', () => { if(cloudUser) { updateSyncPill('syncin
 window.addEventListener('offline', () => { if(cloudUser) updateSyncPill('offline','Offline · changes saved'); });
 document.addEventListener('visibilitychange', () => { if(document.visibilityState==='visible' && cloudUser && navigator.onLine) pullCloud({initial:true}); });
 
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(console.error));
+if ('serviceWorker' in navigator) {
+  let reloadingForUpdate = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloadingForUpdate) return;
+    reloadingForUpdate = true;
+    location.reload();
+  });
+  window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').then(registration => {
+    registration.update().catch(() => {});
+  }).catch(console.error));
+}
 if ('Notification' in window && Notification.permission === 'default') {
   // Permission is requested only after the user starts a timer, avoiding an intrusive startup prompt.
   document.getElementById('timer-start').addEventListener('click', () => Notification.requestPermission(), { once:true });
