@@ -23,7 +23,7 @@ const AZ_STATUS_OPTIONS = [
   ['complete', 'Completed']
 ];
 
-const APP_VERSION = '1.3.0';
+const APP_VERSION = '1.3.1';
 const PROGRAMME_START_DATE = '2026-07-11';
 
 const DAY_PLANS = {
@@ -1159,7 +1159,7 @@ if ('serviceWorker' in navigator) {
     reloadingForUpdate = true;
     location.reload();
   });
-  window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').then(registration => {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js', { updateViaCache: 'none' }).then(registration => {
     registration.update().catch(() => {});
   }).catch(console.error));
 }

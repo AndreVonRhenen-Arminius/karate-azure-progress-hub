@@ -43,3 +43,9 @@ DATA AND CLOUD SYNC
 - Existing notes and progress are retained.
 - The new schedule and start date are applied automatically.
 - Wait for the app to show Synced before moving to another device.
+
+
+HOTFIX 1.3.1
+- Forces fresh app assets with versioned URLs.
+- Uses network-first loading for HTML, JavaScript and CSS.
+- Prevents the old evening plan from remaining stuck in the PWA cache.
