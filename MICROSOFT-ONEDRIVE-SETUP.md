@@ -1,6 +1,6 @@
 # Microsoft sign-in and OneDrive setup
 
-Version 1.7.0 requires a Microsoft Entra single-page application registration before Microsoft sign-in can work.
+Version 1.7.1 requires a Microsoft Entra single-page application registration before Microsoft sign-in can work.
 
 ## 1. Register the application
 
@@ -17,17 +17,17 @@ Version 1.7.0 requires a Microsoft Entra single-page application registration be
 1. Open the app registration's **Authentication** page.
 2. Select **Add a platform**.
 3. Choose **Single-page application**.
-4. Add the exact deployed app URL, including its path and trailing slash when applicable. Example:
+4. Add the dedicated Microsoft redirect bridge URL. Example:
 
-   `https://YOUR-GITHUB-NAME.github.io/karate-azure-progress-hub/`
+   `https://YOUR-GITHUB-NAME.github.io/karate-azure-progress-hub/redirect.html`
 
 5. For local testing, also add:
 
-   `http://localhost:8080/`
+   `http://localhost:8080/redirect.html`
 
 6. Save the changes.
 
-The redirect URL shown under **Settings → Microsoft application** must exactly match one of these registered SPA URLs.
+The redirect URL shown under **Settings → Microsoft application** must exactly match one of these registered SPA URLs. Version 1.7.1 uses `redirect.html`; do not register only the app home page.
 
 ## 3. Add Microsoft Graph permission
 
@@ -56,7 +56,7 @@ Use either method below.
 
    `https://login.microsoftonline.com/common`
 
-5. Confirm the redirect URI.
+5. Confirm the redirect URI ends with `/redirect.html`.
 6. Save the configuration and allow the app to reload.
 
 ### Method B — Deployment configuration file
@@ -67,7 +67,7 @@ Edit `js/microsoft-config.js`:
 window.KA_MICROSOFT_CONFIG = Object.freeze({
   clientId: 'YOUR-APPLICATION-CLIENT-ID',
   authority: 'https://login.microsoftonline.com/common',
-  redirectUri: 'https://YOUR-GITHUB-NAME.github.io/karate-azure-progress-hub/'
+  redirectUri: 'https://YOUR-GITHUB-NAME.github.io/karate-azure-progress-hub/redirect.html'
 });
 ```
 
@@ -105,3 +105,7 @@ Use **Pull OneDrive to this device** only when the cloud copy should replace loc
 - `Files.ReadWrite.AppFolder` limits file access to the application's own OneDrive folder.
 - Local data remains available offline.
 - Supabase authentication and data remain separate and unchanged.
+
+## Fix for `interaction_in_progress`
+
+Version 1.7.1 adds the MSAL 5 redirect bridge and prevents duplicate popup requests. After updating from 1.7.0, add the new `redirect.html` URI to the Entra app registration, save the same URI in the app, close any old sign-in popups, and retry once.

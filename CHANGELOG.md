@@ -2,6 +2,23 @@
 
 All notable changes to Karate & Azure Progress Hub are recorded here.
 
+## [1.7.1] — 2026-07-11
+
+### Fixed
+
+- Added the required MSAL Browser 5 redirect bridge at `redirect.html`.
+- Added the locally bundled `vendor/msal-redirect-bridge.min.js` from the pinned MSAL 5.17.0 package.
+- Changed Microsoft SPA redirect configuration from the app home page to the dedicated `redirect.html` page.
+- Prevented duplicate Microsoft popup requests while sign-in is already running.
+- Added user-triggered recovery from stale `interaction_in_progress` popup state.
+- Prevented the service worker from caching the Microsoft redirect page.
+
+### Compatibility
+
+- Existing Microsoft client IDs remain valid, but the Entra app registration must add the new `redirect.html` URI.
+- Existing OneDrive, local and Supabase data remain unchanged.
+- Supabase authentication and `supabase-schema.sql` remain unchanged.
+
 ## [1.7.0] — 2026-07-11
 
 ### Added
@@ -25,7 +42,7 @@ All notable changes to Karate & Azure Progress Hub are recorded here.
 
 ### Changed
 
-- PWA cache and asset references updated to version 1.7.0.
+- PWA cache and asset references updated to version 1.7.1.
 - Settings reorganised to show the active cloud provider and separate OneDrive and Supabase controls.
 - Network reconnect, visibility and periodic sync actions now follow the selected cloud provider.
 

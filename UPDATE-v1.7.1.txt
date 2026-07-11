@@ -1,0 +1,27 @@
+KARATE & AZURE PROGRESS HUB — UPDATE v1.7.1
+
+PURPOSE
+- Fixes Microsoft sign-in errors including interaction_in_progress.
+- Adds the MSAL Browser 5 redirect bridge required by popup authentication.
+- Prevents duplicate sign-in clicks.
+- Preserves existing local, OneDrive and Supabase data.
+
+REQUIRED ENTRA CHANGE
+- Under Authentication > Single-page application, add the deployed URL ending in:
+  /redirect.html
+- Local testing URI:
+  http://localhost:8080/redirect.html
+
+UPDATE STEPS
+1. Export a JSON backup from the current app.
+2. Upload every file and folder from version 1.7.1.
+3. Preserve any separate js/config.js file already in your repository.
+4. Refresh the deployed app and confirm Settings shows version 1.7.1.
+5. In Settings > Microsoft OneDrive, save the redirect URI ending in /redirect.html.
+6. Close any old Microsoft sign-in popups and select Sign in with Microsoft once.
+
+VALIDATION
+- node --check app.js
+- node --check service-worker.js
+- node tests/smoke-test.cjs
+- node tests/onedrive-sync-test.cjs

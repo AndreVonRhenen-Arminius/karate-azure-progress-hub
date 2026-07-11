@@ -1,12 +1,14 @@
-# Karate & Azure Progress Hub — v1.7.0
+# Karate & Azure Progress Hub — v1.7.1
 
 An installable, offline-first Progressive Web App for AZ-104 study, JKA 3rd Dan preparation, kata learning and retention, notes, practical evidence, progress tracking, and optional Microsoft OneDrive or Supabase synchronisation.
 
-## Version 1.7.0
+## Version 1.7.1
 
-This release adds Microsoft sign-in and OneDrive storage without replacing the existing Supabase system.
+This release fixes Microsoft popup sign-in and retains the OneDrive storage introduced in version 1.7.0 without replacing Supabase.
 
 - Sign in with a Microsoft personal, work or school account supported by the Entra app registration.
+- Use the required MSAL 5 redirect bridge at `redirect.html`.
+- Recover safely from stale `interaction_in_progress` popup state and block duplicate sign-in clicks.
 - Store the complete app state in OneDrive's restricted application folder.
 - Automatically synchronise local changes when OneDrive is the active provider.
 - Compare local and remote `updatedAt` timestamps before replacing data.
@@ -47,7 +49,7 @@ After GitHub Pages redeploys:
 
 1. Open the website and refresh it once.
 2. Open **Settings → Microsoft OneDrive**.
-3. Enter the Microsoft application client ID and exact SPA redirect URI.
+3. Enter the Microsoft application client ID and the exact SPA redirect URI ending in `/redirect.html`.
 4. Select **Microsoft OneDrive** as the active provider.
 5. Choose **Sign in with Microsoft**.
 6. Confirm the initial cloud copy is saved or loaded.
@@ -71,7 +73,7 @@ On Windows, run `run-local.bat`, then open:
 
 `http://localhost:8080/`
 
-Add that exact URL as a Single-page application redirect URI in the Microsoft Entra app registration when testing Microsoft sign-in locally.
+Register `http://localhost:8080/redirect.html` as the Single-page application redirect URI in the Microsoft Entra app registration when testing Microsoft sign-in locally.
 
 Static checks:
 
@@ -91,6 +93,8 @@ node tests/onedrive-sync-test.cjs
 - `app.js` — programme, mastery logic, state, Microsoft Graph and Supabase sync
 - `js/microsoft-config.js` — public Microsoft SPA configuration
 - `vendor/msal-browser.min.js` — pinned Microsoft MSAL Browser 5.17.0 runtime
+- `vendor/msal-redirect-bridge.min.js` — pinned Microsoft redirect bridge for popup and silent authentication
+- `redirect.html` — dedicated Microsoft authentication return page
 - `vendor/MSAL-LICENSE.txt` — MSAL Browser licence
 - `styles.css` — responsive interface
 - `manifest.webmanifest` — PWA metadata

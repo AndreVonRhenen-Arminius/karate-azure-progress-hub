@@ -41,8 +41,8 @@ const context = {
   localStorage,
   document,
   navigator: { onLine: true },
-  window: { scrollTo(){}, addEventListener(){}, location: { origin:'http://localhost:8080', pathname:'/', reload(){} } },
-  location: { origin:'http://localhost:8080', pathname:'/', reload(){} },
+  window: { scrollTo(){}, addEventListener(){}, location: { origin:'http://localhost:8080', pathname:'/', href:'http://localhost:8080/', reload(){} } },
+  location: { origin:'http://localhost:8080', pathname:'/', href:'http://localhost:8080/', reload(){} },
   Notification: function(){},
   Blob,
   URL,
@@ -99,13 +99,14 @@ vm.runInContext(`globalThis.testApi = {
   APP_VERSION,
   MICROSOFT_GRAPH_SCOPES,
   oneDriveStateUrl,
-  getCurrentRedirectUri,
+  getMicrosoftRedirectUri,
+  normaliseMicrosoftRedirectUri,
   loadCloudProvider
 };`, context);
 
 const api = context.testApi;
 const initial = api.getState();
-assert.equal(api.APP_VERSION, '1.7.0', 'application should be version 1.7.0');
+assert.equal(api.APP_VERSION, '1.7.1', 'application should be version 1.7.1');
 assert.equal(initial.version, 4, 'state schema should remain version 4');
 assert.deepEqual(Object.keys(initial.daily), [], 'rendering should not create daily records');
 
@@ -187,7 +188,8 @@ assert.ok(getElement('view-settings').innerHTML.includes('Microsoft OneDrive'));
 assert.ok(getElement('view-settings').innerHTML.includes('Sign in with Microsoft'));
 assert.ok(getElement('view-settings').innerHTML.includes('Files.ReadWrite.AppFolder'));
 assert.deepEqual(Array.from(api.MICROSOFT_GRAPH_SCOPES), ['Files.ReadWrite.AppFolder']);
-assert.equal(api.getCurrentRedirectUri(), 'http://localhost:8080/');
+assert.equal(api.getMicrosoftRedirectUri(), 'http://localhost:8080/redirect.html');
+assert.equal(api.normaliseMicrosoftRedirectUri('http://localhost:8080/'), 'http://localhost:8080/redirect.html');
 assert.ok(api.oneDriveStateUrl().endsWith('/me/drive/special/approot:/karate-azure-progress-state.json:/content'));
 assert.equal(api.loadCloudProvider(), 'supabase', 'legacy installations should retain Supabase as the default provider');
 

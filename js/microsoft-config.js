@@ -10,5 +10,5 @@
 window.KA_MICROSOFT_CONFIG = Object.freeze({
   clientId: '',
   authority: 'https://login.microsoftonline.com/common',
-  redirectUri: ''
+  redirectUri: '' // Example: https://YOUR-SITE/redirect.html
 });

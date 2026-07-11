@@ -29,7 +29,7 @@ const AZ_STATUS_OPTIONS = [
   ['complete', 'Completed']
 ];
 
-const APP_VERSION = '1.7.0';
+const APP_VERSION = '1.7.1';
 const STATE_VERSION = 4;
 const PROGRAMME_START_DATE = '2026-07-11';
 
@@ -443,6 +443,7 @@ let microsoftConfig = loadMicrosoftConfig();
 let microsoftClient = null;
 let microsoftAccount = null;
 let microsoftModule = null;
+let microsoftInteractionPending = false;
 let cloudDirty = false;
 let syncDebounce = null;
 let isSyncing = false;
@@ -471,11 +472,46 @@ function loadCloudConfig() {
   catch { return {}; }
 }
 
-function getCurrentRedirectUri() {
+function getCurrentAppUri() {
   const loc = window.location || location;
   const origin = loc?.origin || '';
   const pathname = loc?.pathname || '/';
   return origin && origin !== 'null' ? `${origin}${pathname}` : '';
+}
+
+function getMicrosoftRedirectUri() {
+  const current = getCurrentAppUri();
+  if (!current) return '';
+  try {
+    const url = new URL(current);
+    if (/\/index\.html$/i.test(url.pathname)) url.pathname = url.pathname.replace(/index\.html$/i, 'redirect.html');
+    else if (url.pathname.endsWith('/')) url.pathname += 'redirect.html';
+    else if (/\/[^/]+\.[a-z0-9]+$/i.test(url.pathname)) url.pathname = url.pathname.replace(/[^/]+$/, 'redirect.html');
+    else url.pathname += '/redirect.html';
+    url.search = '';
+    url.hash = '';
+    return url.href;
+  } catch {
+    return current.replace(/(?:index\.html)?$/, 'redirect.html');
+  }
+}
+
+function normaliseMicrosoftRedirectUri(value) {
+  if (!value) return getMicrosoftRedirectUri();
+  try {
+    const url = new URL(value, window.location.href);
+    if (!/\/redirect\.html$/i.test(url.pathname)) {
+      if (/\/index\.html$/i.test(url.pathname)) url.pathname = url.pathname.replace(/index\.html$/i, 'redirect.html');
+      else if (url.pathname.endsWith('/')) url.pathname += 'redirect.html';
+      else if (/\/[^/]+\.[a-z0-9]+$/i.test(url.pathname)) url.pathname = url.pathname.replace(/[^/]+$/, 'redirect.html');
+      else url.pathname += '/redirect.html';
+    }
+    url.search = '';
+    url.hash = '';
+    return url.href;
+  } catch {
+    return getMicrosoftRedirectUri();
+  }
 }
 
 function loadMicrosoftConfig() {
@@ -486,7 +522,7 @@ function loadMicrosoftConfig() {
   return {
     clientId: saved.clientId || deployed.clientId || '',
     authority: saved.authority || deployed.authority || 'https://login.microsoftonline.com/common',
-    redirectUri: saved.redirectUri || deployed.redirectUri || getCurrentRedirectUri()
+    redirectUri: normaliseMicrosoftRedirectUri(saved.redirectUri || deployed.redirectUri || getMicrosoftRedirectUri())
   };
 }
 
@@ -1409,7 +1445,7 @@ function renderNotes() {
 }
 
 function renderSettings() {
-  const recommendedRedirect = getCurrentRedirectUri();
+  const recommendedRedirect = getMicrosoftRedirectUri();
   const microsoftName = microsoftAccount?.name || microsoftAccount?.username || '';
   document.getElementById('view-settings').innerHTML = `
     <div class="grid two">
@@ -1454,7 +1490,7 @@ function renderSettings() {
         <label>Application (client) ID<input id="microsoft-client-id" type="text" value="${escapeHTML(microsoftConfig.clientId || '')}" placeholder="00000000-0000-0000-0000-000000000000" autocomplete="off"></label>
         <label style="margin-top:12px">Authority<input id="microsoft-authority" type="url" value="${escapeHTML(microsoftConfig.authority || 'https://login.microsoftonline.com/common')}" placeholder="https://login.microsoftonline.com/common"></label>
         <label style="margin-top:12px">SPA redirect URI<input id="microsoft-redirect-uri" type="url" value="${escapeHTML(microsoftConfig.redirectUri || recommendedRedirect)}" placeholder="${escapeHTML(recommendedRedirect)}"></label>
-        <div class="inline-note" style="margin-top:14px">Register the exact redirect URI above as a <strong>Single-page application</strong>. Required delegated permission: <code>Files.ReadWrite.AppFolder</code>.</div>
+        <div class="inline-note" style="margin-top:14px">Register the exact <code>redirect.html</code> URI above as a <strong>Single-page application</strong>. Required delegated permission: <code>Files.ReadWrite.AppFolder</code>.</div>
         <div class="form-actions"><button class="primary-btn" data-action="save-microsoft-config">Save Microsoft configuration</button><button class="ghost-btn" data-action="clear-microsoft-config">Clear</button></div>
       </article>
       <article class="card">
@@ -1602,8 +1638,8 @@ async function ensureMicrosoftClient() {
     auth: {
       clientId: microsoftConfig.clientId,
       authority: microsoftConfig.authority || 'https://login.microsoftonline.com/common',
-      redirectUri: microsoftConfig.redirectUri || getCurrentRedirectUri(),
-      postLogoutRedirectUri: microsoftConfig.redirectUri || getCurrentRedirectUri(),
+      redirectUri: microsoftConfig.redirectUri || getMicrosoftRedirectUri(),
+      postLogoutRedirectUri: microsoftConfig.redirectUri || getMicrosoftRedirectUri(),
       navigateToLoginRequestUrl: false
     },
     cache: { cacheLocation: 'localStorage' }
@@ -1632,11 +1668,30 @@ async function initMicrosoft() {
   }
 }
 
+function setMicrosoftInteractionUI(pending) {
+  document.querySelectorAll('[data-action="sign-in-microsoft"]').forEach(button => {
+    button.disabled = pending || !microsoftConfig.clientId;
+    if (pending) button.setAttribute('aria-busy', 'true');
+    else button.removeAttribute('aria-busy');
+  });
+}
+
 async function signInMicrosoft() {
+  if (microsoftInteractionPending) {
+    toast('Microsoft sign-in is already open. Complete or close the existing sign-in window first.');
+    return;
+  }
+  microsoftInteractionPending = true;
+  setMicrosoftInteractionUI(true);
   try {
     const client = await ensureMicrosoftClient();
     updateSyncPill('syncing', 'Opening Microsoft sign-in…');
-    const result = await client.loginPopup({ scopes: MICROSOFT_GRAPH_SCOPES, prompt: 'select_account' });
+    const result = await client.loginPopup({
+      scopes: MICROSOFT_GRAPH_SCOPES,
+      prompt: 'select_account',
+      // This is only triggered by an explicit button click and recovers stale popup state.
+      overrideInteractionInProgress: true
+    });
     microsoftAccount = result.account;
     if (microsoftAccount && client.setActiveAccount) client.setActiveAccount(microsoftAccount);
     setCloudProvider('onedrive');
@@ -1647,7 +1702,17 @@ async function signInMicrosoft() {
   } catch (error) {
     console.error(error);
     updateProviderStatus();
-    toast(`Microsoft sign-in failed: ${error.message}`);
+    const code = error?.errorCode || error?.code || '';
+    if (code === 'interaction_in_progress') {
+      toast('A previous Microsoft sign-in is still active. Close any Microsoft sign-in popups, then select Sign in with Microsoft again.');
+    } else if (code === 'interaction_in_progress_cancelled') {
+      toast('The earlier Microsoft sign-in was cancelled. Select Sign in with Microsoft again.');
+    } else {
+      toast(`Microsoft sign-in failed: ${error.message}`);
+    }
+  } finally {
+    microsoftInteractionPending = false;
+    setMicrosoftInteractionUI(false);
   }
 }
 
@@ -1657,7 +1722,7 @@ async function signOutMicrosoft() {
     const account = microsoftAccount;
     microsoftAccount = null;
     updateAccountUI();
-    await microsoftClient.logoutPopup({ account, postLogoutRedirectUri: microsoftConfig.redirectUri || getCurrentRedirectUri(), mainWindowRedirectUri: microsoftConfig.redirectUri || getCurrentRedirectUri() });
+    await microsoftClient.logoutPopup({ account, postLogoutRedirectUri: microsoftConfig.redirectUri || getMicrosoftRedirectUri(), mainWindowRedirectUri: microsoftConfig.redirectUri || getMicrosoftRedirectUri() });
   } catch (error) {
     console.error(error);
     toast(`Microsoft sign-out failed: ${error.message}`);
@@ -2166,7 +2231,7 @@ document.addEventListener('click', async event => {
   if (action === 'save-microsoft-config') {
     const clientId=document.getElementById('microsoft-client-id').value.trim();
     const authority=document.getElementById('microsoft-authority').value.trim().replace(/\/$/,'')||'https://login.microsoftonline.com/common';
-    const redirectUri=document.getElementById('microsoft-redirect-uri').value.trim()||getCurrentRedirectUri();
+    const redirectUri=normaliseMicrosoftRedirectUri(document.getElementById('microsoft-redirect-uri').value.trim()||getMicrosoftRedirectUri());
     if(!clientId){ toast('Enter the Microsoft application client ID.'); return; }
     localStorage.setItem(MICROSOFT_CONFIG_KEY,JSON.stringify({clientId,authority,redirectUri}));
     toast('Microsoft configuration saved. Reloading app…'); setTimeout(()=>location.reload(),600); return;

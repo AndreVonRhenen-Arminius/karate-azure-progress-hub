@@ -2,7 +2,7 @@
 
 ## Current baseline
 
-- Application version: **1.7.0**
+- Application version: **1.7.1**
 - State schema version: **4**
 - Programme start date: **11 July 2026**
 - Deployment model: static GitHub Pages Progressive Web App
@@ -75,7 +75,7 @@ State schema version 4 is additive. It introduces:
 
 Older state is merged by `mergeDefaults()` rather than replaced. Existing AZ-104 paths, syllabus entries, kata records, notes, daily records and weekly reviews must remain intact.
 
-## Version 1.7.0 cloud behaviour
+## Version 1.7.1 cloud behaviour
 
 - Microsoft sign-in is optional and does not replace Supabase authentication.
 - MSAL Browser is loaded only when a Microsoft client ID exists.
@@ -120,13 +120,13 @@ Before release:
 12. Verify local progress survives a reload.
 13. Verify an older JSON backup imports and receives state version 4.
 14. Verify Supabase sign-in, pull and push without altering existing configuration.
-15. Verify the installed PWA refreshes to cache version 1.7.0.
-16. Register the deployed URL as a Microsoft SPA redirect URI.
+15. Verify the installed PWA refreshes to cache version 1.7.1.
+16. Register the deployed `redirect.html` URL as a Microsoft SPA redirect URI.
 17. Verify Microsoft sign-in creates or reads the OneDrive app-folder state file.
 18. Verify offline changes sync to OneDrive after reconnecting.
 19. Switch back to Supabase and verify its existing sign-in, pull and push behaviour.
 
-## Development priorities after 1.7.0
+## Development priorities after 1.7.1
 
 - Add full browser automation when a test framework is introduced.
 - Add optional grading and exam target dates without changing saved collection IDs.

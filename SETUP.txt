@@ -1,4 +1,4 @@
-KARATE & AZURE PROGRESS HUB v1.7.0
+KARATE & AZURE PROGRESS HUB v1.7.1
 
 LOCAL USE
 1. Double-click run-local.bat.
@@ -7,7 +7,7 @@ LOCAL USE
 
 MICROSOFT ONEDRIVE
 1. Follow MICROSOFT-ONEDRIVE-SETUP.md.
-2. Register http://localhost:8080/ and the deployed HTTPS URL as SPA redirect URIs.
+2. Register http://localhost:8080/redirect.html and the deployed HTTPS redirect.html URL as SPA redirect URIs.
 3. Add delegated permission Files.ReadWrite.AppFolder.
 4. Enter the Entra Application client ID in Settings.
 5. Select Microsoft OneDrive and sign in.
