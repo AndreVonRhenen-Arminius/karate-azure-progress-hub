@@ -29,8 +29,8 @@ const AZ_STATUS_OPTIONS = [
   ['complete', 'Completed']
 ];
 
-const APP_VERSION = '1.7.1';
-const STATE_VERSION = 4;
+const APP_VERSION = '1.8.0';
+const STATE_VERSION = 5;
 const PROGRAMME_START_DATE = '2026-07-11';
 
 const MASTERY_LEVELS = [
@@ -263,7 +263,7 @@ function defaultState() {
   return {
     version: STATE_VERSION,
     profile: { name: 'André' },
-    settings: { programmeMode: 'normal', programmeStartDate: PROGRAMME_START_DATE, timezone: 'Pacific/Auckland' },
+    settings: { programmeMode: 'normal', programmeStartDate: PROGRAMME_START_DATE, rolloverEnabled: true, rolloverStartDate: PROGRAMME_START_DATE, timezone: 'Pacific/Auckland' },
     azPaths: DEFAULT_AZ_PATHS.map(p => ({
       ...p,
       status: 'not-started',
@@ -410,6 +410,19 @@ function mergeDefaults(saved) {
     Object.entries(merged.daily).forEach(([dateKey, record]) => migrateTaskChecks(record, dateKey));
   }
 
+  if (Number(saved.version || 1) < 5) {
+    // Start rollover from the upgrade day so older saved history is never rearranged.
+    merged.settings.rolloverEnabled = true;
+    merged.settings.rolloverStartDate = getNZDateKey();
+    Object.entries(merged.daily).forEach(([dateKey, record]) => {
+      record.taskSourceDate = record.taskSourceDate || dateKey;
+      record.taskPlanMode = DAY_PLANS[record.taskPlanMode] ? record.taskPlanMode : (DAY_PLANS[record.planMode] ? record.planMode : merged.settings.programmeMode);
+    });
+  }
+
+  if (typeof merged.settings.rolloverEnabled !== 'boolean') merged.settings.rolloverEnabled = true;
+  if (!merged.settings.rolloverStartDate) merged.settings.rolloverStartDate = merged.settings.programmeStartDate || PROGRAMME_START_DATE;
+
   merged.version = STATE_VERSION;
   return merged;
 }
@@ -443,7 +456,6 @@ let microsoftConfig = loadMicrosoftConfig();
 let microsoftClient = null;
 let microsoftAccount = null;
 let microsoftModule = null;
-let microsoftInteractionPending = false;
 let cloudDirty = false;
 let syncDebounce = null;
 let isSyncing = false;
@@ -472,46 +484,11 @@ function loadCloudConfig() {
   catch { return {}; }
 }
 
-function getCurrentAppUri() {
+function getCurrentRedirectUri() {
   const loc = window.location || location;
   const origin = loc?.origin || '';
   const pathname = loc?.pathname || '/';
   return origin && origin !== 'null' ? `${origin}${pathname}` : '';
-}
-
-function getMicrosoftRedirectUri() {
-  const current = getCurrentAppUri();
-  if (!current) return '';
-  try {
-    const url = new URL(current);
-    if (/\/index\.html$/i.test(url.pathname)) url.pathname = url.pathname.replace(/index\.html$/i, 'redirect.html');
-    else if (url.pathname.endsWith('/')) url.pathname += 'redirect.html';
-    else if (/\/[^/]+\.[a-z0-9]+$/i.test(url.pathname)) url.pathname = url.pathname.replace(/[^/]+$/, 'redirect.html');
-    else url.pathname += '/redirect.html';
-    url.search = '';
-    url.hash = '';
-    return url.href;
-  } catch {
-    return current.replace(/(?:index\.html)?$/, 'redirect.html');
-  }
-}
-
-function normaliseMicrosoftRedirectUri(value) {
-  if (!value) return getMicrosoftRedirectUri();
-  try {
-    const url = new URL(value, window.location.href);
-    if (!/\/redirect\.html$/i.test(url.pathname)) {
-      if (/\/index\.html$/i.test(url.pathname)) url.pathname = url.pathname.replace(/index\.html$/i, 'redirect.html');
-      else if (url.pathname.endsWith('/')) url.pathname += 'redirect.html';
-      else if (/\/[^/]+\.[a-z0-9]+$/i.test(url.pathname)) url.pathname = url.pathname.replace(/[^/]+$/, 'redirect.html');
-      else url.pathname += '/redirect.html';
-    }
-    url.search = '';
-    url.hash = '';
-    return url.href;
-  } catch {
-    return getMicrosoftRedirectUri();
-  }
 }
 
 function loadMicrosoftConfig() {
@@ -522,7 +499,7 @@ function loadMicrosoftConfig() {
   return {
     clientId: saved.clientId || deployed.clientId || '',
     authority: saved.authority || deployed.authority || 'https://login.microsoftonline.com/common',
-    redirectUri: normaliseMicrosoftRedirectUri(saved.redirectUri || deployed.redirectUri || getMicrosoftRedirectUri())
+    redirectUri: saved.redirectUri || deployed.redirectUri || getCurrentRedirectUri()
   };
 }
 
@@ -565,60 +542,154 @@ function getNZDateKey(date = new Date()) {
 
 function parseDateKey(key) {
   const [y, m, d] = key.split('-').map(Number);
-  return new Date(y, m - 1, d, 12, 0, 0);
+  return new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
 }
 
 function formatDateKey(key, options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) {
-  return new Intl.DateTimeFormat('en-NZ', options).format(parseDateKey(key));
+  return new Intl.DateTimeFormat('en-NZ', { ...options, timeZone: 'UTC' }).format(parseDateKey(key));
 }
 
 function getDayName(key = getNZDateKey()) {
-  return new Intl.DateTimeFormat('en-NZ', { weekday: 'long' }).format(parseDateKey(key));
+  return new Intl.DateTimeFormat('en-NZ', { weekday: 'long', timeZone: 'UTC' }).format(parseDateKey(key));
 }
 
 function addDays(key, count) {
   const date = parseDateKey(key);
-  date.setDate(date.getDate() + count);
-  return getNZDateKey(date);
+  date.setUTCDate(date.getUTCDate() + Number(count));
+  return date.toISOString().slice(0, 10);
 }
 
 function getWeekStart(key = getNZDateKey()) {
   const date = parseDateKey(key);
-  const day = date.getDay();
+  const day = date.getUTCDay();
   const diff = day === 0 ? -6 : 1 - day;
-  date.setDate(date.getDate() + diff);
-  return getNZDateKey(date);
+  date.setUTCDate(date.getUTCDate() + diff);
+  return date.toISOString().slice(0, 10);
 }
 
-function getDailyRecord(key = getNZDateKey(), { create = true } = {}) {
+function getBasePlanForDate(key, mode = state.settings.programmeMode) {
+  const safeMode = DAY_PLANS[mode] ? mode : state.settings.programmeMode;
+  return DAY_PLANS[safeMode]?.[getDayName(key)] || null;
+}
+
+function getBaseTaskAssignment(sourceDate, mode = state.settings.programmeMode) {
+  const safeMode = DAY_PLANS[mode] ? mode : state.settings.programmeMode;
+  const plan = getBasePlanForDate(sourceDate, safeMode);
+  return plan ? { sourceDate, planMode: safeMode, plan, task: plan.tasks[0] } : null;
+}
+
+function taskSubKey(taskId, index) { return `${taskId}::${index}`; }
+
+function taskChecklistCompletion(record, task) {
+  if (!record || !task?.items?.length) return 0;
+  const checks = record.checks || {};
+  const done = task.items.filter((_, index) => checks[taskSubKey(task.id, index)]).length;
+  return Math.round(done / task.items.length * 100);
+}
+
+function recordAdvancesQueue(record, task) {
+  if (task?.type === 'recovery') return true;
+  if (!record) return false;
+  if (['completed', 'completed-hard', 'skipped'].includes(record.result)) return true;
+  return taskChecklistCompletion(record, task) === 100;
+}
+
+function getTaskAssignmentForDate(key) {
+  const programmeStart = state.settings.programmeStartDate || PROGRAMME_START_DATE;
+  if (key < programmeStart) return null;
+
+  const rolloverEnabled = state.settings.rolloverEnabled !== false;
+  const rolloverStart = [programmeStart, state.settings.rolloverStartDate || programmeStart].sort().at(-1);
+  if (!rolloverEnabled || key < rolloverStart) {
+    const saved = state.daily[key];
+    return getBaseTaskAssignment(saved?.taskSourceDate || key, saved?.taskPlanMode || saved?.planMode || state.settings.programmeMode);
+  }
+
+  const todayKey = getNZDateKey();
+  let sourceCursor = rolloverStart;
+  let sourceModeCursor = state.daily[rolloverStart]?.taskPlanMode || state.daily[rolloverStart]?.planMode || state.settings.programmeMode;
+  let actualDate = rolloverStart;
+  let assignment = null;
+
+  while (actualDate <= key) {
+    const savedRecord = state.daily[actualDate];
+    if (savedRecord?.taskSourceDate) {
+      sourceCursor = savedRecord.taskSourceDate;
+      sourceModeCursor = savedRecord.taskPlanMode || savedRecord.planMode || sourceModeCursor;
+    }
+
+    // A recovery slot still occupies its own original day, but it never blocks a later carried task.
+    while (sourceCursor < actualDate) {
+      const pending = getBaseTaskAssignment(sourceCursor, sourceModeCursor);
+      if (pending?.task?.type !== 'recovery') break;
+      sourceCursor = addDays(sourceCursor, 1);
+      sourceModeCursor = state.settings.programmeMode;
+    }
+
+    const planMode = savedRecord?.taskPlanMode || savedRecord?.planMode || sourceModeCursor;
+    assignment = getBaseTaskAssignment(sourceCursor, planMode);
+    if (!assignment) return null;
+    assignment.actualDate = actualDate;
+    assignment.carriedOver = assignment.sourceDate < actualDate;
+    assignment.delayDays = Math.max(0, daysBetween(actualDate, assignment.sourceDate));
+
+    if (actualDate === key) return assignment;
+    const advances = recordAdvancesQueue(savedRecord, assignment.task) || (!savedRecord && actualDate >= todayKey);
+    if (advances) {
+      sourceCursor = addDays(assignment.sourceDate, 1);
+      sourceModeCursor = state.settings.programmeMode;
+    } else {
+      sourceCursor = assignment.sourceDate;
+      sourceModeCursor = assignment.planMode;
+    }
+    actualDate = addDays(actualDate, 1);
+  }
+  return assignment;
+}
+
+function getDailyRecord(key = getNZDateKey(), { create = true, assignment = null } = {}) {
   if (state.daily[key]) return state.daily[key];
-  const record = { checks: {}, notes: '', energy: 3, result: 'not-set', planMode: state.settings.programmeMode };
+  const resolved = assignment || getTaskAssignmentForDate(key) || getBaseTaskAssignment(key, state.settings.programmeMode);
+  const record = {
+    checks: {},
+    notes: '',
+    energy: 3,
+    result: 'not-set',
+    planMode: resolved?.planMode || state.settings.programmeMode,
+    taskPlanMode: resolved?.planMode || state.settings.programmeMode,
+    taskSourceDate: resolved?.sourceDate || key
+  };
   if (create) state.daily[key] = record;
   return record;
 }
 
 function getPlanModeForDate(key) {
-  const savedMode = state.daily[key]?.planMode;
-  return DAY_PLANS[savedMode] ? savedMode : state.settings.programmeMode;
+  const assignment = getTaskAssignmentForDate(key);
+  return assignment?.planMode || state.settings.programmeMode;
 }
 
 function getPlanForDate(key) {
-  return DAY_PLANS[getPlanModeForDate(key)]?.[getDayName(key)] || null;
+  return getTaskAssignmentForDate(key)?.plan || null;
 }
 
-function taskSubKey(taskId, index) { return `${taskId}::${index}`; }
-
 function dayCompletion(key) {
-  const startDate = state.settings.programmeStartDate || PROGRAMME_START_DATE;
-  if (key < startDate) return 0;
-  const plan = getPlanForDate(key);
+  const assignment = getTaskAssignmentForDate(key);
   const record = state.daily[key];
-  if (!plan || !record) return 0;
-  const total = plan.tasks.reduce((sum, task) => sum + task.items.length, 0);
-  if (!total) return 0;
-  const checks = record.checks || {};
-  const done = plan.tasks.reduce((sum, task) => sum + task.items.filter((_, i) => checks[taskSubKey(task.id, i)]).length, 0);
-  return Math.round(done / total * 100);
+  if (!assignment || !record || record.result === 'skipped') return 0;
+  if (['completed', 'completed-hard'].includes(record.result)) return 100;
+  return taskChecklistCompletion(record, assignment.task);
+}
+
+function getDayTaskStatus(key) {
+  const assignment = getTaskAssignmentForDate(key);
+  const record = state.daily[key];
+  if (!assignment) return { label: 'No task', className: 'amber' };
+  if (record?.result === 'skipped') return { label: 'Skipped', className: 'amber' };
+  const completion = dayCompletion(key);
+  if (completion === 100) return { label: 'Completed', className: 'green' };
+  if (record && (completion > 0 || record.result === 'partial')) return { label: `${completion}% complete`, className: 'blue' };
+  if (record?.result === 'not-completed') return { label: 'Not completed', className: 'red' };
+  return { label: 'Not started', className: 'blue' };
 }
 
 function currentAZPath() {
@@ -908,8 +979,9 @@ function renderToday() {
   const isToday = key === todayKey;
   const day = getDayName(key);
   const startDate = state.settings.programmeStartDate || PROGRAMME_START_DATE;
-  const planMode = getPlanModeForDate(key);
-  const plan = getPlanForDate(key);
+  const assignment = getTaskAssignmentForDate(key);
+  const planMode = assignment?.planMode || state.settings.programmeMode;
+  const actualDayPlan = getBasePlanForDate(key, planMode) || assignment?.plan;
   const az = currentAZPath();
   const kata = currentKata();
   const modeLabel = planMode === 'minimum' ? 'Minimum programme' : 'Normal programme';
@@ -926,9 +998,10 @@ function renderToday() {
     </div>`;
 
   if (key < startDate) {
-    const startPlan = getPlanForDate(startDate) || DAY_PLANS[state.settings.programmeMode][getDayName(startDate)];
+    const startAssignment = getTaskAssignmentForDate(startDate) || getBaseTaskAssignment(startDate, state.settings.programmeMode);
+    const startPlan = startAssignment.plan;
     const daysToStart = Math.max(0, Math.ceil((parseDateKey(startDate) - parseDateKey(key)) / 86400000));
-    const previewTask = startPlan.tasks[0];
+    const previewTask = startAssignment.task;
     document.getElementById('view-today').innerHTML = `
       ${dateNavigation}
       <div class="hero">
@@ -951,32 +1024,41 @@ function renderToday() {
     return;
   }
 
-  const record = getDailyRecord(key, { create: false });
+  const record = getDailyRecord(key, { create: false, assignment });
   const progress = dayCompletion(key);
-  const task = plan.tasks[0];
+  const task = assignment.task;
+  const status = getDayTaskStatus(key);
+  const rolloverNotice = assignment.carriedOver ? `
+    <article class="rollover-notice">
+      <div><span class="rollover-icon" aria-hidden="true">↪</span></div>
+      <div><strong>Task carried over from ${escapeHTML(formatDateKey(assignment.sourceDate, { weekday:'long', day:'numeric', month:'short' }))}</strong>
+      <p>This unfinished task moved forward. Complete it today, or select <strong>Skipped — move on</strong>, and the next planned task will follow on the next day.</p></div>
+    </article>` : '';
 
   document.getElementById('view-today').innerHTML = `
     ${dateNavigation}
     <div class="hero">
       <p class="eyebrow">${escapeHTML(formatDateKey(key).toUpperCase())}</p>
       <h2>${escapeHTML(day)} task</h2>
-      <p>${escapeHTML(plan.family)}</p>
+      <p>${escapeHTML(actualDayPlan.family)}</p>
       <div class="hero-meta">
         <span class="badge ${planMode === 'minimum' ? 'amber' : 'green'}">${modeLabel}${hasSavedDay ? ' · saved for this day' : ''}</span>
+        ${assignment.carriedOver ? `<span class="badge amber">Carried ${assignment.delayDays} day${assignment.delayDays === 1 ? '' : 's'}</span>` : '<span class="badge green">On schedule</span>'}
         <span class="badge blue">Current AZ-104: ${escapeHTML(az.name.replace('AZ-104: ', ''))}</span>
         <span class="badge red">Current kata: ${escapeHTML(kata.name)}</span>
       </div>
     </div>
 
+    ${rolloverNotice}
     ${renderKarateFocusSummary(key)}
 
     <div class="section-heading">
       <div><h2>${isToday ? 'Today’s single task' : 'Single task for this day'}</h2><p>Complete this one task and tick each step as evidence.</p></div>
-      <strong>${progress}%</strong>
+      <span class="badge ${status.className}">${escapeHTML(status.label)}</span>
     </div>
     <div class="progress-line" aria-label="Daily completion"><span style="width:${progress}%"></span></div>
     <div style="margin-top:16px">
-      ${renderTaskCard(task, key, record)}
+      ${renderTaskCard(task, key, record, assignment)}
     </div>
 
     <div class="grid two" style="margin-top:16px">
@@ -996,33 +1078,35 @@ function renderToday() {
           </label>
           <label>Task result
             <select data-daily-field="result" data-date="${key}">
-              ${[['not-set','Not recorded'],['not-completed','Not completed'],['partial','Partially completed'],['completed-hard','Completed with difficulty'],['completed','Completed']].map(([v,l]) => `<option value="${v}" ${record.result === v ? 'selected' : ''}>${l}</option>`).join('')}
+              ${[['not-set','Not recorded'],['not-completed','Not completed — carry over'],['partial','Partially completed — carry over'],['completed-hard','Completed with difficulty'],['completed','Completed'],['skipped','Skipped — move on']].map(([v,l]) => `<option value="${v}" ${record.result === v ? 'selected' : ''}>${l}</option>`).join('')}
             </select>
           </label>
         </div>
+        <div class="inline-note rollover-help" style="margin-top:13px">An unfinished or partial task remains at the front of the queue. Completed and skipped tasks allow the next task to move forward.</div>
         <div class="form-actions">
           <button class="secondary-btn" data-action="open-timer">Open focus timer</button>
-          <button class="ghost-btn" data-action="toggle-day-mode">Use ${planMode === 'normal' ? 'minimum' : 'normal'} programme for this day</button>
+          <button class="ghost-btn" data-action="toggle-day-mode">Use ${planMode === 'normal' ? 'minimum' : 'normal'} programme for this task</button>
         </div>
       </article>
     </div>`;
 }
 
-function renderTaskCard(task, key, record) {
+function renderTaskCard(task, key, record, assignment) {
   const done = task.items.filter((_, i) => record.checks[taskSubKey(task.id, i)]).length;
   const percent = Math.round(done / task.items.length * 100);
   return `<article class="card task-card">
     <div class="task-top">
-      <div><span class="task-category">${escapeHTML(task.type === 'combined' ? 'Azure + Karate' : task.type)}</span><h3>${escapeHTML(task.title)}</h3></div>
-      <span class="badge ${task.type === 'azure' ? 'blue' : task.type === 'kata' || task.type === 'dan' ? 'red' : task.type === 'recovery' ? 'green' : 'amber'}">${done}/${task.items.length}</span>
+      <div><span class="task-category">${escapeHTML(task.type === 'combined' ? 'Azure + Karate' : task.type)}</span><h3>${escapeHTML(task.title)}</h3>${assignment.carriedOver ? `<p class="task-origin">Originally planned for ${escapeHTML(formatDateKey(assignment.sourceDate, { weekday:'long', day:'numeric', month:'long' }))}</p>` : ''}</div>
+      <div class="task-badges">${assignment.carriedOver ? '<span class="badge amber">Rollover</span>' : ''}<span class="badge ${task.type === 'azure' ? 'blue' : task.type === 'kata' || task.type === 'dan' ? 'red' : task.type === 'recovery' ? 'green' : 'amber'}">${done}/${task.items.length}</span></div>
     </div>
     <div class="checklist">
       ${task.items.map((item, i) => {
         const keyName = taskSubKey(task.id, i);
         const checked = !!record.checks[keyName];
+        const inputId = `check-${key.replaceAll('-', '')}-${task.id}-${i}`;
         return `<div class="check-row ${checked ? 'checked' : ''}">
-          <input id="check-${task.id}-${i}" type="checkbox" data-daily-check="${escapeHTML(keyName)}" data-date="${key}" ${checked ? 'checked' : ''}>
-          <label for="check-${task.id}-${i}">${escapeHTML(item)}</label>
+          <input id="${inputId}" type="checkbox" data-daily-check="${escapeHTML(keyName)}" data-date="${key}" ${checked ? 'checked' : ''}>
+          <label for="${inputId}">${escapeHTML(item)}</label>
         </div>`;
       }).join('')}
     </div>
@@ -1035,6 +1119,7 @@ function renderWeek() {
   const start = getWeekStart(selectedDateKey);
   const today = getNZDateKey();
   const programmeStart = state.settings.programmeStartDate || PROGRAMME_START_DATE;
+  const rolloverStart = state.settings.rolloverStartDate || programmeStart;
   const days = Array.from({ length: 7 }, (_, i) => addDays(start, i));
   document.getElementById('view-week').innerHTML = `
     <div class="date-navigation" aria-label="Weekly plan navigation">
@@ -1045,27 +1130,43 @@ function renderWeek() {
     <div class="hero">
       <p class="eyebrow">WEEK OF ${escapeHTML(formatDateKey(start, { day:'numeric', month:'long', year:'numeric' }).toUpperCase())}</p>
       <h2>${state.settings.programmeMode === 'normal' ? 'Standard task programme' : 'Reduced minimum programme'}</h2>
-      <p>Each day contains one flexible task. The selected default is used for new days, while days with saved activity retain their original programme mode.</p>
-      <div class="hero-meta"><span class="badge green">Programme starts ${escapeHTML(formatDateKey(programmeStart, { day:'numeric', month:'long', year:'numeric' }))}</span><button class="secondary-btn" data-action="toggle-mode">Use ${state.settings.programmeMode === 'normal' ? 'minimum' : 'normal'} programme by default</button></div>
+      <p>Each day contains one flexible task. When automatic rollover is active, an unfinished task moves to the next day and every following task shifts forward in order.</p>
+      <div class="hero-meta">
+        <span class="badge green">Programme starts ${escapeHTML(formatDateKey(programmeStart, { day:'numeric', month:'long', year:'numeric' }))}</span>
+        <span class="badge ${state.settings.rolloverEnabled === false ? 'amber' : 'blue'}">Rollover ${state.settings.rolloverEnabled === false ? 'off' : `active from ${escapeHTML(formatDateKey(rolloverStart, { day:'numeric', month:'short' }))}`}</span>
+        <button class="secondary-btn" data-action="toggle-mode">Use ${state.settings.programmeMode === 'normal' ? 'minimum' : 'normal'} programme by default</button>
+      </div>
     </div>
-    <div class="section-heading"><div><h2>Monday to Sunday</h2><p>Open any day to record or review its single task.</p></div></div>
+    <div class="section-heading"><div><h2>Monday to Sunday</h2><p>Carried tasks are marked clearly. Future days are projected on the assumption that each task is completed when shown.</p></div></div>
     <div class="week-grid">
       ${days.map(key => {
         const day = getDayName(key);
-        const mode = getPlanModeForDate(key);
-        const plan = getPlanForDate(key);
-        const task = plan.tasks[0];
         const beforeStart = key < programmeStart;
-        const completion = dayCompletion(key);
+        if (beforeStart) {
+          const context = getBasePlanForDate(key, state.settings.programmeMode);
+          return `<article class="card day-card before-start">
+            <h3>${day}<span class="day-date">${formatDateKey(key, { day:'numeric', month:'short' })}</span></h3>
+            <span class="badge amber">Before programme start</span>
+            <div class="day-block"><strong>Daily context</strong><p>${escapeHTML(context?.family || 'No programme task yet.')}</p></div>
+            <div class="day-block"><strong>No task required</strong><p>The programme begins on ${escapeHTML(formatDateKey(programmeStart, { weekday:'long', day:'numeric', month:'long', year:'numeric' }))}.</p></div>
+            <div class="form-actions"><button class="ghost-btn" data-action="open-day" data-date="${key}">Open day</button></div>
+          </article>`;
+        }
+        const assignment = getTaskAssignmentForDate(key);
+        const mode = assignment.planMode;
+        const task = assignment.task;
+        const context = getBasePlanForDate(key, mode) || assignment.plan;
+        const status = getDayTaskStatus(key);
         const focus = getAdaptiveFocus(task.type, key)[0];
-        return `<article class="card day-card ${key === today ? 'today' : ''} ${beforeStart ? 'before-start' : ''}">
+        return `<article class="card day-card ${key === today ? 'today' : ''} ${assignment.carriedOver ? 'carried-day' : ''}">
           <h3>${day}<span class="day-date">${formatDateKey(key, { day:'numeric', month:'short' })}</span></h3>
-          ${beforeStart ? '<span class="badge amber">Before programme start</span>' : `<span class="badge ${completion === 100 ? 'green' : 'blue'}">${completion}% complete</span> <span class="badge ${mode === 'minimum' ? 'amber' : 'green'}">${mode === 'minimum' ? 'Minimum' : 'Normal'}</span>`}
-          <div class="day-block"><strong>Daily context</strong><p>${escapeHTML(plan.family)}</p></div>
-          ${beforeStart ? `<div class="day-block"><strong>No task required</strong><p>The programme begins on ${escapeHTML(formatDateKey(programmeStart, { weekday:'long', day:'numeric', month:'long', year:'numeric' }))}.</p></div>` : `
-            <div class="day-block"><strong>${escapeHTML(task.title)}</strong><p>${escapeHTML(task.items.join(' · '))}</p></div>
-            ${focus ? `<div class="day-block adaptive-preview"><strong>Recommended focus</strong><p>${escapeHTML(focus.kind)}: ${escapeHTML(focus.title)} — ${escapeHTML(focus.reason)}</p></div>` : ''}
-          `}
+          <span class="badge ${status.className}">${escapeHTML(status.label)}</span>
+          <span class="badge ${mode === 'minimum' ? 'amber' : 'green'}">${mode === 'minimum' ? 'Minimum' : 'Normal'}</span>
+          ${assignment.carriedOver ? `<span class="badge amber">From ${escapeHTML(formatDateKey(assignment.sourceDate, { weekday:'short', day:'numeric', month:'short' }))}</span>` : ''}
+          <div class="day-block"><strong>Daily context</strong><p>${escapeHTML(context.family)}</p></div>
+          <div class="day-block"><strong>${escapeHTML(task.title)}</strong><p>${escapeHTML(task.items.join(' · '))}</p></div>
+          ${assignment.carriedOver ? `<div class="day-block rollover-preview"><strong>Automatic rollover</strong><p>This task was originally scheduled for ${escapeHTML(formatDateKey(assignment.sourceDate, { weekday:'long', day:'numeric', month:'long' }))}.</p></div>` : ''}
+          ${focus ? `<div class="day-block adaptive-preview"><strong>Recommended focus</strong><p>${escapeHTML(focus.kind)}: ${escapeHTML(focus.title)} — ${escapeHTML(focus.reason)}</p></div>` : ''}
           <div class="form-actions"><button class="ghost-btn" data-action="open-day" data-date="${key}">${key === today ? 'Open today' : 'Open day'}</button></div>
         </article>`;
       }).join('')}
@@ -1445,18 +1546,20 @@ function renderNotes() {
 }
 
 function renderSettings() {
-  const recommendedRedirect = getMicrosoftRedirectUri();
+  const recommendedRedirect = getCurrentRedirectUri();
   const microsoftName = microsoftAccount?.name || microsoftAccount?.username || '';
   document.getElementById('view-settings').innerHTML = `
     <div class="grid two">
       <article class="card">
         <h2>Programme settings</h2>
         <div class="toggle-row"><div><strong>Minimum-week mode</strong><div class="muted small">Use the reduced programme during difficult weeks.</div></div><label class="switch"><input id="mode-toggle" type="checkbox" ${state.settings.programmeMode === 'minimum' ? 'checked' : ''}><span></span></label></div>
+        <div class="toggle-row rollover-setting"><div><strong>Automatic task rollover</strong><div class="muted small">Unfinished tasks move to the next day and keep the remaining programme in order.</div></div><label class="switch"><input id="rollover-toggle" type="checkbox" ${state.settings.rolloverEnabled !== false ? 'checked' : ''}><span></span></label></div>
         <div class="form-grid" style="margin-top:13px">
           <label>Programme start date<input id="programme-start-date" type="date" value="${escapeHTML(state.settings.programmeStartDate || PROGRAMME_START_DATE)}"></label>
+          <label>Rollover begins from<input id="rollover-start-date" type="date" value="${escapeHTML(state.settings.rolloverStartDate || state.settings.programmeStartDate || PROGRAMME_START_DATE)}"></label>
           <label>Daily structure<input type="text" value="One flexible task per day" disabled></label>
         </div>
-        <div class="inline-note" style="margin-top:13px">Tasks do not have fixed start or finish times. Complete the day’s task when it fits your schedule.</div>
+        <div class="inline-note rollover-help" style="margin-top:13px">Tasks do not have fixed times. If a task is unfinished, it remains next in the queue. Selecting <strong>Skipped — move on</strong> advances the queue without counting the task as completed.</div>
         <div class="form-actions"><button class="primary-btn" data-action="save-programme-settings">Save programme settings</button></div>
         <p class="muted small" style="margin-top:12px">App version ${APP_VERSION}</p>
       </article>
@@ -1490,7 +1593,7 @@ function renderSettings() {
         <label>Application (client) ID<input id="microsoft-client-id" type="text" value="${escapeHTML(microsoftConfig.clientId || '')}" placeholder="00000000-0000-0000-0000-000000000000" autocomplete="off"></label>
         <label style="margin-top:12px">Authority<input id="microsoft-authority" type="url" value="${escapeHTML(microsoftConfig.authority || 'https://login.microsoftonline.com/common')}" placeholder="https://login.microsoftonline.com/common"></label>
         <label style="margin-top:12px">SPA redirect URI<input id="microsoft-redirect-uri" type="url" value="${escapeHTML(microsoftConfig.redirectUri || recommendedRedirect)}" placeholder="${escapeHTML(recommendedRedirect)}"></label>
-        <div class="inline-note" style="margin-top:14px">Register the exact <code>redirect.html</code> URI above as a <strong>Single-page application</strong>. Required delegated permission: <code>Files.ReadWrite.AppFolder</code>.</div>
+        <div class="inline-note" style="margin-top:14px">Register the exact redirect URI above as a <strong>Single-page application</strong>. Required delegated permission: <code>Files.ReadWrite.AppFolder</code>.</div>
         <div class="form-actions"><button class="primary-btn" data-action="save-microsoft-config">Save Microsoft configuration</button><button class="ghost-btn" data-action="clear-microsoft-config">Clear</button></div>
       </article>
       <article class="card">
@@ -1638,8 +1741,8 @@ async function ensureMicrosoftClient() {
     auth: {
       clientId: microsoftConfig.clientId,
       authority: microsoftConfig.authority || 'https://login.microsoftonline.com/common',
-      redirectUri: microsoftConfig.redirectUri || getMicrosoftRedirectUri(),
-      postLogoutRedirectUri: microsoftConfig.redirectUri || getMicrosoftRedirectUri(),
+      redirectUri: microsoftConfig.redirectUri || getCurrentRedirectUri(),
+      postLogoutRedirectUri: microsoftConfig.redirectUri || getCurrentRedirectUri(),
       navigateToLoginRequestUrl: false
     },
     cache: { cacheLocation: 'localStorage' }
@@ -1668,30 +1771,11 @@ async function initMicrosoft() {
   }
 }
 
-function setMicrosoftInteractionUI(pending) {
-  document.querySelectorAll('[data-action="sign-in-microsoft"]').forEach(button => {
-    button.disabled = pending || !microsoftConfig.clientId;
-    if (pending) button.setAttribute('aria-busy', 'true');
-    else button.removeAttribute('aria-busy');
-  });
-}
-
 async function signInMicrosoft() {
-  if (microsoftInteractionPending) {
-    toast('Microsoft sign-in is already open. Complete or close the existing sign-in window first.');
-    return;
-  }
-  microsoftInteractionPending = true;
-  setMicrosoftInteractionUI(true);
   try {
     const client = await ensureMicrosoftClient();
     updateSyncPill('syncing', 'Opening Microsoft sign-in…');
-    const result = await client.loginPopup({
-      scopes: MICROSOFT_GRAPH_SCOPES,
-      prompt: 'select_account',
-      // This is only triggered by an explicit button click and recovers stale popup state.
-      overrideInteractionInProgress: true
-    });
+    const result = await client.loginPopup({ scopes: MICROSOFT_GRAPH_SCOPES, prompt: 'select_account' });
     microsoftAccount = result.account;
     if (microsoftAccount && client.setActiveAccount) client.setActiveAccount(microsoftAccount);
     setCloudProvider('onedrive');
@@ -1702,17 +1786,7 @@ async function signInMicrosoft() {
   } catch (error) {
     console.error(error);
     updateProviderStatus();
-    const code = error?.errorCode || error?.code || '';
-    if (code === 'interaction_in_progress') {
-      toast('A previous Microsoft sign-in is still active. Close any Microsoft sign-in popups, then select Sign in with Microsoft again.');
-    } else if (code === 'interaction_in_progress_cancelled') {
-      toast('The earlier Microsoft sign-in was cancelled. Select Sign in with Microsoft again.');
-    } else {
-      toast(`Microsoft sign-in failed: ${error.message}`);
-    }
-  } finally {
-    microsoftInteractionPending = false;
-    setMicrosoftInteractionUI(false);
+    toast(`Microsoft sign-in failed: ${error.message}`);
   }
 }
 
@@ -1722,7 +1796,7 @@ async function signOutMicrosoft() {
     const account = microsoftAccount;
     microsoftAccount = null;
     updateAccountUI();
-    await microsoftClient.logoutPopup({ account, postLogoutRedirectUri: microsoftConfig.redirectUri || getMicrosoftRedirectUri(), mainWindowRedirectUri: microsoftConfig.redirectUri || getMicrosoftRedirectUri() });
+    await microsoftClient.logoutPopup({ account, postLogoutRedirectUri: microsoftConfig.redirectUri || getCurrentRedirectUri(), mainWindowRedirectUri: microsoftConfig.redirectUri || getCurrentRedirectUri() });
   } catch (error) {
     console.error(error);
     toast(`Microsoft sign-out failed: ${error.message}`);
@@ -2136,8 +2210,9 @@ document.addEventListener('click', async event => {
       if (!ok) return;
     }
     record.planMode = currentMode === 'normal' ? 'minimum' : 'normal';
+    record.taskPlanMode = record.planMode;
     saveState({ render: true });
-    toast(`This day now uses the ${record.planMode} programme.`);
+    toast(`This task now uses the ${record.planMode} programme.`);
     return;
   }
   if (action === 'toggle-mode') {
@@ -2218,7 +2293,16 @@ document.addEventListener('click', async event => {
   if (action === 'delete-note') { if (await confirmAction('Delete note?', 'This note will be permanently removed.')) { state.notes=state.notes.filter(n=>n.id!==id); saveState({render:true}); } return; }
   if (action === 'export-backup') return exportBackup();
   if (action === 'choose-import') return document.getElementById('import-file').click();
-  if (action === 'save-programme-settings') { state.settings.programmeMode=document.getElementById('mode-toggle').checked?'minimum':'normal'; state.settings.programmeStartDate=document.getElementById('programme-start-date').value||PROGRAMME_START_DATE; saveState({render:true}); toast('Programme settings saved.'); return; }
+  if (action === 'save-programme-settings') {
+    state.settings.programmeMode=document.getElementById('mode-toggle').checked?'minimum':'normal';
+    state.settings.programmeStartDate=document.getElementById('programme-start-date').value||PROGRAMME_START_DATE;
+    state.settings.rolloverEnabled=document.getElementById('rollover-toggle').checked;
+    const selectedRolloverStart=document.getElementById('rollover-start-date').value||state.settings.programmeStartDate;
+    state.settings.rolloverStartDate=selectedRolloverStart < state.settings.programmeStartDate ? state.settings.programmeStartDate : selectedRolloverStart;
+    saveState({render:true});
+    toast('Programme and rollover settings saved.');
+    return;
+  }
   if (action === 'save-sync-provider') {
     const selected=document.getElementById('cloud-provider').value;
     setCloudProvider(selected);
@@ -2231,7 +2315,7 @@ document.addEventListener('click', async event => {
   if (action === 'save-microsoft-config') {
     const clientId=document.getElementById('microsoft-client-id').value.trim();
     const authority=document.getElementById('microsoft-authority').value.trim().replace(/\/$/,'')||'https://login.microsoftonline.com/common';
-    const redirectUri=normaliseMicrosoftRedirectUri(document.getElementById('microsoft-redirect-uri').value.trim()||getMicrosoftRedirectUri());
+    const redirectUri=document.getElementById('microsoft-redirect-uri').value.trim()||getCurrentRedirectUri();
     if(!clientId){ toast('Enter the Microsoft application client ID.'); return; }
     localStorage.setItem(MICROSOFT_CONFIG_KEY,JSON.stringify({clientId,authority,redirectUri}));
     toast('Microsoft configuration saved. Reloading app…'); setTimeout(()=>location.reload(),600); return;
@@ -2263,7 +2347,10 @@ document.addEventListener('change', event => {
     const record=getDailyRecord(el.dataset.date); record.checks[el.dataset.dailyCheck]=el.checked; saveState({render:true}); return;
   }
   if (el.matches('[data-daily-field]')) {
-    const record=getDailyRecord(el.dataset.date); record[el.dataset.dailyField]=el.value; saveState(); return;
+    const record=getDailyRecord(el.dataset.date);
+    record[el.dataset.dailyField]=el.value;
+    saveState({render:el.dataset.dailyField==='result'});
+    return;
   }
   if (el.matches('[data-az-status]')) { findAZ(el.dataset.azStatus).status=el.value; saveState(); return; }
   if (el.matches('[data-az-module]')) {

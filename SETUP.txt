@@ -1,24 +1,33 @@
-KARATE & AZURE PROGRESS HUB v1.7.1
+KARATE & AZURE PROGRESS HUB v1.8.0
 
 LOCAL USE
 1. Double-click run-local.bat.
 2. Open http://localhost:8080/.
 3. Local progress is saved automatically in the browser.
 
+AUTOMATIC TASK ROLLOVER
+1. Open Settings.
+2. Keep Automatic task rollover enabled.
+3. Confirm the rollover start date.
+4. An unfinished task will appear again on the next day.
+5. Use Skipped — move on only when you intentionally want to bypass a task.
+
 MICROSOFT ONEDRIVE
 1. Follow MICROSOFT-ONEDRIVE-SETUP.md.
-2. Register http://localhost:8080/redirect.html and the deployed HTTPS redirect.html URL as SPA redirect URIs.
+2. Register http://localhost:8080/ and the deployed HTTPS URL as SPA redirect URIs.
 3. Add delegated permission Files.ReadWrite.AppFolder.
 4. Enter the Entra Application client ID in Settings.
 5. Select Microsoft OneDrive and sign in.
 
 GITHUB PAGES
-Upload the complete folder to the repository root. Do not overwrite an existing js/config.js file unless explicitly intended.
+Upload the complete folder to the repository root. Do not overwrite an existing js/config.js or configured js/microsoft-config.js file unless explicitly intended.
 
 SUPABASE
 The previous Supabase configuration, authentication and user_app_state table remain supported and unchanged.
 
 VALIDATION
+- node --check app.js
+- node --check service-worker.js
 - node tests/smoke-test.cjs
 - node tests/onedrive-sync-test.cjs
 

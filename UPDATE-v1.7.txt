@@ -1,15 +1,13 @@
-KARATE & AZURE PROGRESS HUB — UPDATE v1.7.1
+KARATE & AZURE PROGRESS HUB — UPDATE v1.7.0
 
 MAIN CHANGE
-- Fixes Microsoft popup sign-in by adding the MSAL 5 redirect bridge.
-- Prevents duplicate sign-in requests and recovers stale interaction state.
-- Retains Microsoft sign-in and OneDrive application-folder synchronisation.
+- Adds Microsoft sign-in and OneDrive application-folder synchronisation.
 - Keeps Supabase authentication and data unchanged.
 - Lets the user select Local only, Microsoft OneDrive or Supabase.
 
 BEFORE MICROSOFT SIGN-IN CAN WORK
 1. Register a Microsoft Entra Single-page application.
-2. Add the exact deployed redirect bridge URL ending in /redirect.html as a SPA redirect URI.
+2. Add the exact deployed URL as a SPA redirect URI.
 3. Add delegated Microsoft Graph permission Files.ReadWrite.AppFolder.
 4. Enter the Application client ID in Settings or js/microsoft-config.js.
 

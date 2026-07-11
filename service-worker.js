@@ -1,13 +1,12 @@
-const CACHE_NAME = 'ka-progress-hub-v1.7.1';
+const CACHE_NAME = 'ka-progress-hub-v1.8.0';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './styles.css?v=1.7.1',
-  './app.js?v=1.7.1',
+  './styles.css?v=1.8.0',
+  './app.js?v=1.8.0',
   './vendor/msal-browser.min.js?v=5.17.0',
-  './vendor/msal-redirect-bridge.min.js?v=5.17.0',
-  './js/microsoft-config.js?v=1.7.1',
-  './manifest.webmanifest?v=1.7.1',
+  './js/microsoft-config.js?v=1.8.0',
+  './manifest.webmanifest?v=1.8.0',
   './icons/icon-192.png',
   './icons/icon-512.png'
 ];
@@ -54,12 +53,6 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
-
-  // The Microsoft redirect bridge must never be served from the app cache.
-  if (url.pathname.endsWith('/redirect.html')) {
-    event.respondWith(fetch(event.request, { cache: 'no-store' }));
-    return;
-  }
 
   if (event.request.mode === 'navigate' || ['script', 'style', 'manifest'].includes(event.request.destination)) {
     event.respondWith(networkFirst(event.request));

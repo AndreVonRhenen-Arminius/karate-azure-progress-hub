@@ -41,8 +41,8 @@ const context = {
   localStorage,
   document,
   navigator: { onLine: true },
-  window: { scrollTo(){}, addEventListener(){}, location: { origin:'http://localhost:8080', pathname:'/', href:'http://localhost:8080/', reload(){} } },
-  location: { origin:'http://localhost:8080', pathname:'/', href:'http://localhost:8080/', reload(){} },
+  window: { scrollTo(){}, addEventListener(){}, location: { origin:'http://localhost:8080', pathname:'/', reload(){} } },
+  location: { origin:'http://localhost:8080', pathname:'/', reload(){} },
   Notification: function(){},
   Blob,
   URL,
@@ -80,6 +80,9 @@ vm.runInContext(`globalThis.testApi = {
   dayCompletion,
   getDailyRecord,
   getPlanModeForDate,
+  getTaskAssignmentForDate,
+  recordAdvancesQueue,
+  getDayTaskStatus,
   renderToday,
   renderWeek,
   renderAzure,
@@ -99,15 +102,15 @@ vm.runInContext(`globalThis.testApi = {
   APP_VERSION,
   MICROSOFT_GRAPH_SCOPES,
   oneDriveStateUrl,
-  getMicrosoftRedirectUri,
-  normaliseMicrosoftRedirectUri,
+  getCurrentRedirectUri,
   loadCloudProvider
 };`, context);
 
 const api = context.testApi;
 const initial = api.getState();
-assert.equal(api.APP_VERSION, '1.7.1', 'application should be version 1.7.1');
-assert.equal(initial.version, 4, 'state schema should remain version 4');
+assert.equal(api.APP_VERSION, '1.8.0', 'application should be version 1.8.0');
+assert.equal(initial.version, 5, 'state schema should be version 5');
+assert.equal(initial.settings.rolloverEnabled, true, 'automatic rollover should be enabled by default');
 assert.deepEqual(Object.keys(initial.daily), [], 'rendering should not create daily records');
 
 for (const [mode, days] of Object.entries(api.DAY_PLANS)) {
@@ -137,9 +140,47 @@ const migrated=api.mergeDefaults({
     }
   }
 });
-assert.equal(migrated.version,4);
+assert.equal(migrated.version,5);
+assert.equal(migrated.settings.rolloverEnabled,true);
+assert.ok(migrated.settings.rolloverStartDate);
+assert.equal(migrated.daily['2026-07-14'].taskSourceDate,'2026-07-14','existing history should keep its original task date');
 assert.equal(migrated.daily['2026-07-14'].checks['dan-group-a-am::4'],true,'old kata checklist should migrate into the combined Tuesday task');
 assert.equal(migrated.daily['2026-07-14'].checks['dan-group-a-am::7'],true,'old log checklist should migrate into the combined Tuesday task');
+
+const rollover=api.defaultState();
+rollover.settings.programmeStartDate='2026-07-11';
+rollover.settings.rolloverStartDate='2026-07-11';
+api.setState(rollover);
+const saturday='2026-07-11';
+const sunday='2026-07-12';
+const mondayAfter='2026-07-13';
+const saturdayRecord=api.getDailyRecord(saturday);
+assert.equal(saturdayRecord.taskSourceDate,saturday);
+assert.equal(api.getTaskAssignmentForDate(sunday).sourceDate,saturday,'an unfinished Saturday task should move to Sunday');
+assert.equal(api.getTaskAssignmentForDate(mondayAfter).sourceDate,sunday,'future projection should place Sunday task on Monday after Saturday is done on Sunday');
+api.setSelectedDate(sunday);
+api.renderToday();
+assert.ok(getElement('view-today').innerHTML.includes('Task carried over from Saturday'));
+assert.ok(getElement('view-today').innerHTML.includes('Skipped — move on'));
+assert.equal(Object.keys(api.getState().daily).length,1,'viewing a carried day should not create a new daily record');
+const sundayRecord=api.getDailyRecord(sunday);
+assert.equal(sundayRecord.taskSourceDate,saturday,'the carried task should be frozen when Sunday progress is recorded');
+assert.equal(api.getTaskAssignmentForDate(mondayAfter).sourceDate,saturday,'an unfinished carried task should remain at the front of the queue');
+const carriedTask=api.getTaskAssignmentForDate(sunday).task;
+carriedTask.items.forEach((_,index)=> { sundayRecord.checks[`${carriedTask.id}::${index}`]=true; });
+assert.equal(api.getTaskAssignmentForDate(mondayAfter).sourceDate,sunday,'completing the carried Saturday task on Sunday should move the Sunday task to Monday');
+assert.equal(api.getDayTaskStatus(sunday).label,'Completed');
+rollover.settings.programmeMode='minimum';
+assert.equal(api.getTaskAssignmentForDate(sunday).planMode,'normal','a carried task should retain the programme mode it had when assigned');
+
+const skipped=api.defaultState();
+skipped.settings.programmeStartDate='2026-07-11';
+skipped.settings.rolloverStartDate='2026-07-11';
+api.setState(skipped);
+const skippedSaturday=api.getDailyRecord(saturday);
+skippedSaturday.result='skipped';
+assert.equal(api.getTaskAssignmentForDate(sunday).sourceDate,sunday,'skipping should advance the queue without recording completion');
+assert.equal(api.dayCompletion(saturday),0,'a skipped task should not count as completed progress');
 
 const fresh=api.defaultState();
 api.setState(fresh);
@@ -173,6 +214,7 @@ assert.equal(Object.keys(api.getState().daily).length,0,'viewing Today should no
 
 api.renderWeek();
 assert.ok(getElement('view-week').innerHTML.includes('one flexible task'));
+assert.ok(getElement('view-week').innerHTML.includes('automatic rollover'));
 api.renderAzure();
 assert.ok(getElement('view-azure').innerHTML.includes('Azure lab journal'));
 assert.ok(getElement('view-azure').innerHTML.includes('Active-recall questions'));
@@ -184,12 +226,13 @@ api.renderNotes();
 assert.ok(getElement('view-notes').innerHTML.includes('Weekly review'));
 api.renderSettings();
 assert.ok(getElement('view-settings').innerHTML.includes('One flexible task per day'));
+assert.ok(getElement('view-settings').innerHTML.includes('Automatic task rollover'));
+assert.ok(getElement('view-settings').innerHTML.includes('Rollover begins from'));
 assert.ok(getElement('view-settings').innerHTML.includes('Microsoft OneDrive'));
 assert.ok(getElement('view-settings').innerHTML.includes('Sign in with Microsoft'));
 assert.ok(getElement('view-settings').innerHTML.includes('Files.ReadWrite.AppFolder'));
 assert.deepEqual(Array.from(api.MICROSOFT_GRAPH_SCOPES), ['Files.ReadWrite.AppFolder']);
-assert.equal(api.getMicrosoftRedirectUri(), 'http://localhost:8080/redirect.html');
-assert.equal(api.normaliseMicrosoftRedirectUri('http://localhost:8080/'), 'http://localhost:8080/redirect.html');
+assert.equal(api.getCurrentRedirectUri(), 'http://localhost:8080/');
 assert.ok(api.oneDriveStateUrl().endsWith('/me/drive/special/approot:/karate-azure-progress-state.json:/content'));
 assert.equal(api.loadCloudProvider(), 'supabase', 'legacy installations should retain Supabase as the default provider');
 

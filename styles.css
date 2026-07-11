@@ -511,3 +511,42 @@ code { color:#b9d8ff; background:rgba(93,168,255,.09); border:1px solid rgba(93,
   .provider-selector { grid-template-columns:1fr; align-items:stretch; }
   .provider-title { align-items:center; }
 }
+
+/* v1.8 automatic daily task rollover */
+.rollover-notice {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 13px;
+  align-items: start;
+  margin-top: 16px;
+  padding: 15px 17px;
+  border: 1px solid rgba(242,184,75,.38);
+  border-radius: 15px;
+  background: linear-gradient(135deg, rgba(242,184,75,.12), rgba(226,72,72,.055));
+}
+.rollover-notice strong { color: #f7d99d; }
+.rollover-notice p { margin: 5px 0 0; color: #c9d2df; line-height: 1.48; }
+.rollover-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  color: var(--amber);
+  background: rgba(242,184,75,.12);
+  border: 1px solid rgba(242,184,75,.25);
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+.task-badges { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+.task-origin { margin: 6px 0 0; color: var(--amber); font-size: .8rem; line-height: 1.4; }
+.rollover-help { border-left-color: var(--amber); background: rgba(242,184,75,.07); }
+.rollover-preview { border-left: 3px solid var(--amber); padding-left: 10px; }
+.day-card.carried-day { border-color: rgba(242,184,75,.48); }
+.rollover-setting { margin-top: 13px; padding-top: 13px; border-top: 1px solid var(--line); }
+
+@media (max-width: 520px) {
+  .rollover-notice { grid-template-columns: 1fr; }
+  .rollover-icon { width: 31px; height: 31px; }
+  .task-badges { justify-content: flex-start; }
+}

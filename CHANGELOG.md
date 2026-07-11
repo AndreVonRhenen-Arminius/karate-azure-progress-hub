@@ -2,22 +2,31 @@
 
 All notable changes to Karate & Azure Progress Hub are recorded here.
 
-## [1.7.1] — 2026-07-11
+## [1.8.0] — 2026-07-11
 
-### Fixed
+### Added
 
-- Added the required MSAL Browser 5 redirect bridge at `redirect.html`.
-- Added the locally bundled `vendor/msal-redirect-bridge.min.js` from the pinned MSAL 5.17.0 package.
-- Changed Microsoft SPA redirect configuration from the app home page to the dedicated `redirect.html` page.
-- Prevented duplicate Microsoft popup requests while sign-in is already running.
-- Added user-triggered recovery from stale `interaction_in_progress` popup state.
-- Prevented the service worker from caching the Microsoft redirect page.
+- Automatic daily task rollover for missed, partial and not-completed tasks.
+- Ordered queue behaviour that shifts every later task forward while preserving one task per day.
+- Original planned-date labels for carried tasks on Today and Weekly Plan.
+- **Skipped — move on** result for intentionally advancing without recording completion.
+- Programme settings for enabling rollover and selecting its start date.
+- State schema version 5 task-assignment metadata and additive migration.
+- Rollover smoke tests covering Saturday-to-Sunday and Sunday-to-Monday movement.
+
+### Changed
+
+- Weekly Plan now forecasts future shifted tasks while assuming each future shown task is completed that day.
+- Daily completion and queue advancement are handled separately so skipped tasks do not inflate progress.
+- Date-key arithmetic is timezone-safe for consistent daily rollover.
+- PWA cache and asset references updated to version 1.8.0.
 
 ### Compatibility
 
-- Existing Microsoft client IDs remain valid, but the Entra app registration must add the new `redirect.html` URI.
-- Existing OneDrive, local and Supabase data remain unchanged.
-- Supabase authentication and `supabase-schema.sql` remain unchanged.
+- Upgrades from state version 4 begin rollover on the upgrade date, leaving older history unchanged.
+- Existing Supabase authentication functions and `supabase-schema.sql` remain unchanged.
+- Microsoft sign-in, OneDrive app-folder sync and cloud data format remain compatible.
+- Existing Azure, karate, kata, notes, reviews and daily progress are preserved.
 
 ## [1.7.0] — 2026-07-11
 
@@ -42,7 +51,7 @@ All notable changes to Karate & Azure Progress Hub are recorded here.
 
 ### Changed
 
-- PWA cache and asset references updated to version 1.7.1.
+- PWA cache and asset references updated to version 1.7.0.
 - Settings reorganised to show the active cloud provider and separate OneDrive and Supabase controls.
 - Network reconnect, visibility and periodic sync actions now follow the selected cloud provider.
 
