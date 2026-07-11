@@ -23,72 +23,127 @@ const AZ_STATUS_OPTIONS = [
   ['complete', 'Completed']
 ];
 
-const APP_VERSION = '1.3.1';
+const APP_VERSION = '1.6.0';
+const STATE_VERSION = 4;
 const PROGRAMME_START_DATE = '2026-07-11';
+
+const MASTERY_LEVELS = [
+  [0, 'Not started'],
+  [1, 'Introduced'],
+  [2, 'Understood'],
+  [3, 'Practised'],
+  [4, 'Applied'],
+  [5, 'Exam ready']
+];
+
+const RECALL_RESULTS = [
+  ['incorrect', 'Incorrect'],
+  ['partial', 'Partly correct'],
+  ['assisted', 'Correct with help'],
+  ['independent', 'Correct without help']
+];
+
+const KARATE_RATING_FIELDS = [
+  ['stance', 'Stance'],
+  ['balance', 'Balance'],
+  ['hips', 'Hip movement'],
+  ['path', 'Technique path'],
+  ['timing', 'Timing'],
+  ['power', 'Speed and power'],
+  ['breathing', 'Breathing'],
+  ['right', 'Right side'],
+  ['left', 'Left side']
+];
+
+const KATA_SECTION_LEVELS = [
+  [0, 'Not learned'],
+  [1, 'Learning'],
+  [2, 'Known slowly'],
+  [3, 'Without assistance'],
+  [4, 'Grading speed'],
+  [5, 'Instructor checked']
+];
+
+const KATA_SECTION_NAMES = [
+  'Opening section',
+  'First direction change',
+  'Middle sequence',
+  'Final sequence',
+  'Embusen and directions',
+  'Kiai points',
+  'Rhythm',
+  'Power and relaxation',
+  'Bunkai or explanation'
+];
 
 const DAY_PLANS = {
   normal: {
     Monday: {
-      family: 'Office day. Wake at 5:15 am, start at 5:30 am, finish by 7:00 am and leave for work at 8:00 am. Family and housework remain protected from 5:30–9:00 pm.',
+      family: 'Office day. Complete the task when the day allows. Family and housework remain protected in the evening.',
       tasks: [
-        { id: 'az-theory-am', time: '5:30–6:20 am', title: 'AZ-104 theory', type: 'azure', items: ['Complete the planned Microsoft Learn module', 'Write concise notes while learning', 'Mark difficult concepts for revision'] },
-        { id: 'az-recall-am', time: '6:30–7:00 am', title: 'Recall and app update', type: 'azure', items: ['Explain the topic without notes', 'Record one troubleshooting example', 'Update progress and prepare the next session'] }
+        { id: 'az-theory-am', title: 'AZ-104 study and recall', type: 'azure', items: ['Complete the planned Microsoft Learn module or current topic', 'Write concise notes while learning', 'Explain the main concept without notes', 'Record one practical or troubleshooting example', 'Mark difficult concepts for revision', 'Update AZ-104 mastery and review date'] }
       ]
     },
     Tuesday: {
-      family: 'Work-from-home day and dojo from 6:00–7:30 pm. Wife looks after the children during dojo.',
+      family: 'Work-from-home and dojo day. Complete the personal training task when it fits around work and family.',
       tasks: [
-        { id: 'dan-group-a-am', time: '5:30–6:15 am', title: '3rd Dan kihon — Group A', type: 'dan', items: ['Free kamae and controlled stepping', 'Punching and blocking combinations', 'Practise right and left sides', 'Record one technical issue'] },
-        { id: 'new-kata-am', time: '6:20–6:50 am', title: 'Current kata sequence', type: 'kata', items: ['Review the previous section', 'Learn one new section', 'Join the sections slowly'] },
-        { id: 'tue-log-am', time: '6:50–7:00 am', title: 'Progress update', type: 'review', items: ['Add notes and tick off the session'] }
+        { id: 'dan-group-a-am', title: '3rd Dan kihon and current kata', type: 'dan', items: ['Practise Group A kihon from free kamae', 'Work the combinations on both right and left sides', 'Focus on controlled stepping, posture and hip connection', 'Record one technical issue to correct', 'Review the previous section of the current kata', 'Learn or refine one kata section', 'Join the kata sections slowly', 'Update the karate assessment'] }
       ]
     },
     Wednesday: {
-      family: 'Office day. Wake at 5:15 am, start at 5:30 am, finish by 7:00 am and leave for work at 8:00 am. Family and housework remain protected from 5:30–9:00 pm.',
+      family: 'Office day. Complete the practical task when the day allows.',
       tasks: [
-        { id: 'az-lab-am', time: '5:30–6:40 am', title: 'AZ-104 practical lab', type: 'azure', items: ['Complete a portal or command-line exercise', 'Record what was configured and why', 'Remove unnecessary lab resources'] },
-        { id: 'az-troubleshoot-am', time: '6:40–7:00 am', title: 'Troubleshooting recall', type: 'azure', items: ['List likely failure points', 'Explain how you would verify and fix them', 'Update the app'] }
+        { id: 'az-lab-am', title: 'AZ-104 practical lab and troubleshooting', type: 'azure', items: ['Complete a portal, PowerShell, Azure CLI or Bicep exercise', 'Record what was configured and why', 'Record what failed and how it was diagnosed', 'Verify the final result', 'Remove unnecessary lab resources', 'Save the lab journal entry and update mastery'] }
       ]
     },
     Thursday: {
-      family: 'Work-from-home day and dojo from 6:00–7:30 pm. Wife looks after the children during dojo.',
+      family: 'Work-from-home and dojo day. Complete the personal training task when practical.',
       tasks: [
-        { id: 'kata-sequence-am', time: '5:30–6:15 am', title: 'Current kata sequence', type: 'kata', items: ['Review Tuesday’s section', 'Add the next section', 'Complete one full slow walkthrough'] },
-        { id: 'dan-group-b-am', time: '6:20–6:50 am', title: '3rd Dan kihon — Group B', type: 'dan', items: ['Practise kicking combinations', 'Work both right and left sides', 'Focus on balance and correct return'] },
-        { id: 'thu-log-am', time: '6:50–7:00 am', title: 'Progress update', type: 'review', items: ['Add notes and tick off the session'] }
+        { id: 'kata-sequence-am', title: 'Current kata and 3rd Dan kicking', type: 'kata', items: ['Review Tuesday’s kata section', 'Add or refine the next kata section', 'Complete one full slow walkthrough', 'Practise the 3rd Dan kicking combinations', 'Work both right and left sides', 'Focus on balance, correct return and posture', 'Update kata sections and technique ratings'] }
       ]
     },
     Friday: {
-      family: 'Office day. This is the lighter morning so recovery remains manageable before the weekend.',
+      family: 'Office day. Keep this task lighter so recovery remains manageable before the weekend.',
       tasks: [
-        { id: 'az-light-am', time: '5:30–6:15 am', title: 'Light AZ-104 revision', type: 'azure', items: ['Review notes or flashcards', 'Revisit incorrect knowledge checks', 'Prepare the next practical task'] },
-        { id: 'fri-plan-am', time: '6:15–6:30 am', title: 'Short catch-up and planning', type: 'review', items: ['Complete one small unfinished item or stop early', 'Confirm Saturday’s task'] }
+        { id: 'az-light-am', title: 'Light AZ-104 revision and planning', type: 'azure', items: ['Answer due recall questions', 'Revisit an incorrect knowledge check', 'Review notes or flashcards', 'Complete one small unfinished item if useful', 'Prepare the next practical task', 'Update the next review date'] }
       ]
     },
     Saturday: {
-      family: 'Main development morning. Start at 5:30 am before normal family and household activity.',
+      family: 'Main development day. Complete the combined task when it best fits around family and household activity.',
       tasks: [
-        { id: 'az-scenario-am', time: '5:30–6:45 am', title: 'AZ-104 focused study and lab', type: 'azure', items: ['Continue the current learning path', 'Complete a practical exercise suited to the current topic', 'Record what worked, what failed and what to repeat'] },
-        { id: 'kata-main-am', time: '6:55–7:45 am', title: 'Main kata session', type: 'kata', items: ['Review one older kata', 'Develop the current kata sequence', 'Record one full performance or memory test'] }
+        { id: 'az-scenario-am', title: 'AZ-104 practical and kata development', type: 'combined', items: ['Continue the current AZ-104 learning path', 'Complete a practical scenario and record the evidence', 'Record what worked, what failed and what to repeat', 'Review one overdue kata', 'Develop the current kata sequence', 'Record one full kata performance or memory test'] }
       ]
     },
     Sunday: {
-      family: 'Church and family day. Complete the review before the household routine and church preparation begin.',
+      family: 'Church and family day. Complete the review task when the day allows.',
       tasks: [
-        { id: 'az-weekly-am', time: '5:30–6:30 am', title: 'AZ-104 weekly review', type: 'azure', items: ['Review this week’s modules', 'Repeat important settings or commands', 'Identify one weak topic'] },
-        { id: 'kata-test-am', time: '6:40–7:25 am', title: 'Kata memory test', type: 'kata', items: ['Perform the current kata without assistance', 'Test selected older kata', 'Record any sequence gaps'] },
-        { id: 'weekly-plan-am', time: '7:25–7:40 am', title: 'Weekly review and planning', type: 'review', items: ['Complete the weekly review', 'Choose next week’s priorities'] }
+        { id: 'az-weekly-am', title: 'Weekly review and kata retention', type: 'review', items: ['Review due AZ-104 topics', 'Repeat important Azure settings or commands', 'Identify one weak Azure topic', 'Perform the current kata without assistance', 'Test the most overdue retention kata', 'Record any sequence gaps', 'Complete the weekly review', 'Confirm next week’s priorities'] }
       ]
     }
   },
   minimum: {
-    Monday: { family: 'Office day. Use one focused block only.', tasks: [{ id: 'min-az-am', time: '5:30–6:15 am', title: 'Minimum AZ-104 session', type: 'azure', items: ['Complete one focused 45-minute study block'] }] },
-    Tuesday: { family: 'Work-from-home and dojo day.', tasks: [{ id: 'min-kihon-am', time: '5:30–6:00 am', title: 'Minimum 3rd Dan kihon', type: 'dan', items: ['Practise one syllabus combination slowly on both sides'] }] },
-    Wednesday: { family: 'Office day.', tasks: [{ id: 'min-rest-wed-am', time: 'Morning', title: 'Recovery morning', type: 'recovery', items: ['No scheduled study or personal karate'] }] },
-    Thursday: { family: 'Work-from-home and dojo day.', tasks: [{ id: 'min-kata-am', time: '5:30–6:00 am', title: 'Minimum kata session', type: 'kata', items: ['Review the current kata sequence for 30 minutes'] }] },
-    Friday: { family: 'Office day.', tasks: [{ id: 'min-rest-fri-am', time: 'Morning', title: 'Recovery morning', type: 'recovery', items: ['No scheduled study or personal karate'] }] },
-    Saturday: { family: 'Short combined development morning.', tasks: [{ id: 'min-sat-az-am', time: '5:30–6:30 am', title: 'AZ-104 focused session', type: 'azure', items: ['Complete one hour of theory or lab work'] }, { id: 'min-sat-kata-am', time: '6:35–7:00 am', title: 'Kata sequence session', type: 'kata', items: ['Practise the current kata for 25 minutes'] }] },
-    Sunday: { family: 'Church and family day.', tasks: [{ id: 'min-review-am', time: '5:30–6:00 am', title: 'Weekly review', type: 'review', items: ['Record progress and plan the next week'] }] }
+    Monday: { family: 'Office day. Complete one focused task when possible.', tasks: [{ id: 'min-az-am', title: 'Minimum AZ-104 task', type: 'azure', items: ['Complete one focused study block and record the next review'] }] },
+    Tuesday: { family: 'Work-from-home and dojo day.', tasks: [{ id: 'min-kihon-am', title: 'Minimum 3rd Dan task', type: 'dan', items: ['Practise one syllabus combination slowly on both sides and rate the weak areas'] }] },
+    Wednesday: { family: 'Office day.', tasks: [{ id: 'min-rest-wed-am', title: 'Recovery task', type: 'recovery', items: ['No scheduled study or personal karate is required'] }] },
+    Thursday: { family: 'Work-from-home and dojo day.', tasks: [{ id: 'min-kata-am', title: 'Minimum kata task', type: 'kata', items: ['Review the current kata sequence and update one section'] }] },
+    Friday: { family: 'Office day.', tasks: [{ id: 'min-rest-fri-am', title: 'Recovery task', type: 'recovery', items: ['No scheduled study or personal karate is required'] }] },
+    Saturday: { family: 'Short combined development task.', tasks: [{ id: 'min-sat-az-am', title: 'Minimum Azure and kata task', type: 'combined', items: ['Complete one focused AZ-104 theory or lab item', 'Practise the current or most overdue kata'] }] },
+    Sunday: { family: 'Church and family day.', tasks: [{ id: 'min-review-am', title: 'Minimum weekly review', type: 'review', items: ['Record progress and select the next Azure and karate priorities'] }] }
+  }
+};
+
+const TASK_CHECK_MIGRATIONS = {
+  normal: {
+    Monday: [{ from: 'az-recall-am', to: 'az-theory-am', offset: 3 }],
+    Tuesday: [{ from: 'new-kata-am', to: 'dan-group-a-am', offset: 4 }, { from: 'tue-log-am', to: 'dan-group-a-am', offset: 7 }],
+    Wednesday: [{ from: 'az-troubleshoot-am', to: 'az-lab-am', offset: 3 }],
+    Thursday: [{ from: 'dan-group-b-am', to: 'kata-sequence-am', offset: 3 }, { from: 'thu-log-am', to: 'kata-sequence-am', offset: 6 }],
+    Friday: [{ from: 'fri-plan-am', to: 'az-light-am', offset: 3 }],
+    Saturday: [{ from: 'kata-main-am', to: 'az-scenario-am', offset: 3 }],
+    Sunday: [{ from: 'kata-test-am', to: 'az-weekly-am', offset: 3 }, { from: 'weekly-plan-am', to: 'az-weekly-am', offset: 6 }]
+  },
+  minimum: {
+    Saturday: [{ from: 'min-sat-kata-am', to: 'min-sat-az-am', offset: 1 }]
   }
 };
 
@@ -184,19 +239,86 @@ const DEFAULT_KATAS = [
   order: index + 1
 }));
 
+function defaultKataSections(sequenceProgress = 0) {
+  const level = Number(sequenceProgress) >= 100 ? 5 : Number(sequenceProgress) > 0 ? Math.max(1, Math.round(Number(sequenceProgress) / 20)) : 0;
+  return KATA_SECTION_NAMES.map((name, index) => ({ id: `section-${index + 1}`, name, level }));
+}
+
+function defaultRatings() {
+  return Object.fromEntries(KARATE_RATING_FIELDS.map(([key]) => [key, 1]));
+}
+
+function defaultEvidence() {
+  return { learned: false, recalled: false, practised: false, troubleshot: false, verified: false };
+}
+
 function defaultState() {
+  const today = getNZDateKey();
   return {
-    version: 2,
+    version: STATE_VERSION,
     profile: { name: 'André' },
-    settings: { programmeMode: 'normal', programmeStartDate: PROGRAMME_START_DATE, sessionStart: '05:30', preferredEnd: '07:00', timezone: 'Pacific/Auckland' },
-    azPaths: DEFAULT_AZ_PATHS.map(p => ({ ...p, status: 'not-started', confidence: 1, notes: '', modules: p.modules.map((name, i) => ({ id: `${p.id}-m${i + 1}`, name, complete: false })) })),
-    syllabus: DEFAULT_SYLLABUS.map(s => ({ ...s, status: 'not-started', confidence: 1, notes: '', lastPractised: '', rightComplete: false, leftComplete: false, practiceCount: 0, checkpoints: s.checkpoints.map((name, i) => ({ id: `${s.id}-c${i + 1}`, name, complete: false })) })),
-    katas: structuredClone(DEFAULT_KATAS),
+    settings: { programmeMode: 'normal', programmeStartDate: PROGRAMME_START_DATE, timezone: 'Pacific/Auckland' },
+    azPaths: DEFAULT_AZ_PATHS.map(p => ({
+      ...p,
+      status: 'not-started',
+      confidence: 1,
+      notes: '',
+      modules: p.modules.map((name, i) => ({
+        id: `${p.id}-m${i + 1}`,
+        name,
+        complete: false,
+        masteryLevel: 0,
+        evidence: defaultEvidence(),
+        lastStudied: '',
+        lastReviewed: '',
+        nextReview: '',
+        reviewIntervalDays: 0,
+        lastRecallResult: 'not-tested',
+        recallHistory: [],
+        customQuestions: []
+      }))
+    })),
+    syllabus: DEFAULT_SYLLABUS.map(s => ({
+      ...s,
+      status: 'not-started',
+      confidence: 1,
+      notes: '',
+      lastPractised: '',
+      rightComplete: false,
+      leftComplete: false,
+      practiceCount: 0,
+      ratings: defaultRatings(),
+      lastAssessmentResult: '',
+      checkpoints: s.checkpoints.map((name, i) => ({ id: `${s.id}-c${i + 1}`, name, complete: false }))
+    })),
+    katas: structuredClone(DEFAULT_KATAS).map(kata => ({
+      ...kata,
+      sections: defaultKataSections(kata.sequenceProgress),
+      retentionIntervalDays: kata.category === 'known' ? 14 : 7,
+      nextReview: kata.category === 'known' ? today : '',
+      lastPerformanceResult: ''
+    })),
+    azureLabs: [],
     daily: {},
     notes: [],
     weeklyReviews: [],
     updatedAt: new Date().toISOString()
   };
+}
+
+function migrateTaskChecks(record, dateKey) {
+  const mode = DAY_PLANS[record.planMode] ? record.planMode : 'normal';
+  const day = getDayName(dateKey);
+  const migrations = TASK_CHECK_MIGRATIONS[mode]?.[day] || [];
+  record.checks = record.checks && typeof record.checks === 'object' ? record.checks : {};
+  for (const migration of migrations) {
+    for (let index = 0; index < 20; index += 1) {
+      const oldKey = taskSubKey(migration.from, index);
+      if (!(oldKey in record.checks)) continue;
+      const newKey = taskSubKey(migration.to, migration.offset + index);
+      if (!(newKey in record.checks)) record.checks[newKey] = record.checks[oldKey];
+    }
+  }
 }
 
 function mergeDefaults(saved) {
@@ -208,27 +330,81 @@ function mergeDefaults(saved) {
     profile: { ...base.profile, ...(saved.profile || {}) },
     settings: { ...base.settings, ...(saved.settings || {}) }
   };
-  merged.azPaths = mergeCollection(base.azPaths, saved.azPaths, item => ({
-    ...item,
-    modules: mergeCollection(item.modules, (saved.azPaths || []).find(x => x.id === item.id)?.modules || [])
-  }));
-  merged.syllabus = mergeCollection(base.syllabus, saved.syllabus, item => ({
-    ...item,
-    checkpoints: mergeCollection(item.checkpoints, (saved.syllabus || []).find(x => x.id === item.id)?.checkpoints || [])
-  }));
-  merged.katas = mergeCollection(base.katas, saved.katas);
-  merged.daily = saved.daily && typeof saved.daily === 'object' ? saved.daily : {};
+
+  merged.azPaths = mergeCollection(base.azPaths, saved.azPaths, item => {
+    const savedPath = (saved.azPaths || []).find(x => x.id === item.id);
+    return {
+      ...item,
+      modules: mergeCollection(item.modules, savedPath?.modules || [], module => {
+        const savedModule = (savedPath?.modules || []).find(x => x.id === module.id) || {};
+        const completed = Boolean(savedModule.complete ?? module.complete);
+        return {
+          ...module,
+          ...savedModule,
+          complete: completed,
+          masteryLevel: Number(savedModule.masteryLevel ?? (completed ? 1 : module.masteryLevel ?? 0)),
+          evidence: { ...defaultEvidence(), ...(module.evidence || {}), ...(savedModule.evidence || {}), learned: Boolean(savedModule.evidence?.learned ?? completed) },
+          recallHistory: Array.isArray(savedModule.recallHistory) ? savedModule.recallHistory : [],
+          customQuestions: Array.isArray(savedModule.customQuestions) ? savedModule.customQuestions : []
+        };
+      })
+    };
+  });
+
+  merged.syllabus = mergeCollection(base.syllabus, saved.syllabus, item => {
+    const savedItem = (saved.syllabus || []).find(x => x.id === item.id) || {};
+    const ratings = { ...defaultRatings(), ...(item.ratings || {}), ...(savedItem.ratings || {}) };
+    if (savedItem.rightComplete && !savedItem.ratings?.right) ratings.right = 5;
+    if (savedItem.leftComplete && !savedItem.ratings?.left) ratings.left = 5;
+    return {
+      ...item,
+      ratings,
+      checkpoints: mergeCollection(item.checkpoints, savedItem.checkpoints || [])
+    };
+  });
+
+  merged.katas = mergeCollection(base.katas, saved.katas, item => {
+    const savedKata = (saved.katas || []).find(x => x.id === item.id) || {};
+    const progress = Number(savedKata.sequenceProgress ?? item.sequenceProgress ?? 0);
+    const defaultSections = defaultKataSections(progress);
+    return {
+      ...item,
+      sections: mergeCollection(defaultSections, savedKata.sections || []),
+      retentionIntervalDays: Number(savedKata.retentionIntervalDays || item.retentionIntervalDays || 7),
+      nextReview: savedKata.nextReview ?? item.nextReview ?? '',
+      lastPerformanceResult: savedKata.lastPerformanceResult || ''
+    };
+  });
+
+  merged.azureLabs = Array.isArray(saved.azureLabs) ? saved.azureLabs : [];
+  const savedDaily = saved.daily && typeof saved.daily === 'object' && !Array.isArray(saved.daily) ? saved.daily : {};
+  merged.daily = Object.fromEntries(Object.entries(savedDaily).map(([key, record]) => [key, {
+    checks: {},
+    notes: '',
+    energy: 3,
+    result: 'not-set',
+    planMode: merged.settings.programmeMode,
+    ...(record && typeof record === 'object' ? record : {})
+  }]));
   merged.notes = Array.isArray(saved.notes) ? saved.notes : [];
   merged.weeklyReviews = Array.isArray(saved.weeklyReviews) ? saved.weeklyReviews : [];
+  if (!DAY_PLANS[merged.settings.programmeMode]) merged.settings.programmeMode = 'normal';
 
-  // Version 2 moves the programme from late evenings to mornings and sets the
-  // agreed launch date. Existing study, kata, syllabus and note data is kept.
   if (Number(saved.version || 1) < 2) {
-    merged.version = 2;
     merged.settings.programmeStartDate = PROGRAMME_START_DATE;
-    merged.settings.sessionStart = '05:30';
-    merged.settings.preferredEnd = '07:00';
   }
+
+  if (Number(saved.version || 1) < 3) {
+    Object.values(merged.daily).forEach(record => {
+      if (record && !DAY_PLANS[record.planMode]) record.planMode = merged.settings.programmeMode;
+    });
+  }
+
+  if (Number(saved.version || 1) < 4) {
+    Object.entries(merged.daily).forEach(([dateKey, record]) => migrateTaskChecks(record, dateKey));
+  }
+
+  merged.version = STATE_VERSION;
   return merged;
 }
 
@@ -260,11 +436,13 @@ let cloudDirty = false;
 let syncDebounce = null;
 let isSyncing = false;
 let installPrompt = null;
-let inputSaveTimer = null;
+let inputSaveTimers = new Map();
+let selectedDateKey = getNZDateKey();
 let timerDuration = 45 * 60;
 let timerRemaining = timerDuration;
 let timerInterval = null;
 let timerRunning = false;
+let timerEndAt = null;
 
 const pageTitles = {
   today: ['YOUR PLAN', 'Today'],
@@ -330,9 +508,20 @@ function getWeekStart(key = getNZDateKey()) {
   return getNZDateKey(date);
 }
 
-function getDailyRecord(key = getNZDateKey()) {
-  if (!state.daily[key]) state.daily[key] = { checks: {}, notes: '', energy: 3, result: 'not-set' };
-  return state.daily[key];
+function getDailyRecord(key = getNZDateKey(), { create = true } = {}) {
+  if (state.daily[key]) return state.daily[key];
+  const record = { checks: {}, notes: '', energy: 3, result: 'not-set', planMode: state.settings.programmeMode };
+  if (create) state.daily[key] = record;
+  return record;
+}
+
+function getPlanModeForDate(key) {
+  const savedMode = state.daily[key]?.planMode;
+  return DAY_PLANS[savedMode] ? savedMode : state.settings.programmeMode;
+}
+
+function getPlanForDate(key) {
+  return DAY_PLANS[getPlanModeForDate(key)]?.[getDayName(key)] || null;
 }
 
 function taskSubKey(taskId, index) { return `${taskId}::${index}`; }
@@ -340,12 +529,13 @@ function taskSubKey(taskId, index) { return `${taskId}::${index}`; }
 function dayCompletion(key) {
   const startDate = state.settings.programmeStartDate || PROGRAMME_START_DATE;
   if (key < startDate) return 0;
-  const plan = DAY_PLANS[state.settings.programmeMode][getDayName(key)];
-  if (!plan) return 0;
+  const plan = getPlanForDate(key);
+  const record = state.daily[key];
+  if (!plan || !record) return 0;
   const total = plan.tasks.reduce((sum, task) => sum + task.items.length, 0);
   if (!total) return 0;
-  const record = getDailyRecord(key);
-  const done = plan.tasks.reduce((sum, task) => sum + task.items.filter((_, i) => record.checks[taskSubKey(task.id, i)]).length, 0);
+  const checks = record.checks || {};
+  const done = plan.tasks.reduce((sum, task) => sum + task.items.filter((_, i) => checks[taskSubKey(task.id, i)]).length, 0);
   return Math.round(done / total * 100);
 }
 
@@ -355,6 +545,237 @@ function currentAZPath() {
 
 function currentKata() {
   return state.katas.find(k => k.category === 'planned' && k.status !== 'not-started' && k.status !== 'complete') || state.katas.find(k => k.category === 'planned' && k.status === 'not-started') || state.katas[0];
+}
+
+function getAllAzureModules() {
+  return state.azPaths.flatMap(path => path.modules.map(module => ({ path, module })));
+}
+
+function findAZModule(pathId, moduleId) {
+  return findAZ(pathId)?.modules.find(module => module.id === moduleId);
+}
+
+function daysBetween(laterKey, earlierKey) {
+  if (!laterKey || !earlierKey) return 0;
+  return Math.round((parseDateKey(laterKey) - parseDateKey(earlierKey)) / 86400000);
+}
+
+function average(values) {
+  const numbers = values.map(Number).filter(Number.isFinite);
+  return numbers.length ? numbers.reduce((sum, value) => sum + value, 0) / numbers.length : 0;
+}
+
+function getNextReviewInterval(currentDays = 0, result = 'independent') {
+  if (result === 'incorrect') return 1;
+  if (result === 'partial') return 3;
+  if (result === 'assisted') return Math.max(7, Math.min(14, Number(currentDays) || 7));
+  const sequence = [1, 3, 7, 14, 30, 60];
+  return sequence.find(days => days > Number(currentDays || 0)) || 60;
+}
+
+function recordAzureReview(pathId, moduleId, result) {
+  const module = findAZModule(pathId, moduleId);
+  if (!module) return false;
+  const today = getNZDateKey();
+  const interval = getNextReviewInterval(module.reviewIntervalDays, result);
+  module.lastReviewed = today;
+  module.lastRecallResult = result;
+  module.reviewIntervalDays = interval;
+  module.nextReview = addDays(today, interval);
+  module.evidence = { ...defaultEvidence(), ...(module.evidence || {}) };
+  module.evidence.recalled = result !== 'incorrect';
+  if (result === 'independent') module.masteryLevel = Math.max(Number(module.masteryLevel || 0), 2);
+  if (result === 'assisted') module.masteryLevel = Math.max(Number(module.masteryLevel || 0), 1);
+  module.recallHistory = Array.isArray(module.recallHistory) ? module.recallHistory : [];
+  module.recallHistory.push({ date: today, result, intervalDays: interval });
+  return true;
+}
+
+function updateKataProgressFromSections(kata) {
+  const sections = Array.isArray(kata.sections) ? kata.sections : [];
+  kata.sequenceProgress = sections.length ? Math.round(average(sections.map(section => Number(section.level || 0))) / 5 * 100) : 0;
+  if (kata.sequenceProgress > 0 && kata.status === 'not-started') kata.status = 'learning';
+  if (kata.sequenceProgress >= 100 && ['not-started', 'learning', 'developing'].includes(kata.status)) kata.status = 'sequence-known';
+}
+
+function getNextKataInterval(currentDays = 0) {
+  const sequence = [3, 7, 14, 30, 60, 90];
+  return sequence.find(days => days > Number(currentDays || 0)) || 90;
+}
+
+function getAzurePriority(referenceDate = getNZDateKey()) {
+  const currentPath = currentAZPath();
+  const candidates = getAllAzureModules().map(({ path, module }) => {
+    const mastery = Number(module.masteryLevel || 0);
+    const overdueDays = module.nextReview && module.nextReview <= referenceDate ? Math.max(0, daysBetween(referenceDate, module.nextReview)) : 0;
+    let score = (5 - mastery) * 16;
+    if (!module.complete) score += 18;
+    if (path.id === currentPath?.id) score += 12;
+    if (module.nextReview && module.nextReview <= referenceDate) score += 30 + Math.min(30, overdueDays * 3);
+    if (module.lastRecallResult === 'incorrect') score += 28;
+    if (module.lastRecallResult === 'partial') score += 18;
+    if (!module.evidence?.practised) score += 10;
+    if (!module.evidence?.troubleshot) score += 6;
+    return { path, module, score, overdueDays };
+  }).sort((a, b) => b.score - a.score);
+
+  const priority = candidates[0];
+  if (!priority) return null;
+  const reasons = [];
+  if (priority.module.nextReview && priority.module.nextReview <= referenceDate) reasons.push(priority.overdueDays ? `${priority.overdueDays} day${priority.overdueDays === 1 ? '' : 's'} overdue` : 'review due today');
+  if (!priority.module.complete) reasons.push('learning content is incomplete');
+  if (Number(priority.module.masteryLevel || 0) < 3) reasons.push(`mastery is ${Number(priority.module.masteryLevel || 0)}/5`);
+  if (!priority.module.evidence?.practised) reasons.push('no practical evidence recorded');
+  if (priority.module.lastRecallResult === 'incorrect' || priority.module.lastRecallResult === 'partial') reasons.push(`last recall was ${priority.module.lastRecallResult}`);
+  return {
+    kind: 'Azure',
+    title: priority.module.name,
+    subtitle: priority.path.name.replace('AZ-104: ', ''),
+    reason: reasons.slice(0, 2).join(' · ') || 'best next topic from current progress',
+    tasks: [
+      `Explain ${priority.module.name} without notes`,
+      priority.module.evidence?.practised ? 'Repeat or extend the practical scenario' : 'Complete one portal, PowerShell, CLI or Bicep task',
+      'Record one likely failure and how to verify it',
+      'Rate recall and schedule the next review'
+    ],
+    pathId: priority.path.id,
+    moduleId: priority.module.id
+  };
+}
+
+function getDanPriority(referenceDate = getNZDateKey()) {
+  const candidates = state.syllabus.map(item => {
+    const ratings = KARATE_RATING_FIELDS.map(([key]) => Number(item.ratings?.[key] || 1));
+    const ratingAverage = average(ratings);
+    const daysSince = item.lastPractised ? Math.max(0, daysBetween(referenceDate, item.lastPractised)) : 30;
+    const incompleteChecks = item.checkpoints.filter(check => !check.complete).length;
+    const incompleteRatio = item.checkpoints.length ? incompleteChecks / item.checkpoints.length : 0;
+    return { item, ratingAverage, score: (5 - ratingAverage) * 20 + Math.min(30, daysSince) + incompleteRatio * 20 };
+  }).sort((a, b) => b.score - a.score);
+  const priority = candidates[0];
+  if (!priority) return null;
+  const weakest = KARATE_RATING_FIELDS
+    .map(([key, label]) => ({ key, label, value: Number(priority.item.ratings?.[key] || 1) }))
+    .sort((a, b) => a.value - b.value)
+    .slice(0, 2);
+  return {
+    kind: '3rd Dan',
+    title: priority.item.title,
+    subtitle: priority.item.group,
+    reason: `${weakest.map(field => `${field.label} ${field.value}/5`).join(' · ')}${priority.item.lastPractised ? ` · last practised ${formatDateKey(priority.item.lastPractised, { day:'numeric', month:'short' })}` : ' · no practice logged'}`,
+    tasks: [
+      'Perform five slow repetitions on the right',
+      'Perform five slow repetitions on the left',
+      `Concentrate on ${weakest.map(field => field.label.toLowerCase()).join(' and ')}`,
+      'Finish with three repetitions at grading speed and update the assessment'
+    ],
+    itemId: priority.item.id
+  };
+}
+
+function getKataPriority(referenceDate = getNZDateKey()) {
+  const candidates = state.katas.map(kata => {
+    const sectionAverage = average((kata.sections || []).map(section => Number(section.level || 0)));
+    const overdueDays = kata.nextReview && kata.nextReview <= referenceDate ? Math.max(0, daysBetween(referenceDate, kata.nextReview)) : 0;
+    let score = (5 - sectionAverage) * 12 + (5 - Number(kata.confidence || 1)) * 5;
+    if (kata.nextReview && kata.nextReview <= referenceDate) score += 35 + Math.min(30, overdueDays * 3);
+    if (kata.status !== 'not-started' && Number(kata.sequenceProgress || 0) < 100) score += 24;
+    if (kata.id === currentKata()?.id) score += 15;
+    return { kata, sectionAverage, score, overdueDays };
+  }).sort((a, b) => b.score - a.score);
+  const priority = candidates[0];
+  if (!priority) return null;
+  const weakSections = [...(priority.kata.sections || [])].sort((a, b) => Number(a.level || 0) - Number(b.level || 0)).slice(0, 2);
+  const reasons = [];
+  if (priority.kata.nextReview && priority.kata.nextReview <= referenceDate) reasons.push(priority.overdueDays ? `${priority.overdueDays} day${priority.overdueDays === 1 ? '' : 's'} overdue` : 'retention review due today');
+  if (Number(priority.kata.sequenceProgress || 0) < 100) reasons.push(`sequence ${Number(priority.kata.sequenceProgress || 0)}%`);
+  reasons.push(`${weakSections.map(section => section.name).join(' and ')} need attention`);
+  return {
+    kind: 'Kata',
+    title: priority.kata.name,
+    subtitle: priority.kata.status === 'not-started' ? 'Planned kata' : 'Sequence and retention',
+    reason: reasons.slice(0, 2).join(' · '),
+    tasks: [
+      `Review ${weakSections.map(section => section.name.toLowerCase()).join(' and ')}`,
+      'Complete one slow walkthrough without stopping',
+      'Perform once at grading speed or complete a memory test',
+      'Record a clean performance or mistakes found'
+    ],
+    kataId: priority.kata.id
+  };
+}
+
+function getAdaptiveFocus(taskType, referenceDate = getNZDateKey()) {
+  if (taskType === 'azure') return [getAzurePriority(referenceDate)].filter(Boolean);
+  if (taskType === 'dan') return [getDanPriority(referenceDate), getKataPriority(referenceDate)].filter(Boolean);
+  if (taskType === 'kata') return [getKataPriority(referenceDate), getDanPriority(referenceDate)].filter(Boolean);
+  if (taskType === 'combined' || taskType === 'review') return [getAzurePriority(referenceDate), getKataPriority(referenceDate)].filter(Boolean);
+  return [];
+}
+
+function renderAdaptiveFocus(taskType, referenceDate) {
+  const recommendations = getAdaptiveFocus(taskType, referenceDate);
+  if (!recommendations.length) return '';
+  return `<div class="coach-panel">
+    <div class="coach-heading"><strong>Focus guidance for this task</strong><span>This supports the single daily task; it is not an additional task.</span></div>
+    <div class="coach-grid">
+      ${recommendations.map(item => `<div class="coach-item">
+        <span class="badge ${item.kind === 'Azure' ? 'blue' : 'red'}">${escapeHTML(item.kind)}</span>
+        <h4>${escapeHTML(item.title)}</h4>
+        <p class="small muted">${escapeHTML(item.subtitle)}</p>
+        <p>${escapeHTML(item.reason)}</p>
+        <ul>${item.tasks.map(task => `<li>${escapeHTML(task)}</li>`).join('')}</ul>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderKarateFocusSummary(referenceDate = getNZDateKey()) {
+  const kata = getKataPriority(referenceDate);
+  const grading = getDanPriority(referenceDate);
+  if (!kata && !grading) return '';
+  return `<div class="focus-summary" aria-label="Current karate priorities">
+    ${kata ? `<article class="focus-summary-card kata-focus">
+      <span class="focus-kicker">Kata focus</span>
+      <h3>${escapeHTML(kata.title)}</h3>
+      <p>${escapeHTML(kata.reason)}</p>
+    </article>` : ''}
+    ${grading ? `<article class="focus-summary-card grading-focus">
+      <span class="focus-kicker">3rd Dan grading focus · ${escapeHTML(grading.subtitle)}</span>
+      <h3>${escapeHTML(grading.title)}</h3>
+      <p>${escapeHTML(grading.reason)}</p>
+    </article>` : ''}
+  </div>`;
+}
+
+function getModuleRecallQuestions(module) {
+  const defaults = [
+    `Explain ${module.name} in your own words without using notes.`,
+    `Describe one Azure configuration or administrative task involving ${module.name}.`,
+    `Name one likely failure involving ${module.name} and explain how you would verify it.`,
+    `What is the closest alternative or related Azure feature, and when would you use each?`
+  ];
+  return [...defaults, ...(Array.isArray(module.customQuestions) ? module.customQuestions : [])];
+}
+
+function masteryOptions(current) {
+  return MASTERY_LEVELS.map(([value, label]) => `<option value="${value}" ${Number(current) === value ? 'selected' : ''}>${value} — ${label}</option>`).join('');
+}
+
+function ratingOptions(current) {
+  return [1, 2, 3, 4, 5].map(value => `<option value="${value}" ${Number(current) === value ? 'selected' : ''}>${value}/5</option>`).join('');
+}
+
+function kataSectionOptions(current) {
+  return KATA_SECTION_LEVELS.map(([value, label]) => `<option value="${value}" ${Number(current) === value ? 'selected' : ''}>${value} — ${label}</option>`).join('');
+}
+
+function reviewDueText(nextReview) {
+  const today = getNZDateKey();
+  if (!nextReview) return 'No review scheduled';
+  if (nextReview < today) return `${daysBetween(today, nextReview)} day${daysBetween(today, nextReview) === 1 ? '' : 's'} overdue`;
+  if (nextReview === today) return 'Due today';
+  return `Due ${formatDateKey(nextReview, { day:'numeric', month:'short' })}`;
 }
 
 function statusLabel(status, options = STATUS_OPTIONS) {
@@ -400,92 +821,106 @@ function renderCurrentView() {
 }
 
 function renderToday() {
-  const key = getNZDateKey();
+  const key = selectedDateKey;
+  const todayKey = getNZDateKey();
+  const isToday = key === todayKey;
   const day = getDayName(key);
   const startDate = state.settings.programmeStartDate || PROGRAMME_START_DATE;
-  const plan = DAY_PLANS[state.settings.programmeMode][day];
+  const planMode = getPlanModeForDate(key);
+  const plan = getPlanForDate(key);
   const az = currentAZPath();
   const kata = currentKata();
-  const modeLabel = state.settings.programmeMode === 'minimum' ? 'Minimum programme' : 'Normal programme';
+  const modeLabel = planMode === 'minimum' ? 'Minimum programme' : 'Normal programme';
+  const hasSavedDay = !!state.daily[key];
+
+  document.getElementById('page-eyebrow').textContent = isToday ? 'YOUR PLAN' : 'DAILY PLAN';
+  document.getElementById('page-title').textContent = isToday ? 'Today' : formatDateKey(key, { weekday:'long', day:'numeric', month:'short' });
+
+  const dateNavigation = `
+    <div class="date-navigation" aria-label="Daily plan navigation">
+      <button class="secondary-btn" data-action="previous-day" aria-label="Open previous day">← Previous</button>
+      <button class="ghost-btn" data-action="go-today" ${isToday ? 'disabled' : ''}>Today</button>
+      <button class="secondary-btn" data-action="next-day" aria-label="Open next day">Next →</button>
+    </div>`;
 
   if (key < startDate) {
-    const startDay = getDayName(startDate);
-    const startPlan = DAY_PLANS[state.settings.programmeMode][startDay];
+    const startPlan = getPlanForDate(startDate) || DAY_PLANS[state.settings.programmeMode][getDayName(startDate)];
     const daysToStart = Math.max(0, Math.ceil((parseDateKey(startDate) - parseDateKey(key)) / 86400000));
+    const previewTask = startPlan.tasks[0];
     document.getElementById('view-today').innerHTML = `
+      ${dateNavigation}
       <div class="hero">
         <p class="eyebrow">PROGRAMME STARTS ${escapeHTML(formatDateKey(startDate).toUpperCase())}</p>
-        <h2>Morning programme begins in ${daysToStart} day${daysToStart === 1 ? '' : 's'}</h2>
-        <p>Your first session starts at <strong>${escapeHTML(state.settings.sessionStart || '05:30')} am</strong>. Until then, use this time to prepare your study area, karate space and sleep routine.</p>
+        <h2>${escapeHTML(formatDateKey(key, { weekday:'long', day:'numeric', month:'long' }))}</h2>
+        <p>The task programme begins in ${daysToStart} day${daysToStart === 1 ? '' : 's'}. Each day has one flexible task that can be completed when the day allows.</p>
         <div class="hero-meta">
           <span class="badge green">Start: ${escapeHTML(formatDateKey(startDate, { weekday:'long', day:'numeric', month:'long', year:'numeric' }))}</span>
-          <span class="badge blue">Morning start: ${escapeHTML(state.settings.sessionStart || '05:30')} am</span>
+          <span class="badge blue">Current AZ-104: ${escapeHTML(az.name.replace('AZ-104: ', ''))}</span>
           <span class="badge red">Current kata: ${escapeHTML(kata.name)}</span>
         </div>
       </div>
-      <div class="section-heading"><div><h2>First morning preview</h2><p>${escapeHTML(startPlan.family)}</p></div></div>
-      <div class="grid two">
-        ${startPlan.tasks.map(task => `<article class="card task-card"><div class="task-top"><div><span class="task-time">${escapeHTML(task.time)}</span><h3>${escapeHTML(task.title)}</h3></div><span class="badge amber">Preview</span></div><div class="checklist">${task.items.map(item => `<div class="check-row"><span>○</span><label>${escapeHTML(item)}</label></div>`).join('')}</div></article>`).join('')}
-      </div>
-      <article class="card flat" style="margin-top:16px">
-        <h2>Preparation before the start date</h2>
-        <div class="checklist">
-          <div class="check-row"><span>○</span><label>Aim to be in bed by about 9:45–10:00 pm.</label></div>
-          <div class="check-row"><span>○</span><label>Set out clothing and prepare the laptop the night before.</label></div>
-          <div class="check-row"><span>○</span><label>Choose a quiet karate practice area and keep the first sessions controlled.</label></div>
-        </div>
+      ${renderKarateFocusSummary(startDate)}
+      <div class="section-heading"><div><h2>First task preview</h2><p>${escapeHTML(startPlan.family)}</p></div></div>
+      <article class="card task-card">
+        <div class="task-top"><div><span class="task-category">${escapeHTML(previewTask.type)}</span><h3>${escapeHTML(previewTask.title)}</h3></div><span class="badge amber">Preview</span></div>
+        <div class="checklist">${previewTask.items.map(item => `<div class="check-row"><span>○</span><label>${escapeHTML(item)}</label></div>`).join('')}</div>
+        ${renderAdaptiveFocus(previewTask.type, startDate)}
       </article>`;
     return;
   }
 
-  const record = getDailyRecord(key);
+  const record = getDailyRecord(key, { create: false });
   const progress = dayCompletion(key);
+  const task = plan.tasks[0];
 
   document.getElementById('view-today').innerHTML = `
+    ${dateNavigation}
     <div class="hero">
       <p class="eyebrow">${escapeHTML(formatDateKey(key).toUpperCase())}</p>
-      <h2>${escapeHTML(day)} morning plan</h2>
+      <h2>${escapeHTML(day)} task</h2>
       <p>${escapeHTML(plan.family)}</p>
       <div class="hero-meta">
-        <span class="badge ${state.settings.programmeMode === 'minimum' ? 'amber' : 'green'}">${modeLabel}</span>
+        <span class="badge ${planMode === 'minimum' ? 'amber' : 'green'}">${modeLabel}${hasSavedDay ? ' · saved for this day' : ''}</span>
         <span class="badge blue">Current AZ-104: ${escapeHTML(az.name.replace('AZ-104: ', ''))}</span>
         <span class="badge red">Current kata: ${escapeHTML(kata.name)}</span>
       </div>
     </div>
 
+    ${renderKarateFocusSummary(key)}
+
     <div class="section-heading">
-      <div><h2>This morning’s sessions</h2><p>Tick each step as you complete it.</p></div>
+      <div><h2>${isToday ? 'Today’s single task' : 'Single task for this day'}</h2><p>Complete this one task and tick each step as evidence.</p></div>
       <strong>${progress}%</strong>
     </div>
     <div class="progress-line" aria-label="Daily completion"><span style="width:${progress}%"></span></div>
-    <div class="grid two" style="margin-top:16px">
-      ${plan.tasks.map(task => renderTaskCard(task, key, record)).join('')}
+    <div style="margin-top:16px">
+      ${renderTaskCard(task, key, record)}
     </div>
 
     <div class="grid two" style="margin-top:16px">
       <article class="card flat">
         <h2>Session notes</h2>
         <label>What did you learn, notice or struggle with?
-          <textarea data-daily-field="notes" data-date="${key}" placeholder="Add notes for this morning...">${escapeHTML(record.notes)}</textarea>
+          <textarea data-daily-field="notes" data-date="${key}" placeholder="Add notes for this task...">${escapeHTML(record.notes)}</textarea>
         </label>
       </article>
       <article class="card flat">
-        <h2>End-of-session check</h2>
+        <h2>End-of-task check</h2>
         <div class="form-grid">
           <label>Energy and recovery
             <select data-daily-field="energy" data-date="${key}">
               ${[1,2,3,4,5].map(n => `<option value="${n}" ${Number(record.energy) === n ? 'selected' : ''}>${n}/5</option>`).join('')}
             </select>
           </label>
-          <label>Session result
+          <label>Task result
             <select data-daily-field="result" data-date="${key}">
               ${[['not-set','Not recorded'],['not-completed','Not completed'],['partial','Partially completed'],['completed-hard','Completed with difficulty'],['completed','Completed']].map(([v,l]) => `<option value="${v}" ${record.result === v ? 'selected' : ''}>${l}</option>`).join('')}
             </select>
           </label>
         </div>
         <div class="form-actions">
-          <button class="secondary-btn" data-action="open-timer">Open session timer</button>
-          <button class="ghost-btn" data-action="toggle-mode">Switch to ${state.settings.programmeMode === 'normal' ? 'minimum' : 'normal'} week</button>
+          <button class="secondary-btn" data-action="open-timer">Open focus timer</button>
+          <button class="ghost-btn" data-action="toggle-day-mode">Use ${planMode === 'normal' ? 'minimum' : 'normal'} programme for this day</button>
         </div>
       </article>
     </div>`;
@@ -496,7 +931,7 @@ function renderTaskCard(task, key, record) {
   const percent = Math.round(done / task.items.length * 100);
   return `<article class="card task-card">
     <div class="task-top">
-      <div><span class="task-time">${escapeHTML(task.time)}</span><h3>${escapeHTML(task.title)}</h3></div>
+      <div><span class="task-category">${escapeHTML(task.type === 'combined' ? 'Azure + Karate' : task.type)}</span><h3>${escapeHTML(task.title)}</h3></div>
       <span class="badge ${task.type === 'azure' ? 'blue' : task.type === 'kata' || task.type === 'dan' ? 'red' : task.type === 'recovery' ? 'green' : 'amber'}">${done}/${task.items.length}</span>
     </div>
     <div class="checklist">
@@ -510,132 +945,277 @@ function renderTaskCard(task, key, record) {
       }).join('')}
     </div>
     <div class="progress-line"><span style="width:${percent}%"></span></div>
+    ${renderAdaptiveFocus(task.type, key)}
   </article>`;
 }
 
 function renderWeek() {
-  const start = getWeekStart();
+  const start = getWeekStart(selectedDateKey);
   const today = getNZDateKey();
   const programmeStart = state.settings.programmeStartDate || PROGRAMME_START_DATE;
-  const planSet = DAY_PLANS[state.settings.programmeMode];
   const days = Array.from({ length: 7 }, (_, i) => addDays(start, i));
   document.getElementById('view-week').innerHTML = `
+    <div class="date-navigation" aria-label="Weekly plan navigation">
+      <button class="secondary-btn" data-action="previous-week" aria-label="Open previous week">← Previous week</button>
+      <button class="ghost-btn" data-action="current-week" ${start === getWeekStart(today) ? 'disabled' : ''}>Current week</button>
+      <button class="secondary-btn" data-action="next-week" aria-label="Open next week">Next week →</button>
+    </div>
     <div class="hero">
       <p class="eyebrow">WEEK OF ${escapeHTML(formatDateKey(start, { day:'numeric', month:'long', year:'numeric' }).toUpperCase())}</p>
-      <h2>${state.settings.programmeMode === 'normal' ? 'Standard morning programme' : 'Reduced minimum programme'}</h2>
-      <p>Morning sessions start at ${escapeHTML(state.settings.sessionStart || '05:30')} am. Office-day sessions finish by ${escapeHTML(state.settings.preferredEnd || '07:00')} am so you can prepare and leave for work at 8:00 am.</p>
-      <div class="hero-meta"><span class="badge green">Programme starts ${escapeHTML(formatDateKey(programmeStart, { day:'numeric', month:'long', year:'numeric' }))}</span><button class="secondary-btn" data-action="toggle-mode">Use ${state.settings.programmeMode === 'normal' ? 'minimum' : 'normal'} programme</button></div>
+      <h2>${state.settings.programmeMode === 'normal' ? 'Standard task programme' : 'Reduced minimum programme'}</h2>
+      <p>Each day contains one flexible task. The selected default is used for new days, while days with saved activity retain their original programme mode.</p>
+      <div class="hero-meta"><span class="badge green">Programme starts ${escapeHTML(formatDateKey(programmeStart, { day:'numeric', month:'long', year:'numeric' }))}</span><button class="secondary-btn" data-action="toggle-mode">Use ${state.settings.programmeMode === 'normal' ? 'minimum' : 'normal'} programme by default</button></div>
     </div>
-    <div class="section-heading"><div><h2>Monday to Sunday</h2><p>Swipe horizontally on a phone.</p></div></div>
+    <div class="section-heading"><div><h2>Monday to Sunday</h2><p>Open any day to record or review its single task.</p></div></div>
     <div class="week-grid">
       ${days.map(key => {
         const day = getDayName(key);
-        const plan = planSet[day];
+        const mode = getPlanModeForDate(key);
+        const plan = getPlanForDate(key);
+        const task = plan.tasks[0];
         const beforeStart = key < programmeStart;
+        const completion = dayCompletion(key);
+        const focus = getAdaptiveFocus(task.type, key)[0];
         return `<article class="card day-card ${key === today ? 'today' : ''} ${beforeStart ? 'before-start' : ''}">
           <h3>${day}<span class="day-date">${formatDateKey(key, { day:'numeric', month:'short' })}</span></h3>
-          ${beforeStart ? '<span class="badge amber">Before programme start</span>' : `<span class="badge ${dayCompletion(key) === 100 ? 'green' : 'blue'}">${dayCompletion(key)}% complete</span>`}
+          ${beforeStart ? '<span class="badge amber">Before programme start</span>' : `<span class="badge ${completion === 100 ? 'green' : 'blue'}">${completion}% complete</span> <span class="badge ${mode === 'minimum' ? 'amber' : 'green'}">${mode === 'minimum' ? 'Minimum' : 'Normal'}</span>`}
           <div class="day-block"><strong>Daily context</strong><p>${escapeHTML(plan.family)}</p></div>
-          ${beforeStart ? '<div class="day-block"><strong>No session required</strong><p>The programme begins on Saturday 11 July 2026.</p></div>' : plan.tasks.map(task => `<div class="day-block"><strong>${escapeHTML(task.time)} — ${escapeHTML(task.title)}</strong><p>${escapeHTML(task.items.join(' · '))}</p></div>`).join('')}
+          ${beforeStart ? `<div class="day-block"><strong>No task required</strong><p>The programme begins on ${escapeHTML(formatDateKey(programmeStart, { weekday:'long', day:'numeric', month:'long', year:'numeric' }))}.</p></div>` : `
+            <div class="day-block"><strong>${escapeHTML(task.title)}</strong><p>${escapeHTML(task.items.join(' · '))}</p></div>
+            ${focus ? `<div class="day-block adaptive-preview"><strong>Recommended focus</strong><p>${escapeHTML(focus.kind)}: ${escapeHTML(focus.title)} — ${escapeHTML(focus.reason)}</p></div>` : ''}
+          `}
+          <div class="form-actions"><button class="ghost-btn" data-action="open-day" data-date="${key}">${key === today ? 'Open today' : 'Open day'}</button></div>
         </article>`;
       }).join('')}
     </div>`;
 }
 
 function renderAzure() {
-  const completedModules = state.azPaths.reduce((sum, p) => sum + p.modules.filter(m => m.complete).length, 0);
-  const totalModules = state.azPaths.reduce((sum, p) => sum + p.modules.length, 0);
+  const modules = getAllAzureModules();
+  const completedModules = modules.filter(({ module }) => module.complete).length;
+  const totalModules = modules.length;
   const overall = totalModules ? Math.round(completedModules / totalModules * 100) : 0;
+  const mastery = totalModules ? Math.round(average(modules.map(({ module }) => Number(module.masteryLevel || 0))) / 5 * 100) : 0;
+  const dueReviews = modules.filter(({ module }) => module.nextReview && module.nextReview <= getNZDateKey()).length;
+  const recommendation = getAzurePriority();
+  const moduleChoices = modules.map(({ path, module }) => `<option value="${path.id}::${module.id}">${escapeHTML(path.name.replace('AZ-104: ', ''))} — ${escapeHTML(module.name)}</option>`).join('');
+
   document.getElementById('view-azure').innerHTML = `
     <div class="hero">
-      <p class="eyebrow">SIX LEARNING PATHS ONLY</p>
-      <h2>AZ-104 study tracker</h2>
-      <p>Use Monday for theory, Wednesday and Saturday for practical work, Friday for light revision and Sunday for retrieval practice. All sessions are scheduled in the morning.</p>
-      <div class="hero-meta"><span class="badge blue">${completedModules}/${totalModules} topics</span><span class="badge green">${overall}% overall</span></div>
+      <p class="eyebrow">MASTERY, PRACTICE AND RECALL</p>
+      <h2>AZ-104 study coach</h2>
+      <p>A module is not treated as mastered only because the learning material is complete. Record recall, practical work, troubleshooting and verification evidence.</p>
+      <div class="hero-meta">
+        <span class="badge blue">${completedModules}/${totalModules} topics learned</span>
+        <span class="badge green">${mastery}% mastery</span>
+        <span class="badge ${dueReviews ? 'amber' : 'green'}">${dueReviews} reviews due</span>
+        <span class="badge blue">${state.azureLabs.length} lab journals</span>
+      </div>
     </div>
-    <div class="section-heading"><div><h2>Learning paths</h2><p>Update status, confidence, modules and notes.</p></div></div>
+
+    ${recommendation ? `<div class="section-heading"><div><h2>Recommended next Azure focus</h2><p>Selected from weak, incomplete and overdue topics.</p></div></div>
+      <article class="card priority-card">
+        <div><span class="badge blue">Next best topic</span><h2>${escapeHTML(recommendation.title)}</h2><p class="muted">${escapeHTML(recommendation.subtitle)}</p><p>${escapeHTML(recommendation.reason)}</p></div>
+        <ul>${recommendation.tasks.map(task => `<li>${escapeHTML(task)}</li>`).join('')}</ul>
+      </article>` : ''}
+
+    <div class="section-heading"><div><h2>Azure lab journal</h2><p>Record evidence that can be used for revision and job interviews.</p></div></div>
+    <article class="card">
+      <form id="azure-lab-form">
+        <div class="form-grid">
+          <label>Topic
+            <select name="moduleRef" required>${moduleChoices}</select>
+          </label>
+          <label>Tool used
+            <select name="tool" required>
+              <option value="Azure portal">Azure portal</option>
+              <option value="PowerShell">PowerShell</option>
+              <option value="Azure CLI">Azure CLI</option>
+              <option value="Bicep or ARM">Bicep or ARM</option>
+              <option value="Mixed">Mixed tools</option>
+            </select>
+          </label>
+        </div>
+        <label style="margin-top:12px">Objective<textarea name="objective" required placeholder="What were you trying to configure or prove?"></textarea></label>
+        <div class="form-grid">
+          <label>Configuration completed<textarea name="configuration" required placeholder="Resources, settings, scope and permissions used..."></textarea></label>
+          <label>What failed<textarea name="failure" placeholder="Error, unexpected result or issue encountered..."></textarea></label>
+          <label>Diagnosis and fix<textarea name="diagnosis" placeholder="Checks completed, root cause and resolution..."></textarea></label>
+          <label>Final result<textarea name="result" required placeholder="How you verified that the task worked..."></textarea></label>
+          <label>Cleanup<textarea name="cleanup" placeholder="Resources removed or costs stopped..."></textarea></label>
+          <label>Commands or settings to remember<textarea name="commands" placeholder="Useful commands, settings or portal path..."></textarea></label>
+        </div>
+        <div class="form-actions"><button class="primary-btn" type="submit">Save lab journal</button></div>
+      </form>
+    </article>
+
+    ${state.azureLabs.length ? `<div class="section-heading"><div><h2>Recent lab evidence</h2></div></div>
+      <div class="grid two">${[...state.azureLabs].sort((a,b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 8).map(lab => `
+        <article class="card lab-card">
+          <div class="item-header"><div><span class="badge blue">${escapeHTML(lab.tool)}</span><h3>${escapeHTML(lab.moduleName)}</h3><span class="small muted">${new Date(lab.createdAt).toLocaleString('en-NZ')}</span></div><button class="ghost-btn" data-action="delete-lab" data-id="${lab.id}">Delete</button></div>
+          <p><strong>Objective:</strong> ${escapeHTML(lab.objective)}</p>
+          <details><summary class="details-toggle">Open lab details</summary>
+            <p><strong>Configuration:</strong> ${escapeHTML(lab.configuration).replace(/\n/g,'<br>')}</p>
+            ${lab.failure ? `<p><strong>Failure:</strong> ${escapeHTML(lab.failure).replace(/\n/g,'<br>')}</p>` : ''}
+            ${lab.diagnosis ? `<p><strong>Diagnosis:</strong> ${escapeHTML(lab.diagnosis).replace(/\n/g,'<br>')}</p>` : ''}
+            <p><strong>Result:</strong> ${escapeHTML(lab.result).replace(/\n/g,'<br>')}</p>
+            ${lab.cleanup ? `<p><strong>Cleanup:</strong> ${escapeHTML(lab.cleanup).replace(/\n/g,'<br>')}</p>` : ''}
+            ${lab.commands ? `<p><strong>Remember:</strong> ${escapeHTML(lab.commands).replace(/\n/g,'<br>')}</p>` : ''}
+          </details>
+        </article>`).join('')}</div>` : ''}
+
+    <div class="section-heading"><div><h2>Learning paths</h2><p>Track evidence and schedule recall for every topic.</p></div></div>
     <div class="item-list">
       ${state.azPaths.map(path => {
-        const done = path.modules.filter(m => m.complete).length;
-        const pct = Math.round(done / path.modules.length * 100);
+        const done = path.modules.filter(module => module.complete).length;
+        const pathMastery = Math.round(average(path.modules.map(module => Number(module.masteryLevel || 0))) / 5 * 100);
         return `<article class="card item-card">
           <div class="item-header">
-            <div><span class="badge blue">${escapeHTML(path.targetWeeks)}</span><h3>${escapeHTML(path.name)}</h3><span class="muted small">${done}/${path.modules.length} topics complete</span></div>
+            <div><span class="badge blue">${escapeHTML(path.targetWeeks)}</span><h3>${escapeHTML(path.name)}</h3><span class="muted small">${done}/${path.modules.length} topics learned · ${pathMastery}% mastery</span></div>
             <div class="item-controls"><select class="status-select" data-az-status="${path.id}">${statusOptions(path.status, AZ_STATUS_OPTIONS)}</select></div>
           </div>
-          <div class="progress-line" style="margin-top:12px"><span style="width:${pct}%"></span></div>
+          <div class="progress-line" style="margin-top:12px"><span style="width:${pathMastery}%"></span></div>
           <details class="item-body">
-            <summary class="details-toggle">Open path details</summary>
-            <div style="margin-top:14px">
-              ${path.modules.map(module => `<div class="module-row"><input type="checkbox" data-az-module="${path.id}" data-module-id="${module.id}" ${module.complete ? 'checked' : ''}><span>${escapeHTML(module.name)}</span><span class="small muted">${module.complete ? 'Done' : ''}</span></div>`).join('')}
-              <div class="form-grid" style="margin-top:15px">
-                <label>Confidence
-                  <div class="confidence">${renderConfidence('az-confidence', path.id, path.confidence)}</div>
-                </label>
-                <label>Study notes
-                  <textarea data-az-notes="${path.id}" placeholder="Difficult concepts, lab results and troubleshooting notes...">${escapeHTML(path.notes)}</textarea>
-                </label>
-              </div>
+            <summary class="details-toggle">Open path mastery details</summary>
+            <div class="module-mastery-list">
+              ${path.modules.map(module => renderAzureModule(path, module)).join('')}
             </div>
+            <label style="margin-top:15px">Path notes
+              <textarea data-az-notes="${path.id}" placeholder="Difficult concepts, revision priorities and connections between topics...">${escapeHTML(path.notes)}</textarea>
+            </label>
           </details>
         </article>`;
       }).join('')}
     </div>`;
 }
 
-function renderDan() {
-  const checked = state.syllabus.reduce((sum, s) => sum + s.checkpoints.filter(c => c.complete).length, 0);
-  const total = state.syllabus.reduce((sum, s) => sum + s.checkpoints.length, 0);
-  const overall = Math.round(checked / total * 100);
-  const groups = ['Group A', 'Group B', 'Kata', 'Kumite'];
-  document.getElementById('view-dan').innerHTML = `
-    <div class="hero">
-      <p class="eyebrow">PERSONAL PRACTICE</p>
-      <h2>JKA 3rd Dan preparation</h2>
-      <p>Teaching dojo classes is recorded separately. These cards track your own syllabus preparation and instructor feedback.</p>
-      <div class="hero-meta"><span class="badge red">${overall}% checkpoints</span><span class="badge amber">Right and left sides</span></div>
-    </div>
-    ${groups.map(group => `<div class="section-heading"><div><h2>${escapeHTML(group)}</h2></div></div><div class="item-list">${state.syllabus.filter(s => s.group === group).map(renderSyllabusCard).join('')}</div>`).join('')}`;
-}
-
-function renderSyllabusCard(item) {
-  const done = item.checkpoints.filter(c => c.complete).length;
-  const pct = Math.round(done / item.checkpoints.length * 100);
-  return `<article class="card item-card">
-    <div class="item-header">
-      <div><h3>${escapeHTML(item.title)}</h3><span class="muted small">Last practised: ${item.lastPractised ? formatDateKey(item.lastPractised, { day:'numeric', month:'short', year:'numeric' }) : 'Not recorded'} · ${item.practiceCount || 0} sessions</span></div>
-      <select class="status-select" data-dan-status="${item.id}">${statusOptions(item.status)}</select>
-    </div>
-    <div class="progress-line" style="margin-top:12px"><span style="width:${pct}%"></span></div>
-    <details class="item-body">
-      <summary class="details-toggle">Open technical checklist</summary>
-      <div style="margin-top:13px">
-        ${item.checkpoints.map(c => `<div class="module-row"><input type="checkbox" data-dan-check="${item.id}" data-check-id="${c.id}" ${c.complete ? 'checked' : ''}><span>${escapeHTML(c.name)}</span><span></span></div>`).join('')}
-        <div class="toggle-row"><span>Right side completed</span><label class="switch"><input type="checkbox" data-dan-side="right" data-dan-id="${item.id}" ${item.rightComplete ? 'checked' : ''}><span></span></label></div>
-        <div class="toggle-row"><span>Left side completed</span><label class="switch"><input type="checkbox" data-dan-side="left" data-dan-id="${item.id}" ${item.leftComplete ? 'checked' : ''}><span></span></label></div>
-        <div class="form-grid" style="margin-top:14px">
-          <label>Confidence<div class="confidence">${renderConfidence('dan-confidence', item.id, item.confidence)}</div></label>
-          <label>Technical and instructor notes<textarea data-dan-notes="${item.id}" placeholder="Record faults, corrections and questions...">${escapeHTML(item.notes)}</textarea></label>
+function renderAzureModule(path, module) {
+  const evidence = { ...defaultEvidence(), ...(module.evidence || {}) };
+  const evidenceCount = Object.values(evidence).filter(Boolean).length;
+  const questions = getModuleRecallQuestions(module);
+  return `<article class="module-mastery-card">
+    <div class="module-master-head">
+      <input type="checkbox" data-az-module="${path.id}" data-module-id="${module.id}" ${module.complete ? 'checked' : ''} aria-label="Learning material completed">
+      <div>
+        <strong>${escapeHTML(module.name)}</strong>
+        <div class="module-badges">
+          <span class="badge ${Number(module.masteryLevel || 0) >= 4 ? 'green' : 'blue'}">Mastery ${Number(module.masteryLevel || 0)}/5</span>
+          <span class="badge ${module.nextReview && module.nextReview <= getNZDateKey() ? 'amber' : 'green'}">${escapeHTML(reviewDueText(module.nextReview))}</span>
+          <span class="badge">${evidenceCount}/5 evidence</span>
         </div>
-        <div class="form-actions"><button class="primary-btn" data-action="log-dan-practice" data-id="${item.id}">Log practice today</button></div>
+      </div>
+      <label class="compact-label">Mastery
+        <select data-az-mastery="${path.id}" data-module-id="${module.id}">${masteryOptions(module.masteryLevel)}</select>
+      </label>
+    </div>
+    <details class="module-review">
+      <summary class="details-toggle">Open evidence and recall</summary>
+      <div class="evidence-grid">
+        ${[['learned','Learned'],['recalled','Recalled'],['practised','Practised'],['troubleshot','Troubleshot'],['verified','Verified']].map(([field,label]) => `
+          <label class="evidence-check"><input type="checkbox" data-az-evidence="${field}" data-path-id="${path.id}" data-module-id="${module.id}" ${evidence[field] ? 'checked' : ''}><span>${label}</span></label>`).join('')}
+      </div>
+      <div class="recall-box">
+        <strong>Active-recall questions</strong>
+        <ol>${questions.map((question, index) => `<li>${escapeHTML(question)}${index >= 4 ? ` <button type="button" class="inline-delete" data-action="delete-recall-question" data-id="${path.id}" data-module-id="${module.id}" data-question-index="${index - 4}" aria-label="Delete custom question">×</button>` : ''}</li>`).join('')}</ol>
+        <div class="recall-question-add">
+          <input type="text" data-recall-question-input="${path.id}" data-module-id="${module.id}" maxlength="240" placeholder="Add your own recall question">
+          <button type="button" class="secondary-btn" data-action="add-recall-question" data-id="${path.id}" data-module-id="${module.id}">Add question</button>
+        </div>
+        <p class="small muted">Answer without notes, then record the result.</p>
+        <div class="recall-actions">
+          ${RECALL_RESULTS.map(([value,label]) => `<button type="button" class="${module.lastRecallResult === value ? 'selected' : ''}" data-action="record-az-review" data-id="${path.id}" data-module-id="${module.id}" data-result="${value}">${escapeHTML(label)}</button>`).join('')}
+        </div>
+        <p class="small muted">Last reviewed: ${module.lastReviewed ? formatDateKey(module.lastReviewed, { day:'numeric', month:'short', year:'numeric' }) : 'Never'} · Next review: ${module.nextReview ? formatDateKey(module.nextReview, { day:'numeric', month:'short', year:'numeric' }) : 'Not scheduled'}</p>
       </div>
     </details>
   </article>`;
 }
 
+function renderDan() {
+  const checked = state.syllabus.reduce((sum, item) => sum + item.checkpoints.filter(check => check.complete).length, 0);
+  const total = state.syllabus.reduce((sum, item) => sum + item.checkpoints.length, 0);
+  const checkpointOverall = percent(checked, total);
+  const techniqueAverage = average(state.syllabus.flatMap(item => KARATE_RATING_FIELDS.map(([key]) => Number(item.ratings?.[key] || 1))));
+  const priority = getDanPriority();
+  const groups = ['Group A', 'Group B', 'Kata', 'Kumite'];
+  document.getElementById('view-dan').innerHTML = `
+    <div class="hero">
+      <p class="eyebrow">TECHNICAL ASSESSMENT</p>
+      <h2>JKA 3rd Dan preparation</h2>
+      <p>Completion alone does not show grading readiness. Score the quality of stance, balance, hip movement, technique path, timing, power, breathing, and both sides.</p>
+      <div class="hero-meta"><span class="badge red">${checkpointOverall}% checkpoints</span><span class="badge amber">${techniqueAverage.toFixed(1)}/5 average quality</span><span class="badge blue">${state.syllabus.reduce((sum,item)=>sum+(item.practiceCount||0),0)} practices logged</span></div>
+    </div>
+    ${priority ? `<div class="section-heading"><div><h2>Current grading section to focus on</h2><p>Selected from the lowest technical ratings, incomplete checkpoints and oldest practice.</p></div></div>
+      <article class="card priority-card grading-priority">
+        <div><span class="badge red">${escapeHTML(priority.subtitle)}</span><h2>${escapeHTML(priority.title)}</h2><p>${escapeHTML(priority.reason)}</p></div>
+        <ul>${priority.tasks.map(task => `<li>${escapeHTML(task)}</li>`).join('')}</ul>
+      </article>` : ''}
+    ${groups.map(group => `<div class="section-heading"><div><h2>${escapeHTML(group)}</h2></div></div><div class="item-list">${state.syllabus.filter(item => item.group === group).map(renderSyllabusCard).join('')}</div>`).join('')}`;
+}
+
+function renderSyllabusCard(item) {
+  const done = item.checkpoints.filter(check => check.complete).length;
+  const checkpointProgress = percent(done, item.checkpoints.length);
+  const ratingAverage = average(KARATE_RATING_FIELDS.map(([key]) => Number(item.ratings?.[key] || 1)));
+  const weakest = KARATE_RATING_FIELDS
+    .map(([key,label]) => ({ label, value: Number(item.ratings?.[key] || 1) }))
+    .sort((a,b) => a.value - b.value)
+    .slice(0,2);
+  return `<article class="card item-card">
+    <div class="item-header">
+      <div>
+        <h3>${escapeHTML(item.title)}</h3>
+        <span class="muted small">Last practised: ${item.lastPractised ? formatDateKey(item.lastPractised, { day:'numeric', month:'short', year:'numeric' }) : 'Not recorded'} · ${item.practiceCount || 0} sessions${item.lastAssessmentResult ? ` · Assessment saved ${formatDateKey(item.lastAssessmentResult, { day:'numeric', month:'short' })}` : ''}</span>
+        <div class="module-badges"><span class="badge red">${ratingAverage.toFixed(1)}/5 quality</span><span class="badge amber">Weakest: ${escapeHTML(weakest.map(field => `${field.label} ${field.value}/5`).join(' · '))}</span></div>
+      </div>
+      <select class="status-select" data-dan-status="${item.id}">${statusOptions(item.status)}</select>
+    </div>
+    <div class="progress-line" style="margin-top:12px"><span style="width:${checkpointProgress}%"></span></div>
+    <details class="item-body">
+      <summary class="details-toggle">Open assessment</summary>
+      <div class="assessment-layout">
+        <div>
+          <h4>Technical checkpoints</h4>
+          ${item.checkpoints.map(check => `<div class="module-row"><input type="checkbox" data-dan-check="${item.id}" data-check-id="${check.id}" ${check.complete ? 'checked' : ''}><span>${escapeHTML(check.name)}</span><span></span></div>`).join('')}
+        </div>
+        <div>
+          <h4>Session quality</h4>
+          <div class="rating-grid">
+            ${KARATE_RATING_FIELDS.map(([key,label]) => `<label>${escapeHTML(label)}<select data-dan-rating="${item.id}" data-rating-field="${key}">${ratingOptions(item.ratings?.[key] || 1)}</select></label>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="form-grid" style="margin-top:14px">
+        <label>Confidence<div class="confidence">${renderConfidence('dan-confidence', item.id, item.confidence)}</div></label>
+        <label>Technical and instructor notes<textarea data-dan-notes="${item.id}" placeholder="Record faults, corrections, instructor feedback and questions...">${escapeHTML(item.notes)}</textarea></label>
+      </div>
+      <div class="form-actions"><button class="primary-btn" data-action="log-dan-practice" data-id="${item.id}">Log practice today</button></div>
+    </details>
+  </article>`;
+}
+
 function renderKata() {
-  const known = state.katas.filter(k => k.category === 'known');
-  const learning = state.katas.filter(k => k.category === 'planned' && k.status !== 'not-started' && k.status !== 'complete');
-  const planned = state.katas.filter(k => k.category === 'planned' && (k.status === 'not-started' || k.status === 'complete'));
-  const sequenceKnown = state.katas.filter(k => k.sequenceProgress >= 100).length;
+  const retentionStatuses = new Set(['sequence-known', 'comfortable', 'instructor-checked', 'grading-ready', 'complete']);
+  const known = state.katas.filter(kata => kata.category === 'known' || Number(kata.sequenceProgress) >= 100 || retentionStatuses.has(kata.status));
+  const knownIds = new Set(known.map(kata => kata.id));
+  const learning = state.katas.filter(kata => !knownIds.has(kata.id) && kata.status !== 'not-started');
+  const planned = state.katas.filter(kata => !knownIds.has(kata.id) && kata.status === 'not-started');
+  const sequenceKnown = state.katas.filter(kata => Number(kata.sequenceProgress) >= 100).length;
+  const due = state.katas.filter(kata => kata.nextReview && kata.nextReview <= getNZDateKey()).length;
+  const priority = getKataPriority();
   document.getElementById('view-kata').innerHTML = `
     <div class="hero">
-      <p class="eyebrow">SEQUENCES FIRST</p>
-      <h2>Kata sequence and retention</h2>
-      <p>The immediate objective is to know the correct sequence, directions and general structure. Stronger technique and timing can be developed after the sequence foundation is established.</p>
-      <div class="hero-meta"><span class="badge red">${sequenceKnown}/${state.katas.length} sequences known</span><span class="badge blue">Current: ${escapeHTML(currentKata().name)}</span></div>
+      <p class="eyebrow">SECTIONS AND RETENTION</p>
+      <h2>Kata mastery and review</h2>
+      <p>Track each part of the kata separately, then schedule retention reviews. A clean performance increases the review interval; mistakes bring the kata back sooner.</p>
+      <div class="hero-meta"><span class="badge red">${sequenceKnown}/${state.katas.length} sequences known</span><span class="badge ${due ? 'amber' : 'green'}">${due} retention reviews due</span><span class="badge blue">Current: ${escapeHTML(currentKata().name)}</span></div>
     </div>
-    <div class="section-heading"><div><h2>Already known</h2><p>Keep these in the retention rotation.</p></div></div>
+    ${priority ? `<div class="section-heading"><div><h2>Recommended kata focus</h2><p>Selected from overdue reviews, incomplete sections and low confidence.</p></div></div>
+      <article class="card priority-card">
+        <div><span class="badge red">${escapeHTML(priority.subtitle)}</span><h2>${escapeHTML(priority.title)}</h2><p>${escapeHTML(priority.reason)}</p></div>
+        <ul>${priority.tasks.map(task => `<li>${escapeHTML(task)}</li>`).join('')}</ul>
+      </article>` : ''}
+    <div class="section-heading"><div><h2>Sequence known and retention</h2><p>Completed planned kata automatically move into this rotation.</p></div></div>
     <div class="grid two">${known.map(renderKataCard).join('')}</div>
     <div class="section-heading"><div><h2>Currently learning</h2></div></div>
     ${learning.length ? `<div class="grid two">${learning.map(renderKataCard).join('')}</div>` : `<div class="card empty">No kata is marked as currently learning. Change Jion or another planned kata to “Learning”.</div>`}
@@ -644,22 +1224,42 @@ function renderKata() {
 }
 
 function renderKataCard(kata) {
+  const sectionAverage = average((kata.sections || []).map(section => Number(section.level || 0)));
+  const due = kata.nextReview && kata.nextReview <= getNZDateKey();
   return `<article class="card item-card">
     <div class="item-header">
-      <div><h3>${escapeHTML(kata.name)}</h3><span class="muted small">${kata.practiceCount || 0} logged sessions · Last: ${kata.lastPractised ? formatDateKey(kata.lastPractised, { day:'numeric', month:'short' }) : 'Never'}</span></div>
+      <div>
+        <h3>${escapeHTML(kata.name)}</h3>
+        <span class="muted small">${kata.practiceCount || 0} logged sessions · Last: ${kata.lastPractised ? formatDateKey(kata.lastPractised, { day:'numeric', month:'short' }) : 'Never'}</span>
+        <div class="module-badges">
+          <span class="badge red">${Number(kata.sequenceProgress) || 0}% section mastery</span>
+          <span class="badge ${due ? 'amber' : 'green'}">${escapeHTML(reviewDueText(kata.nextReview))}</span>
+          <span class="badge blue">${Number(kata.retentionIntervalDays || 7)}-day interval</span>
+        </div>
+      </div>
       <select class="status-select" data-kata-status="${kata.id}">${statusOptions(kata.status)}</select>
     </div>
-    <label style="margin-top:13px">Sequence progress: <strong>${Number(kata.sequenceProgress) || 0}%</strong>
-      <input type="range" min="0" max="100" step="10" value="${Number(kata.sequenceProgress) || 0}" data-kata-progress="${kata.id}">
-    </label>
-    <div class="progress-line"><span style="width:${Number(kata.sequenceProgress) || 0}%"></span></div>
+    <div class="progress-line" style="margin-top:12px"><span style="width:${Number(kata.sequenceProgress) || 0}%"></span></div>
     <details class="item-body">
-      <summary class="details-toggle">Open kata notes</summary>
+      <summary class="details-toggle">Open kata sections and review</summary>
+      <div class="kata-section-grid">
+        ${(kata.sections || []).map(section => `<label>${escapeHTML(section.name)}
+          <select data-kata-section="${kata.id}" data-section-id="${section.id}">${kataSectionOptions(section.level)}</select>
+        </label>`).join('')}
+      </div>
       <div class="form-grid" style="margin-top:14px">
         <label>Confidence<div class="confidence">${renderConfidence('kata-confidence', kata.id, kata.confidence)}</div></label>
-        <label>Sequence and technical notes<textarea data-kata-notes="${kata.id}" placeholder="Sections, turns, embusen, kiai and questions...">${escapeHTML(kata.notes)}</textarea></label>
+        <label>Sequence, technical and instructor notes<textarea data-kata-notes="${kata.id}" placeholder="Sections, turns, embusen, kiai, rhythm, bunkai and corrections...">${escapeHTML(kata.notes)}</textarea></label>
       </div>
-      <div class="form-actions"><button class="primary-btn" data-action="log-kata-practice" data-id="${kata.id}">Log practice today</button></div>
+      <div class="retention-summary">
+        <strong>Retention result</strong>
+        <span>Last result: ${kata.lastPerformanceResult === 'clean' ? 'Clean performance' : kata.lastPerformanceResult === 'mistakes' ? 'Mistakes found' : 'Not recorded'}</span>
+      </div>
+      <div class="form-actions">
+        <button class="primary-btn" data-action="kata-clean" data-id="${kata.id}">Clean performance</button>
+        <button class="secondary-btn" data-action="kata-mistakes" data-id="${kata.id}">Mistakes found</button>
+        <button class="ghost-btn" data-action="log-kata-practice" data-id="${kata.id}">Log practice only</button>
+      </div>
     </details>
   </article>`;
 }
@@ -673,43 +1273,53 @@ function renderProgress() {
   const last28 = Array.from({ length: 28 }, (_, i) => addDays(today, -i));
   const activeDays = last28.filter(key => dayCompletion(key) > 0).length;
   const completedDays = last28.filter(key => dayCompletion(key) === 100).length;
-  const azDone = state.azPaths.reduce((s,p) => s + p.modules.filter(m => m.complete).length, 0);
-  const azTotal = state.azPaths.reduce((s,p) => s + p.modules.length, 0);
-  const danDone = state.syllabus.reduce((s,p) => s + p.checkpoints.filter(c => c.complete).length, 0);
-  const danTotal = state.syllabus.reduce((s,p) => s + p.checkpoints.length, 0);
-  const kataKnown = state.katas.filter(k => k.sequenceProgress >= 100).length;
-  const energyRecords = Object.values(state.daily).filter(d => d.energy).map(d => Number(d.energy));
-  const averageEnergy = energyRecords.length ? (energyRecords.reduce((a,b)=>a+b,0) / energyRecords.length).toFixed(1) : '—';
+  const modules = getAllAzureModules().map(({ module }) => module);
+  const azLearned = modules.filter(module => module.complete).length;
+  const azMastery = modules.length ? Math.round(average(modules.map(module => Number(module.masteryLevel || 0))) / 5 * 100) : 0;
+  const azDue = modules.filter(module => module.nextReview && module.nextReview <= today).length;
+  const danAverage = average(state.syllabus.flatMap(item => KARATE_RATING_FIELDS.map(([key]) => Number(item.ratings?.[key] || 1))));
+  const danDone = state.syllabus.reduce((sum,item) => sum + item.checkpoints.filter(check => check.complete).length, 0);
+  const danTotal = state.syllabus.reduce((sum,item) => sum + item.checkpoints.length, 0);
+  const kataKnown = state.katas.filter(kata => Number(kata.sequenceProgress || 0) >= 100).length;
+  const kataDue = state.katas.filter(kata => kata.nextReview && kata.nextReview <= today).length;
+  const kataSectionMastery = state.katas.length ? Math.round(average(state.katas.flatMap(kata => (kata.sections || []).map(section => Number(section.level || 0)))) / 5 * 100) : 0;
+  const energyRecords = Object.values(state.daily).filter(record => record.energy).map(record => Number(record.energy));
+  const averageEnergy = energyRecords.length ? (energyRecords.reduce((sum,value)=>sum+value,0) / energyRecords.length).toFixed(1) : '—';
   const metrics = [
-    ['AZ-104 topics', percent(azDone, azTotal)],
+    ['Azure mastery', azMastery],
     ['3rd Dan checkpoints', percent(danDone, danTotal)],
-    ['Kata sequences', percent(kataKnown, state.katas.length)],
-    ['28-day full sessions', percent(completedDays, 28)]
+    ['Kata section mastery', kataSectionMastery],
+    ['28-day full tasks', percent(completedDays, 28)]
   ];
   document.getElementById('view-progress').innerHTML = `
     <div class="grid four">
-      <article class="card metric-card"><small>Active days in 28 days</small><strong>${activeDays}</strong><span class="muted small">Any checklist progress</span></article>
-      <article class="card metric-card"><small>Fully completed days</small><strong>${completedDays}</strong><span class="muted small">Last 28 days</span></article>
-      <article class="card metric-card"><small>Kata sequences known</small><strong>${kataKnown}</strong><span class="muted small">Out of ${state.katas.length}</span></article>
-      <article class="card metric-card"><small>Average energy</small><strong>${averageEnergy}</strong><span class="muted small">Out of 5</span></article>
+      <article class="card metric-card"><small>Azure topics learned</small><strong>${azLearned}</strong><span class="muted small">${azMastery}% mastery · ${azDue} reviews due</span></article>
+      <article class="card metric-card"><small>Azure lab journals</small><strong>${state.azureLabs.length}</strong><span class="muted small">Practical evidence</span></article>
+      <article class="card metric-card"><small>3rd Dan quality</small><strong>${danAverage.toFixed(1)}</strong><span class="muted small">Average out of 5</span></article>
+      <article class="card metric-card"><small>Kata reviews due</small><strong>${kataDue}</strong><span class="muted small">${kataKnown} sequences known</span></article>
     </div>
     <div class="grid two" style="margin-top:16px">
       <article class="card">
-        <h2>Programme progress</h2>
+        <h2>Mastery progress</h2>
         <div class="bar-chart">
           ${metrics.map(([label,value]) => `<div class="bar-row"><span>${escapeHTML(label)}</span><div class="bar-track"><div class="bar-fill" style="width:${value}%"></div></div><span class="bar-value">${value}%</span></div>`).join('')}
         </div>
       </article>
       <article class="card">
-        <h2>Practice totals</h2>
+        <h2>Consistency and evidence</h2>
         <div class="bar-chart">
-          <div class="bar-row"><span>Kata sessions</span><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100, state.katas.reduce((s,k)=>s+(k.practiceCount||0),0)*2)}%"></div></div><span class="bar-value">${state.katas.reduce((s,k)=>s+(k.practiceCount||0),0)}</span></div>
-          <div class="bar-row"><span>3rd Dan sessions</span><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100, state.syllabus.reduce((s,k)=>s+(k.practiceCount||0),0)*2)}%"></div></div><span class="bar-value">${state.syllabus.reduce((s,k)=>s+(k.practiceCount||0),0)}</span></div>
-          <div class="bar-row"><span>Reviews saved</span><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100, state.weeklyReviews.length*10)}%"></div></div><span class="bar-value">${state.weeklyReviews.length}</span></div>
+          <div class="bar-row"><span>Active days</span><div class="bar-track"><div class="bar-fill" style="width:${percent(activeDays,28)}%"></div></div><span class="bar-value">${activeDays}</span></div>
+          <div class="bar-row"><span>Full tasks</span><div class="bar-track"><div class="bar-fill" style="width:${percent(completedDays,28)}%"></div></div><span class="bar-value">${completedDays}</span></div>
+          <div class="bar-row"><span>Kata sessions</span><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100, state.katas.reduce((sum,kata)=>sum+(kata.practiceCount||0),0)*2)}%"></div></div><span class="bar-value">${state.katas.reduce((sum,kata)=>sum+(kata.practiceCount||0),0)}</span></div>
+          <div class="bar-row"><span>Dan sessions</span><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100, state.syllabus.reduce((sum,item)=>sum+(item.practiceCount||0),0)*2)}%"></div></div><span class="bar-value">${state.syllabus.reduce((sum,item)=>sum+(item.practiceCount||0),0)}</span></div>
         </div>
       </article>
     </div>
-    <div class="section-heading"><div><h2>Last 14 days</h2><p>Daily checklist completion.</p></div></div>
+    <div class="grid two" style="margin-top:16px">
+      <article class="card metric-card"><small>Average energy</small><strong>${averageEnergy}</strong><span class="muted small">Out of 5</span></article>
+      <article class="card metric-card"><small>Weekly reviews</small><strong>${state.weeklyReviews.length}</strong><span class="muted small">Reflection records</span></article>
+    </div>
+    <div class="section-heading"><div><h2>Last 14 days</h2><p>Single daily task completion.</p></div></div>
     <div class="grid four">
       ${Array.from({ length: 14 }, (_, i) => addDays(today, i - 13)).map(key => `<article class="card flat metric-card"><small>${formatDateKey(key, { weekday:'short', day:'numeric', month:'short' })}</small><strong>${dayCompletion(key)}%</strong><div class="progress-line"><span style="width:${dayCompletion(key)}%"></span></div></article>`).join('')}
     </div>`;
@@ -760,9 +1370,9 @@ function renderSettings() {
         <div class="toggle-row"><div><strong>Minimum-week mode</strong><div class="muted small">Use the reduced programme during difficult weeks.</div></div><label class="switch"><input id="mode-toggle" type="checkbox" ${state.settings.programmeMode === 'minimum' ? 'checked' : ''}><span></span></label></div>
         <div class="form-grid" style="margin-top:13px">
           <label>Programme start date<input id="programme-start-date" type="date" value="${escapeHTML(state.settings.programmeStartDate || PROGRAMME_START_DATE)}"></label>
-          <label>Morning start time<input id="session-start" type="time" value="${escapeHTML(state.settings.sessionStart || '05:30')}"></label>
-          <label>Office-day finish time<input id="preferred-end" type="time" value="${escapeHTML(state.settings.preferredEnd || '07:00')}"></label>
+          <label>Daily structure<input type="text" value="One flexible task per day" disabled></label>
         </div>
+        <div class="inline-note" style="margin-top:13px">Tasks do not have fixed start or finish times. Complete the day’s task when it fits your schedule.</div>
         <div class="form-actions"><button class="primary-btn" data-action="save-programme-settings">Save programme settings</button></div>
         <p class="muted small" style="margin-top:12px">App version ${APP_VERSION}</p>
       </article>
@@ -810,9 +1420,12 @@ function renderSettings() {
     <article class="card"><div class="inline-note danger-note">Resetting deletes this device’s local records. Export a backup first.</div><div class="form-actions"><button class="danger-btn" data-action="reset-data">Reset all local data</button></div></article>`;
 }
 
-function scheduleInputSave(callback) {
-  clearTimeout(inputSaveTimer);
-  inputSaveTimer = setTimeout(callback, 500);
+function scheduleInputSave(key, callback) {
+  clearTimeout(inputSaveTimers.get(key));
+  inputSaveTimers.set(key, setTimeout(() => {
+    inputSaveTimers.delete(key);
+    callback();
+  }, 500));
 }
 
 function findAZ(id) { return state.azPaths.find(x => x.id === id); }
@@ -840,7 +1453,7 @@ function exportBackup() {
   a.href = url;
   a.download = `karate-azure-progress-backup-${getNZDateKey()}.json`;
   a.click();
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
   toast('Backup exported.');
 }
 
@@ -1025,25 +1638,44 @@ function updateTimerDisplay() {
   document.getElementById('timer-start').textContent = timerRunning ? 'Pause' : timerRemaining === 0 ? 'Restart' : 'Start';
 }
 function setTimerMinutes(minutes) {
-  clearInterval(timerInterval); timerRunning = false;
-  timerDuration = Number(minutes) * 60; timerRemaining = timerDuration; updateTimerDisplay();
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerEndAt = null;
+  timerDuration = Number(minutes) * 60;
+  timerRemaining = timerDuration;
+  updateTimerDisplay();
   document.querySelectorAll('[data-minutes]').forEach(btn => btn.classList.toggle('selected', Number(btn.dataset.minutes) === Number(minutes)));
 }
-function toggleTimer() {
-  if (timerRemaining === 0) timerRemaining = timerDuration;
-  timerRunning = !timerRunning;
+function completeTimer() {
   clearInterval(timerInterval);
+  timerRunning = false;
+  timerEndAt = null;
+  timerRemaining = 0;
+  updateTimerDisplay();
+  const label = document.getElementById('timer-label').value || 'Session';
+  toast(`${label} completed.`);
+  if ('Notification' in window && Notification.permission === 'granted') new Notification('Session complete', { body: `${label} completed.` });
+}
+function updateRunningTimer() {
+  if (!timerRunning || !timerEndAt) return;
+  timerRemaining = Math.max(0, Math.ceil((timerEndAt - Date.now()) / 1000));
+  updateTimerDisplay();
+  if (timerRemaining <= 0) completeTimer();
+}
+function toggleTimer() {
   if (timerRunning) {
-    timerInterval = setInterval(() => {
-      timerRemaining -= 1;
-      updateTimerDisplay();
-      if (timerRemaining <= 0) {
-        clearInterval(timerInterval); timerRunning = false; timerRemaining = 0; updateTimerDisplay();
-        toast(`${document.getElementById('timer-label').value || 'Session'} completed.`);
-        if ('Notification' in window && Notification.permission === 'granted') new Notification('Session complete', { body: document.getElementById('timer-label').value || 'Focused session completed.' });
-      }
-    }, 1000);
+    updateRunningTimer();
+    clearInterval(timerInterval);
+    timerRunning = false;
+    timerEndAt = null;
+    updateTimerDisplay();
+    return;
   }
+  if (timerRemaining === 0) timerRemaining = timerDuration;
+  timerRunning = true;
+  timerEndAt = Date.now() + timerRemaining * 1000;
+  clearInterval(timerInterval);
+  timerInterval = setInterval(updateRunningTimer, 250);
   updateTimerDisplay();
 }
 
@@ -1067,19 +1699,105 @@ document.addEventListener('click', async event => {
   const id = actionEl.dataset.id;
 
   if (action === 'open-timer') return openTimer();
+  if (action === 'previous-day') { selectedDateKey = addDays(selectedDateKey, -1); renderToday(); return; }
+  if (action === 'next-day') { selectedDateKey = addDays(selectedDateKey, 1); renderToday(); return; }
+  if (action === 'go-today') { selectedDateKey = getNZDateKey(); renderToday(); return; }
+  if (action === 'previous-week') { selectedDateKey = addDays(getWeekStart(selectedDateKey), -7); renderWeek(); return; }
+  if (action === 'next-week') { selectedDateKey = addDays(getWeekStart(selectedDateKey), 7); renderWeek(); return; }
+  if (action === 'current-week') { selectedDateKey = getNZDateKey(); renderWeek(); return; }
+  if (action === 'open-day') { selectedDateKey = actionEl.dataset.date || getNZDateKey(); showView('today'); return; }
+  if (action === 'toggle-day-mode') {
+    const record = getDailyRecord(selectedDateKey);
+    const currentMode = getPlanModeForDate(selectedDateKey);
+    const hasChecks = Object.values(record.checks || {}).some(Boolean);
+    if (hasChecks) {
+      const ok = await confirmAction('Change this day’s programme?', 'Existing checklist progress will be retained but may not be visible in the other programme mode.');
+      if (!ok) return;
+    }
+    record.planMode = currentMode === 'normal' ? 'minimum' : 'normal';
+    saveState({ render: true });
+    toast(`This day now uses the ${record.planMode} programme.`);
+    return;
+  }
   if (action === 'toggle-mode') {
     state.settings.programmeMode = state.settings.programmeMode === 'normal' ? 'minimum' : 'normal';
     saveState({ render: true }); toast(`Switched to ${state.settings.programmeMode} programme.`); return;
   }
+  if (action === 'record-az-review') {
+    if (recordAzureReview(id, actionEl.dataset.moduleId, actionEl.dataset.result)) {
+      saveState({ render: true });
+      const module = findAZModule(id, actionEl.dataset.moduleId);
+      toast(`Recall recorded. Next review: ${formatDateKey(module.nextReview, { day:'numeric', month:'short' })}.`);
+    }
+    return;
+  }
+  if (action === 'add-recall-question') {
+    const input = document.querySelector(`[data-recall-question-input="${CSS.escape(id)}"][data-module-id="${CSS.escape(actionEl.dataset.moduleId)}"]`);
+    const question = input?.value.trim();
+    if (!question) return toast('Enter a recall question first.');
+    const module = findAZModule(id, actionEl.dataset.moduleId);
+    if (!module) return;
+    module.customQuestions = Array.isArray(module.customQuestions) ? module.customQuestions : [];
+    module.customQuestions.push(question);
+    saveState({ render: true });
+    toast('Recall question added.');
+    return;
+  }
+  if (action === 'delete-recall-question') {
+    const module = findAZModule(id, actionEl.dataset.moduleId);
+    const index = Number(actionEl.dataset.questionIndex);
+    if (!module || !Array.isArray(module.customQuestions) || !Number.isInteger(index)) return;
+    module.customQuestions.splice(index, 1);
+    saveState({ render: true });
+    toast('Recall question removed.');
+    return;
+  }
+  if (action === 'delete-lab') {
+    if (await confirmAction('Delete lab journal?', 'This practical evidence entry will be permanently removed.')) {
+      state.azureLabs = state.azureLabs.filter(lab => lab.id !== id);
+      saveState({ render: true });
+      toast('Lab journal deleted.');
+    }
+    return;
+  }
+  if (action === 'kata-clean') {
+    const kata = findKata(id);
+    if (!kata) return;
+    const today = getNZDateKey();
+    kata.practiceCount = (kata.practiceCount || 0) + 1;
+    kata.lastPractised = today;
+    kata.lastPerformanceResult = 'clean';
+    kata.retentionIntervalDays = getNextKataInterval(kata.retentionIntervalDays);
+    kata.nextReview = addDays(today, kata.retentionIntervalDays);
+    kata.confidence = Math.min(5, Number(kata.confidence || 1) + 1);
+    if (Number(kata.sequenceProgress || 0) >= 100 && ['sequence-known', 'developing'].includes(kata.status)) kata.status = 'comfortable';
+    saveState({ render: true });
+    toast(`${kata.name} retained. Next review: ${formatDateKey(kata.nextReview, { day:'numeric', month:'short' })}.`);
+    return;
+  }
+  if (action === 'kata-mistakes') {
+    const kata = findKata(id);
+    if (!kata) return;
+    const today = getNZDateKey();
+    kata.practiceCount = (kata.practiceCount || 0) + 1;
+    kata.lastPractised = today;
+    kata.lastPerformanceResult = 'mistakes';
+    kata.retentionIntervalDays = 3;
+    kata.nextReview = addDays(today, 3);
+    kata.confidence = Math.max(1, Number(kata.confidence || 1) - 1);
+    saveState({ render: true });
+    toast(`${kata.name} scheduled again in 3 days.`);
+    return;
+  }
   if (action === 'az-confidence') { findAZ(id).confidence = Number(actionEl.dataset.value); saveState({ render:true }); return; }
   if (action === 'dan-confidence') { findDan(id).confidence = Number(actionEl.dataset.value); saveState({ render:true }); return; }
   if (action === 'kata-confidence') { findKata(id).confidence = Number(actionEl.dataset.value); saveState({ render:true }); return; }
-  if (action === 'log-dan-practice') { const item=findDan(id); item.practiceCount=(item.practiceCount||0)+1; item.lastPractised=getNZDateKey(); if(item.status==='not-started') item.status='learning'; saveState({render:true}); toast('3rd Dan practice logged.'); return; }
-  if (action === 'log-kata-practice') { const item=findKata(id); item.practiceCount=(item.practiceCount||0)+1; item.lastPractised=getNZDateKey(); if(item.status==='not-started') item.status='learning'; saveState({render:true}); toast(`${item.name} practice logged.`); return; }
+  if (action === 'log-dan-practice') { const item=findDan(id); item.practiceCount=(item.practiceCount||0)+1; item.lastPractised=getNZDateKey(); item.lastAssessmentResult=getNZDateKey(); if(item.status==='not-started') item.status='learning'; saveState({render:true}); toast('3rd Dan practice and assessment logged.'); return; }
+  if (action === 'log-kata-practice') { const item=findKata(id); item.practiceCount=(item.practiceCount||0)+1; item.lastPractised=getNZDateKey(); if(item.status==='not-started') item.status='learning'; if(!item.nextReview) { item.retentionIntervalDays=Number(item.retentionIntervalDays||7); item.nextReview=addDays(getNZDateKey(),item.retentionIntervalDays); } saveState({render:true}); toast(`${item.name} practice logged.`); return; }
   if (action === 'delete-note') { if (await confirmAction('Delete note?', 'This note will be permanently removed.')) { state.notes=state.notes.filter(n=>n.id!==id); saveState({render:true}); } return; }
   if (action === 'export-backup') return exportBackup();
   if (action === 'choose-import') return document.getElementById('import-file').click();
-  if (action === 'save-programme-settings') { state.settings.programmeMode=document.getElementById('mode-toggle').checked?'minimum':'normal'; state.settings.programmeStartDate=document.getElementById('programme-start-date').value||PROGRAMME_START_DATE; state.settings.sessionStart=document.getElementById('session-start').value||'05:30'; state.settings.preferredEnd=document.getElementById('preferred-end').value||'07:00'; saveState({render:true}); toast('Programme settings saved.'); return; }
+  if (action === 'save-programme-settings') { state.settings.programmeMode=document.getElementById('mode-toggle').checked?'minimum':'normal'; state.settings.programmeStartDate=document.getElementById('programme-start-date').value||PROGRAMME_START_DATE; saveState({render:true}); toast('Programme settings saved.'); return; }
   if (action === 'save-cloud-config') {
     const url=document.getElementById('supabase-url').value.trim().replace(/\/$/,'');
     const key=document.getElementById('supabase-key').value.trim();
@@ -1104,27 +1822,120 @@ document.addEventListener('change', event => {
     const record=getDailyRecord(el.dataset.date); record[el.dataset.dailyField]=el.value; saveState(); return;
   }
   if (el.matches('[data-az-status]')) { findAZ(el.dataset.azStatus).status=el.value; saveState(); return; }
-  if (el.matches('[data-az-module]')) { const path=findAZ(el.dataset.azModule); path.modules.find(m=>m.id===el.dataset.moduleId).complete=el.checked; saveState({render:true}); return; }
+  if (el.matches('[data-az-module]')) {
+    const module=findAZModule(el.dataset.azModule,el.dataset.moduleId);
+    if (!module) return;
+    module.complete=el.checked;
+    module.evidence={...defaultEvidence(),...(module.evidence||{}),learned:el.checked};
+    if(el.checked){
+      module.lastStudied=getNZDateKey();
+      module.masteryLevel=Math.max(1,Number(module.masteryLevel||0));
+      if(!module.nextReview){ module.reviewIntervalDays=1; module.nextReview=addDays(getNZDateKey(),1); }
+    }
+    saveState({render:true}); return;
+  }
+  if (el.matches('[data-az-mastery]')) {
+    const module=findAZModule(el.dataset.azMastery,el.dataset.moduleId);
+    if (!module) return;
+    module.masteryLevel=Number(el.value);
+    if(module.masteryLevel>0 && !module.lastStudied) module.lastStudied=getNZDateKey();
+    saveState({render:true}); return;
+  }
+  if (el.matches('[data-az-evidence]')) {
+    const module=findAZModule(el.dataset.pathId,el.dataset.moduleId);
+    if (!module) return;
+    module.evidence={...defaultEvidence(),...(module.evidence||{})};
+    module.evidence[el.dataset.azEvidence]=el.checked;
+    if(el.checked && el.dataset.azEvidence==='learned'){ module.complete=true; module.masteryLevel=Math.max(1,Number(module.masteryLevel||0)); }
+    if(el.checked && el.dataset.azEvidence==='practised') module.masteryLevel=Math.max(3,Number(module.masteryLevel||0));
+    if(el.checked && ['troubleshot','verified'].includes(el.dataset.azEvidence)) module.masteryLevel=Math.max(4,Number(module.masteryLevel||0));
+    saveState({render:true}); return;
+  }
   if (el.matches('[data-dan-status]')) { findDan(el.dataset.danStatus).status=el.value; saveState(); return; }
+  if (el.matches('[data-dan-rating]')) {
+    const item=findDan(el.dataset.danRating);
+    if (!item) return;
+    item.ratings={...defaultRatings(),...(item.ratings||{})};
+    item.ratings[el.dataset.ratingField]=Number(el.value);
+    item.lastAssessmentResult=getNZDateKey();
+    if(item.status==='not-started') item.status='learning';
+    saveState({render:true}); return;
+  }
   if (el.matches('[data-dan-check]')) { const item=findDan(el.dataset.danCheck); item.checkpoints.find(c=>c.id===el.dataset.checkId).complete=el.checked; saveState({render:true}); return; }
   if (el.matches('[data-dan-side]')) { const item=findDan(el.dataset.danId); item[el.dataset.danSide==='right'?'rightComplete':'leftComplete']=el.checked; saveState(); return; }
-  if (el.matches('[data-kata-status]')) { const item=findKata(el.dataset.kataStatus); item.status=el.value; if(el.value==='sequence-known'||el.value==='comfortable'||el.value==='complete') item.sequenceProgress=100; saveState({render:true}); return; }
-  if (el.matches('[data-kata-progress]')) { const item=findKata(el.dataset.kataProgress); item.sequenceProgress=Number(el.value); if(item.sequenceProgress===100 && item.status==='learning') item.status='sequence-known'; saveState({render:true}); return; }
+  if (el.matches('[data-kata-status]')) {
+    const item=findKata(el.dataset.kataStatus);
+    item.status=el.value;
+    if(['sequence-known','comfortable','instructor-checked','grading-ready','complete'].includes(el.value)) {
+      item.sections=(item.sections||defaultKataSections(100)).map(section=>({...section,level:5}));
+      item.sequenceProgress=100;
+      if(!item.nextReview){ item.retentionIntervalDays=Number(item.retentionIntervalDays||7); item.nextReview=addDays(getNZDateKey(),item.retentionIntervalDays); }
+    }
+    saveState({render:true}); return;
+  }
+  if (el.matches('[data-kata-section]')) {
+    const item=findKata(el.dataset.kataSection);
+    if (!item) return;
+    const section=(item.sections||[]).find(entry=>entry.id===el.dataset.sectionId);
+    if (!section) return;
+    section.level=Number(el.value);
+    updateKataProgressFromSections(item);
+    saveState({render:true}); return;
+  }
   if (el.id === 'import-file' && el.files?.[0]) { importBackup(el.files[0]); el.value=''; return; }
 });
 
 document.addEventListener('input', event => {
   const el=event.target;
-  if (el.matches('[data-daily-field="notes"]')) scheduleInputSave(()=>{ getDailyRecord(el.dataset.date).notes=el.value; saveState(); });
-  if (el.matches('[data-az-notes]')) scheduleInputSave(()=>{ findAZ(el.dataset.azNotes).notes=el.value; saveState(); });
-  if (el.matches('[data-dan-notes]')) scheduleInputSave(()=>{ findDan(el.dataset.danNotes).notes=el.value; saveState(); });
-  if (el.matches('[data-kata-notes]')) scheduleInputSave(()=>{ findKata(el.dataset.kataNotes).notes=el.value; saveState(); });
+  if (el.matches('[data-daily-field="notes"]')) scheduleInputSave(`daily:${el.dataset.date}`, ()=>{ getDailyRecord(el.dataset.date).notes=el.value; saveState(); });
+  if (el.matches('[data-az-notes]')) scheduleInputSave(`az:${el.dataset.azNotes}`, ()=>{ findAZ(el.dataset.azNotes).notes=el.value; saveState(); });
+  if (el.matches('[data-dan-notes]')) scheduleInputSave(`dan:${el.dataset.danNotes}`, ()=>{ findDan(el.dataset.danNotes).notes=el.value; saveState(); });
+  if (el.matches('[data-kata-notes]')) scheduleInputSave(`kata:${el.dataset.kataNotes}`, ()=>{ findKata(el.dataset.kataNotes).notes=el.value; saveState(); });
 });
 
 document.addEventListener('submit', async event => {
+  if (event.target.id === 'azure-lab-form') {
+    event.preventDefault();
+    const data=new FormData(event.target);
+    const [pathId,moduleId]=String(data.get('moduleRef')||'').split('::');
+    const module=findAZModule(pathId,moduleId);
+    if(!module) return toast('Select a valid Azure topic.');
+    const objective=String(data.get('objective')||'').trim();
+    const configuration=String(data.get('configuration')||'').trim();
+    const result=String(data.get('result')||'').trim();
+    if(!objective||!configuration||!result) return toast('Complete the objective, configuration and final result.');
+    const lab={
+      id:crypto.randomUUID(),
+      pathId,
+      moduleId,
+      moduleName:module.name,
+      tool:String(data.get('tool')||'Azure portal'),
+      objective,
+      configuration,
+      failure:String(data.get('failure')||'').trim(),
+      diagnosis:String(data.get('diagnosis')||'').trim(),
+      result,
+      cleanup:String(data.get('cleanup')||'').trim(),
+      commands:String(data.get('commands')||'').trim(),
+      createdAt:new Date().toISOString()
+    };
+    state.azureLabs.push(lab);
+    module.evidence={...defaultEvidence(),...(module.evidence||{}),practised:true,verified:true};
+    if(lab.failure||lab.diagnosis) module.evidence.troubleshot=true;
+    module.lastStudied=getNZDateKey();
+    module.masteryLevel=Math.max(lab.failure||lab.diagnosis?4:3,Number(module.masteryLevel||0));
+    if(!module.nextReview){ module.reviewIntervalDays=3; module.nextReview=addDays(getNZDateKey(),3); }
+    event.target.reset();
+    saveState({render:true});
+    toast('Azure lab journal saved and mastery updated.');
+    return;
+  }
   if (event.target.id === 'note-form') {
     event.preventDefault(); const data=new FormData(event.target);
-    state.notes.push({id:crypto.randomUUID(),title:data.get('title').trim(),body:data.get('body').trim(),createdAt:new Date().toISOString()});
+    const title = data.get('title').trim();
+    const body = data.get('body').trim();
+    if (!title || !body) { toast('Enter both a note title and note text.'); return; }
+    state.notes.push({id:crypto.randomUUID(),title,body,createdAt:new Date().toISOString()});
     saveState({render:true}); toast('Note saved.'); return;
   }
   if (event.target.id === 'review-form') {

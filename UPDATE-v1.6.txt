@@ -1,0 +1,25 @@
+KARATE & AZURE PROGRESS HUB — UPDATE v1.6.0
+
+MAIN CHANGES
+- Removed fixed task start and finish times.
+- Reduced every day to one flexible main task.
+- Added clear kata and 3rd Dan grading focus panels.
+- Added adaptive next-focus recommendations.
+- Added Azure mastery, evidence, active recall and review scheduling.
+- Added structured Azure lab journals.
+- Added 3rd Dan technique quality assessments.
+- Added kata section tracking and retention scheduling.
+
+SAFE UPDATE
+- Existing local and Supabase data are merged and preserved.
+- Supabase authentication is unchanged.
+- supabase-schema.sql is unchanged.
+- No js/config.js existed and none was added or replaced.
+
+TEST BEFORE DEPLOYMENT
+node --check app.js
+node --check service-worker.js
+node tests/smoke-test.cjs
+
+DEPLOYMENT
+Upload all files from this folder to the existing GitHub Pages repository, commit the replacements, then close and reopen the installed app.

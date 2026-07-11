@@ -1,17 +1,26 @@
-KARATE & AZURE PROGRESS HUB v1.3
+KARATE & AZURE PROGRESS HUB v1.6.0
 
-This version starts the morning programme on Saturday 11 July 2026 at 5:30 am.
+This version removes fixed start times, uses one flexible task per day, and adds adaptive Azure and karate mastery tracking.
 
 TO UPDATE THE LIVE APP
-1. Extract the ZIP.
-2. Open the existing GitHub repository.
-3. Select Add file > Upload files.
-4. Upload everything from inside the extracted app folder.
-5. Commit the replacements.
-6. Wait for GitHub Pages deployment to complete.
-7. Close and reopen the installed app on each device.
+1. Back up the current repository or download its ZIP.
+2. Export a JSON backup from the existing app if cloud sync is not current.
+3. Extract this ZIP.
+4. Open the existing GitHub repository.
+5. Select Add file > Upload files.
+6. Upload everything from inside the extracted app folder.
+7. Commit the replacements.
+8. Wait for GitHub Pages deployment to complete.
+9. Close and reopen the installed app on each device.
 
 No reinstallation is normally required.
 
+DATA SAFETY
+- Existing local progress and Supabase data are migrated, not replaced.
+- Supabase authentication and the database schema are unchanged.
+- Azure, syllabus, kata, daily, note and review records remain compatible.
+- Do not delete browser storage before confirming that cloud sync is current or a JSON backup exists.
+
 LOCAL TEST
 Double-click run-local.bat, then open http://localhost:8080.
+Run node tests/smoke-test.cjs before deployment.
