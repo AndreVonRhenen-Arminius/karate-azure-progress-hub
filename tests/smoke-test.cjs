@@ -41,8 +41,8 @@ const context = {
   localStorage,
   document,
   navigator: { onLine: true },
-  window: { scrollTo(){}, addEventListener(){}, location: { reload(){} } },
-  location: { reload(){} },
+  window: { scrollTo(){}, addEventListener(){}, location: { origin:'http://localhost:8080', pathname:'/', reload(){} } },
+  location: { origin:'http://localhost:8080', pathname:'/', reload(){} },
   Notification: function(){},
   Blob,
   URL,
@@ -95,12 +95,18 @@ vm.runInContext(`globalThis.testApi = {
   updateKataProgressFromSections,
   getNextKataInterval,
   addDays,
-  DAY_PLANS
+  DAY_PLANS,
+  APP_VERSION,
+  MICROSOFT_GRAPH_SCOPES,
+  oneDriveStateUrl,
+  getCurrentRedirectUri,
+  loadCloudProvider
 };`, context);
 
 const api = context.testApi;
 const initial = api.getState();
-assert.equal(initial.version, 4, 'state schema should be version 4');
+assert.equal(api.APP_VERSION, '1.7.0', 'application should be version 1.7.0');
+assert.equal(initial.version, 4, 'state schema should remain version 4');
 assert.deepEqual(Object.keys(initial.daily), [], 'rendering should not create daily records');
 
 for (const [mode, days] of Object.entries(api.DAY_PLANS)) {
@@ -177,6 +183,13 @@ api.renderNotes();
 assert.ok(getElement('view-notes').innerHTML.includes('Weekly review'));
 api.renderSettings();
 assert.ok(getElement('view-settings').innerHTML.includes('One flexible task per day'));
+assert.ok(getElement('view-settings').innerHTML.includes('Microsoft OneDrive'));
+assert.ok(getElement('view-settings').innerHTML.includes('Sign in with Microsoft'));
+assert.ok(getElement('view-settings').innerHTML.includes('Files.ReadWrite.AppFolder'));
+assert.deepEqual(Array.from(api.MICROSOFT_GRAPH_SCOPES), ['Files.ReadWrite.AppFolder']);
+assert.equal(api.getCurrentRedirectUri(), 'http://localhost:8080/');
+assert.ok(api.oneDriveStateUrl().endsWith('/me/drive/special/approot:/karate-azure-progress-state.json:/content'));
+assert.equal(api.loadCloudProvider(), 'supabase', 'legacy installations should retain Supabase as the default provider');
 
 jion.status='complete';
 jion.sequenceProgress=100;

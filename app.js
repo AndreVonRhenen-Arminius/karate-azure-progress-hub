@@ -1,6 +1,12 @@
 const STORAGE_KEY = 'ka_progress_hub_state_v1';
 const CLOUD_CONFIG_KEY = 'ka_progress_hub_cloud_config_v1';
+const CLOUD_PROVIDER_KEY = 'ka_progress_hub_cloud_provider_v1';
+const MICROSOFT_CONFIG_KEY = 'ka_progress_hub_microsoft_config_v1';
 const SUPABASE_ESM = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const MSAL_BROWSER_VERSION = '5.17.0';
+const MICROSOFT_GRAPH_BASE = 'https://graph.microsoft.com/v1.0';
+const MICROSOFT_GRAPH_SCOPES = ['Files.ReadWrite.AppFolder'];
+const ONEDRIVE_STATE_FILE = 'karate-azure-progress-state.json';
 
 const STATUS_OPTIONS = [
   ['not-started', 'Not started'],
@@ -23,7 +29,7 @@ const AZ_STATUS_OPTIONS = [
   ['complete', 'Completed']
 ];
 
-const APP_VERSION = '1.6.0';
+const APP_VERSION = '1.7.0';
 const STATE_VERSION = 4;
 const PROGRAMME_START_DATE = '2026-07-11';
 
@@ -432,6 +438,11 @@ let currentView = 'today';
 let cloudClient = null;
 let cloudUser = null;
 let cloudConfig = loadCloudConfig();
+let cloudProvider = loadCloudProvider();
+let microsoftConfig = loadMicrosoftConfig();
+let microsoftClient = null;
+let microsoftAccount = null;
+let microsoftModule = null;
 let cloudDirty = false;
 let syncDebounce = null;
 let isSyncing = false;
@@ -458,6 +469,41 @@ const pageTitles = {
 function loadCloudConfig() {
   try { return JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY)) || {}; }
   catch { return {}; }
+}
+
+function getCurrentRedirectUri() {
+  const loc = window.location || location;
+  const origin = loc?.origin || '';
+  const pathname = loc?.pathname || '/';
+  return origin && origin !== 'null' ? `${origin}${pathname}` : '';
+}
+
+function loadMicrosoftConfig() {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(MICROSOFT_CONFIG_KEY)) || {}; }
+  catch { saved = {}; }
+  const deployed = window.KA_MICROSOFT_CONFIG || {};
+  return {
+    clientId: saved.clientId || deployed.clientId || '',
+    authority: saved.authority || deployed.authority || 'https://login.microsoftonline.com/common',
+    redirectUri: saved.redirectUri || deployed.redirectUri || getCurrentRedirectUri()
+  };
+}
+
+function loadCloudProvider() {
+  const saved = localStorage.getItem(CLOUD_PROVIDER_KEY);
+  return ['local', 'supabase', 'onedrive'].includes(saved) ? saved : 'supabase';
+}
+
+function setCloudProvider(provider) {
+  cloudProvider = ['local', 'supabase', 'onedrive'].includes(provider) ? provider : 'local';
+  localStorage.setItem(CLOUD_PROVIDER_KEY, cloudProvider);
+  updateAccountUI();
+  updateProviderStatus();
+}
+
+function oneDriveStateUrl() {
+  return `${MICROSOFT_GRAPH_BASE}/me/drive/special/approot:/${encodeURIComponent(ONEDRIVE_STATE_FILE)}:/content`;
 }
 
 function saveState({ render = false, sync = true } = {}) {
@@ -1363,6 +1409,8 @@ function renderNotes() {
 }
 
 function renderSettings() {
+  const recommendedRedirect = getCurrentRedirectUri();
+  const microsoftName = microsoftAccount?.name || microsoftAccount?.username || '';
   document.getElementById('view-settings').innerHTML = `
     <div class="grid two">
       <article class="card">
@@ -1384,7 +1432,46 @@ function renderSettings() {
       </article>
     </div>
 
-    <div class="section-heading"><div><h2>Cloud synchronisation</h2><p>Supabase account and database.</p></div></div>
+    <div class="section-heading"><div><h2>Cloud synchronisation</h2><p>Choose one active provider. Local data remains the working copy on this device.</p></div></div>
+    <article class="card provider-selector-card">
+      <div class="provider-selector">
+        <label>Active sync provider
+          <select id="cloud-provider">
+            <option value="local" ${cloudProvider === 'local' ? 'selected' : ''}>Local device only</option>
+            <option value="onedrive" ${cloudProvider === 'onedrive' ? 'selected' : ''}>Microsoft OneDrive</option>
+            <option value="supabase" ${cloudProvider === 'supabase' ? 'selected' : ''}>Supabase</option>
+          </select>
+        </label>
+        <div class="provider-current"><span class="provider-dot ${cloudProvider}"></span><div><strong>${cloudProvider === 'onedrive' ? 'Microsoft OneDrive' : cloudProvider === 'supabase' ? 'Supabase' : 'Local only'}</strong><div class="muted small">Only the selected provider receives automatic updates.</div></div></div>
+      </div>
+      <div class="form-actions"><button class="primary-btn" data-action="save-sync-provider">Use selected provider</button></div>
+    </article>
+
+    <div class="section-heading"><div><h2>Microsoft OneDrive</h2><p>Sign in with Microsoft and save the app state in its private OneDrive application folder.</p></div></div>
+    <div class="grid two">
+      <article class="card">
+        <div class="provider-title"><span class="microsoft-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div><h2>Microsoft application</h2><p class="muted small">A public SPA client ID is required. Do not enter a client secret.</p></div></div>
+        <label>Application (client) ID<input id="microsoft-client-id" type="text" value="${escapeHTML(microsoftConfig.clientId || '')}" placeholder="00000000-0000-0000-0000-000000000000" autocomplete="off"></label>
+        <label style="margin-top:12px">Authority<input id="microsoft-authority" type="url" value="${escapeHTML(microsoftConfig.authority || 'https://login.microsoftonline.com/common')}" placeholder="https://login.microsoftonline.com/common"></label>
+        <label style="margin-top:12px">SPA redirect URI<input id="microsoft-redirect-uri" type="url" value="${escapeHTML(microsoftConfig.redirectUri || recommendedRedirect)}" placeholder="${escapeHTML(recommendedRedirect)}"></label>
+        <div class="inline-note" style="margin-top:14px">Register the exact redirect URI above as a <strong>Single-page application</strong>. Required delegated permission: <code>Files.ReadWrite.AppFolder</code>.</div>
+        <div class="form-actions"><button class="primary-btn" data-action="save-microsoft-config">Save Microsoft configuration</button><button class="ghost-btn" data-action="clear-microsoft-config">Clear</button></div>
+      </article>
+      <article class="card">
+        <div class="provider-title"><span class="microsoft-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div><h2>${microsoftAccount ? 'Microsoft account' : 'Sign in with Microsoft'}</h2><p class="muted small">The progress file is stored as <code>${ONEDRIVE_STATE_FILE}</code> inside the app’s OneDrive folder.</p></div></div>
+        ${microsoftAccount ? `
+          <div class="account-summary"><strong>${escapeHTML(microsoftName)}</strong>${microsoftAccount.username ? `<span>${escapeHTML(microsoftAccount.username)}</span>` : ''}</div>
+          <div class="form-actions"><button class="microsoft-btn" data-action="sync-onedrive"><span class="microsoft-mini">⊞</span>Sync OneDrive now</button><button class="secondary-btn" data-action="pull-onedrive">Pull OneDrive to this device</button><button class="secondary-btn" data-action="push-onedrive">Push this device to OneDrive</button><button class="ghost-btn" data-action="sign-out-microsoft">Sign out</button></div>
+        ` : `
+          <p>Use a personal Microsoft account or a permitted work or school account.</p>
+          <div class="form-actions"><button class="microsoft-btn" data-action="sign-in-microsoft" ${microsoftConfig.clientId ? '' : 'disabled'}><span class="microsoft-mini">⊞</span>Sign in with Microsoft</button></div>
+          ${microsoftConfig.clientId ? '' : '<div class="inline-note warning" style="margin-top:14px">Save the Microsoft application client ID first.</div>'}
+        `}
+        <div class="inline-note privacy-note" style="margin-top:15px">The permission is limited to this app’s own folder in OneDrive. The app cannot browse your other OneDrive files through this permission.</div>
+      </article>
+    </div>
+
+    <div class="section-heading"><div><h2>Supabase synchronisation</h2><p>The existing Supabase authentication and database remain available.</p></div></div>
     <div class="grid two">
       <article class="card">
         <h2>Supabase configuration</h2>
@@ -1394,10 +1481,10 @@ function renderSettings() {
         <div class="form-actions"><button class="primary-btn" data-action="save-cloud-config">Save cloud configuration</button><button class="ghost-btn" data-action="clear-cloud-config">Clear</button></div>
       </article>
       <article class="card">
-        <h2>${cloudUser ? 'Cloud account' : 'Sign in or create account'}</h2>
+        <h2>${cloudUser ? 'Supabase account' : 'Sign in or create Supabase account'}</h2>
         ${cloudUser ? `
           <p>Signed in as <strong>${escapeHTML(cloudUser.email || cloudUser.id)}</strong>.</p>
-          <div class="form-actions"><button class="primary-btn" data-action="sync-now">Sync now</button><button class="secondary-btn" data-action="pull-cloud">Pull cloud to this device</button><button class="secondary-btn" data-action="push-cloud">Push this device to cloud</button><button class="ghost-btn" data-action="sign-out">Sign out</button></div>
+          <div class="form-actions"><button class="primary-btn" data-action="sync-now">Sync Supabase now</button><button class="secondary-btn" data-action="pull-cloud">Pull Supabase to this device</button><button class="secondary-btn" data-action="push-cloud">Push this device to Supabase</button><button class="ghost-btn" data-action="sign-out">Sign out</button></div>
         ` : `
           <form id="auth-form">
             <label>Email<input name="email" type="email" required autocomplete="email"></label>
@@ -1473,8 +1560,13 @@ async function importBackup(file) {
 
 function updateAccountUI() {
   const badge = document.getElementById('account-badge');
-  badge.textContent = (cloudUser?.email || state.profile.name || 'A').charAt(0).toUpperCase();
-  badge.title = cloudUser ? cloudUser.email : 'Local profile';
+  const activeIdentity = cloudProvider === 'onedrive'
+    ? (microsoftAccount?.username || microsoftAccount?.name)
+    : cloudProvider === 'supabase'
+      ? cloudUser?.email
+      : '';
+  badge.textContent = (activeIdentity || state.profile.name || 'A').charAt(0).toUpperCase();
+  badge.title = activeIdentity || 'Local profile';
 }
 
 function updateSyncPill(status, text) {
@@ -1483,13 +1575,269 @@ function updateSyncPill(status, text) {
   pill.textContent = text;
 }
 
-async function initCloud() {
-  if (!cloudConfig.url || !cloudConfig.key) {
+function updateProviderStatus() {
+  if (cloudProvider === 'local') {
     updateSyncPill('local', 'Local only');
     return;
   }
+  if (cloudProvider === 'onedrive') {
+    if (!microsoftConfig.clientId) updateSyncPill('error', 'OneDrive setup required');
+    else if (!microsoftAccount) updateSyncPill('local', 'OneDrive · signed out');
+    else if (!navigator.onLine) updateSyncPill('offline', 'OneDrive offline · changes saved');
+    else updateSyncPill('synced', 'OneDrive ready');
+    return;
+  }
+  if (!cloudConfig.url || !cloudConfig.key) updateSyncPill('local', 'Supabase not configured');
+  else if (!cloudUser) updateSyncPill('local', 'Supabase · signed out');
+  else if (!navigator.onLine) updateSyncPill('offline', 'Supabase offline · changes saved');
+  else updateSyncPill('synced', 'Supabase ready');
+}
+
+async function ensureMicrosoftClient() {
+  if (microsoftClient) return microsoftClient;
+  if (!microsoftConfig.clientId) throw new Error('Microsoft application client ID is not configured.');
+  microsoftModule = microsoftModule || window.msal;
+  if (!microsoftModule?.PublicClientApplication) throw new Error(`MSAL Browser ${MSAL_BROWSER_VERSION} could not be loaded.`);
+  microsoftClient = new microsoftModule.PublicClientApplication({
+    auth: {
+      clientId: microsoftConfig.clientId,
+      authority: microsoftConfig.authority || 'https://login.microsoftonline.com/common',
+      redirectUri: microsoftConfig.redirectUri || getCurrentRedirectUri(),
+      postLogoutRedirectUri: microsoftConfig.redirectUri || getCurrentRedirectUri(),
+      navigateToLoginRequestUrl: false
+    },
+    cache: { cacheLocation: 'localStorage' }
+  });
+  if (typeof microsoftClient.initialize === 'function') await microsoftClient.initialize();
+  const accounts = microsoftClient.getAllAccounts();
+  microsoftAccount = microsoftClient.getActiveAccount?.() || accounts[0] || null;
+  if (microsoftAccount && microsoftClient.setActiveAccount) microsoftClient.setActiveAccount(microsoftAccount);
+  updateAccountUI();
+  return microsoftClient;
+}
+
+async function initMicrosoft() {
+  if (!microsoftConfig.clientId) {
+    if (cloudProvider === 'onedrive') updateProviderStatus();
+    return;
+  }
   try {
-    updateSyncPill('syncing', 'Connecting…');
+    await ensureMicrosoftClient();
+    if (microsoftAccount && cloudProvider === 'onedrive') await pullOneDrive({ initial: true });
+    else if (cloudProvider === 'onedrive') updateProviderStatus();
+    if (currentView === 'settings') renderSettings();
+  } catch (error) {
+    console.error(error);
+    if (cloudProvider === 'onedrive') updateSyncPill('error', 'Microsoft connection error');
+  }
+}
+
+async function signInMicrosoft() {
+  try {
+    const client = await ensureMicrosoftClient();
+    updateSyncPill('syncing', 'Opening Microsoft sign-in…');
+    const result = await client.loginPopup({ scopes: MICROSOFT_GRAPH_SCOPES, prompt: 'select_account' });
+    microsoftAccount = result.account;
+    if (microsoftAccount && client.setActiveAccount) client.setActiveAccount(microsoftAccount);
+    setCloudProvider('onedrive');
+    updateAccountUI();
+    await pullOneDrive({ initial: true });
+    if (currentView === 'settings') renderSettings();
+    toast('Signed in with Microsoft. OneDrive synchronisation is active.');
+  } catch (error) {
+    console.error(error);
+    updateProviderStatus();
+    toast(`Microsoft sign-in failed: ${error.message}`);
+  }
+}
+
+async function signOutMicrosoft() {
+  if (!microsoftClient || !microsoftAccount) return;
+  try {
+    const account = microsoftAccount;
+    microsoftAccount = null;
+    updateAccountUI();
+    await microsoftClient.logoutPopup({ account, postLogoutRedirectUri: microsoftConfig.redirectUri || getCurrentRedirectUri(), mainWindowRedirectUri: microsoftConfig.redirectUri || getCurrentRedirectUri() });
+  } catch (error) {
+    console.error(error);
+    toast(`Microsoft sign-out failed: ${error.message}`);
+  } finally {
+    microsoftAccount = null;
+    updateProviderStatus();
+    if (currentView === 'settings') renderSettings();
+  }
+}
+
+async function getMicrosoftAccessToken({ interactive = false } = {}) {
+  const client = await ensureMicrosoftClient();
+  if (!microsoftAccount) throw new Error('Sign in with Microsoft first.');
+  const request = { account: microsoftAccount, scopes: MICROSOFT_GRAPH_SCOPES };
+  try {
+    return (await client.acquireTokenSilent(request)).accessToken;
+  } catch (error) {
+    if (!interactive) throw error;
+    return (await client.acquireTokenPopup(request)).accessToken;
+  }
+}
+
+async function graphError(response) {
+  try {
+    const body = await response.json();
+    return new Error(body?.error?.message || `Microsoft Graph request failed (${response.status}).`);
+  } catch {
+    return new Error(`Microsoft Graph request failed (${response.status}).`);
+  }
+}
+
+async function readOneDriveState({ interactive = false } = {}) {
+  const token = await getMicrosoftAccessToken({ interactive });
+  const response = await fetch(oneDriveStateUrl(), {
+    method: 'GET',
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store',
+    redirect: 'follow'
+  });
+  if (response.status === 404) return null;
+  if (!response.ok) throw await graphError(response);
+  const text = await response.text();
+  if (!text.trim()) return null;
+  const parsed = JSON.parse(text);
+  if (!parsed || typeof parsed !== 'object') throw new Error('The OneDrive progress file is invalid.');
+  return parsed;
+}
+
+async function writeOneDriveState({ interactive = false } = {}) {
+  const token = await getMicrosoftAccessToken({ interactive });
+  const response = await fetch(oneDriveStateUrl(), {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(state, null, 2)
+  });
+  if (!response.ok) throw await graphError(response);
+  return response.json();
+}
+
+function scheduleOneDriveSync() {
+  if (!microsoftClient || !microsoftAccount || !navigator.onLine) {
+    if (!navigator.onLine && microsoftAccount) updateSyncPill('offline', 'OneDrive offline · changes saved');
+    return;
+  }
+  updateSyncPill('syncing', 'OneDrive changes pending…');
+  clearTimeout(syncDebounce);
+  syncDebounce = setTimeout(() => pushOneDrive({ auto: true }), 1600);
+}
+
+async function pushOneDrive({ auto = false, force = false } = {}) {
+  if (!microsoftClient || !microsoftAccount) {
+    if (!auto) toast('Sign in with Microsoft first.');
+    return;
+  }
+  if (!navigator.onLine) {
+    updateSyncPill('offline', 'OneDrive offline · changes saved');
+    if (!auto) toast('The device is offline. Changes remain saved locally.');
+    return;
+  }
+  if (isSyncing) return;
+  isSyncing = true;
+  updateSyncPill('syncing', 'Syncing OneDrive…');
+  try {
+    if (!force) {
+      const remote = await readOneDriveState({ interactive: !auto });
+      const remoteTime = remote?.updatedAt ? Date.parse(remote.updatedAt) : 0;
+      const localTime = state.updatedAt ? Date.parse(state.updatedAt) : 0;
+      if (remote && remoteTime > localTime + 1000) {
+        state = mergeDefaults(remote);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        cloudDirty = false;
+        renderCurrentView();
+        updateSyncPill('synced', 'Newer OneDrive version loaded');
+        toast('A newer OneDrive version was loaded.');
+        return;
+      }
+    }
+    await writeOneDriveState({ interactive: !auto });
+    cloudDirty = false;
+    updateSyncPill('synced', `OneDrive ${new Date().toLocaleTimeString('en-NZ', { hour:'2-digit', minute:'2-digit' })}`);
+    if (!auto) toast('OneDrive synchronisation completed.');
+  } catch (error) {
+    console.error(error);
+    updateSyncPill('error', 'OneDrive sync failed');
+    if (!auto) toast(`OneDrive sync failed: ${error.message}`);
+  } finally {
+    isSyncing = false;
+  }
+}
+
+async function pullOneDrive({ initial = false, force = false } = {}) {
+  if (!microsoftClient || !microsoftAccount) {
+    if (!initial) toast('Sign in with Microsoft first.');
+    return;
+  }
+  if (!navigator.onLine) {
+    updateSyncPill('offline', 'OneDrive offline · changes saved');
+    return;
+  }
+  if (isSyncing) return;
+  isSyncing = true;
+  updateSyncPill('syncing', 'Checking OneDrive…');
+  try {
+    const remote = await readOneDriveState({ interactive: !initial });
+    if (!remote) {
+      await writeOneDriveState({ interactive: !initial });
+      hasLocalState = true;
+      cloudDirty = false;
+      updateSyncPill('synced', 'Initial OneDrive copy saved');
+      return;
+    }
+    const remoteTime = remote.updatedAt ? Date.parse(remote.updatedAt) : 0;
+    const localTime = state.updatedAt ? Date.parse(state.updatedAt) : 0;
+    if (force || !hasLocalState || remoteTime > localTime) {
+      state = mergeDefaults(remote);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      hasLocalState = true;
+      cloudDirty = false;
+      renderCurrentView();
+      updateSyncPill('synced', 'OneDrive data loaded');
+      if (!initial) toast('OneDrive data loaded onto this device.');
+    } else if (localTime > remoteTime) {
+      isSyncing = false;
+      await pushOneDrive({ auto: initial });
+      return;
+    } else {
+      cloudDirty = false;
+      updateSyncPill('synced', 'OneDrive up to date');
+    }
+  } catch (error) {
+    console.error(error);
+    updateSyncPill('error', 'OneDrive check failed');
+    if (!initial) toast(`OneDrive check failed: ${error.message}`);
+  } finally {
+    isSyncing = false;
+  }
+}
+
+async function pushActiveCloud(options = {}) {
+  if (cloudProvider === 'onedrive') return pushOneDrive(options);
+  if (cloudProvider === 'supabase') return pushCloud(options);
+  toast('Cloud sync is set to local device only.');
+}
+
+async function pullActiveCloud(options = {}) {
+  if (cloudProvider === 'onedrive') return pullOneDrive(options);
+  if (cloudProvider === 'supabase') return pullCloud(options);
+  if (!options.initial) toast('Cloud sync is set to local device only.');
+}
+
+async function initCloud() {
+  if (!cloudConfig.url || !cloudConfig.key) {
+    if (cloudProvider === 'supabase') updateProviderStatus();
+    return;
+  }
+  try {
+    if (cloudProvider === 'supabase') updateSyncPill('syncing', 'Connecting…');
     const { createClient } = await import(SUPABASE_ESM);
     cloudClient = createClient(cloudConfig.url, cloudConfig.key, {
       auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
@@ -1501,20 +1849,28 @@ async function initCloud() {
       cloudUser = session?.user || null;
       setTimeout(async () => {
         updateAccountUI();
-        if (cloudUser) await pullCloud({ initial: true });
-        else updateSyncPill('local', 'Signed out');
+        if (cloudUser && cloudProvider === 'supabase') await pullCloud({ initial: true });
+        else if (cloudProvider === 'supabase') updateProviderStatus();
         if (currentView === 'settings') renderSettings();
       }, 0);
     });
-    if (cloudUser) await pullCloud({ initial: true });
-    else updateSyncPill('local', 'Cloud ready · signed out');
+    if (cloudUser && cloudProvider === 'supabase') await pullCloud({ initial: true });
+    else if (cloudProvider === 'supabase') updateProviderStatus();
   } catch (error) {
     console.error(error);
-    updateSyncPill('error', 'Cloud connection error');
+    if (cloudProvider === 'supabase') updateSyncPill('error', 'Cloud connection error');
   }
 }
 
 function scheduleCloudSync() {
+  if (cloudProvider === 'local') {
+    updateSyncPill('local', 'Local only');
+    return;
+  }
+  if (cloudProvider === 'onedrive') {
+    scheduleOneDriveSync();
+    return;
+  }
   if (!cloudClient || !cloudUser || !navigator.onLine) {
     if (!navigator.onLine && cloudUser) updateSyncPill('offline', 'Offline · changes saved');
     return;
@@ -1798,6 +2154,29 @@ document.addEventListener('click', async event => {
   if (action === 'export-backup') return exportBackup();
   if (action === 'choose-import') return document.getElementById('import-file').click();
   if (action === 'save-programme-settings') { state.settings.programmeMode=document.getElementById('mode-toggle').checked?'minimum':'normal'; state.settings.programmeStartDate=document.getElementById('programme-start-date').value||PROGRAMME_START_DATE; saveState({render:true}); toast('Programme settings saved.'); return; }
+  if (action === 'save-sync-provider') {
+    const selected=document.getElementById('cloud-provider').value;
+    setCloudProvider(selected);
+    if(selected==='onedrive' && microsoftAccount) await pullOneDrive({initial:true});
+    if(selected==='supabase' && cloudUser) await pullCloud({initial:true});
+    renderSettings();
+    toast(`${selected==='onedrive'?'Microsoft OneDrive':selected==='supabase'?'Supabase':'Local-only'} sync selected.`);
+    return;
+  }
+  if (action === 'save-microsoft-config') {
+    const clientId=document.getElementById('microsoft-client-id').value.trim();
+    const authority=document.getElementById('microsoft-authority').value.trim().replace(/\/$/,'')||'https://login.microsoftonline.com/common';
+    const redirectUri=document.getElementById('microsoft-redirect-uri').value.trim()||getCurrentRedirectUri();
+    if(!clientId){ toast('Enter the Microsoft application client ID.'); return; }
+    localStorage.setItem(MICROSOFT_CONFIG_KEY,JSON.stringify({clientId,authority,redirectUri}));
+    toast('Microsoft configuration saved. Reloading app…'); setTimeout(()=>location.reload(),600); return;
+  }
+  if (action === 'clear-microsoft-config') { if(await confirmAction('Clear Microsoft configuration?','Microsoft sign-in will be disabled until a client ID is configured again.')) { localStorage.removeItem(MICROSOFT_CONFIG_KEY); if(cloudProvider==='onedrive') localStorage.setItem(CLOUD_PROVIDER_KEY,'local'); location.reload(); } return; }
+  if (action === 'sign-in-microsoft') return signInMicrosoft();
+  if (action === 'sign-out-microsoft') return signOutMicrosoft();
+  if (action === 'sync-onedrive') { setCloudProvider('onedrive'); return pushOneDrive({force:false}); }
+  if (action === 'pull-onedrive') { setCloudProvider('onedrive'); if(await confirmAction('Replace this device with OneDrive data?','Any newer unsynchronised local changes may be replaced.')) return pullOneDrive({force:true}); return; }
+  if (action === 'push-onedrive') { setCloudProvider('onedrive'); if(await confirmAction('Replace OneDrive data with this device?','The local app state will be uploaded as the current OneDrive version.')) return pushOneDrive({force:true}); return; }
   if (action === 'save-cloud-config') {
     const url=document.getElementById('supabase-url').value.trim().replace(/\/$/,'');
     const key=document.getElementById('supabase-key').value.trim();
@@ -1805,9 +2184,9 @@ document.addEventListener('click', async event => {
     localStorage.setItem(CLOUD_CONFIG_KEY, JSON.stringify({url,key})); toast('Cloud configuration saved. Reloading app…'); setTimeout(()=>location.reload(),600); return;
   }
   if (action === 'clear-cloud-config') { if(await confirmAction('Clear cloud configuration?','The app will continue in local-only mode.')) { localStorage.removeItem(CLOUD_CONFIG_KEY); location.reload(); } return; }
-  if (action === 'sync-now') return pushCloud({force:false});
-  if (action === 'pull-cloud') { if(await confirmAction('Replace this device with cloud data?','Any newer unsynchronised local changes may be replaced.')) return pullCloud({force:true}); return; }
-  if (action === 'push-cloud') { if(await confirmAction('Replace cloud data with this device?','The local app state will be uploaded as the current cloud version.')) return pushCloud({force:true}); return; }
+  if (action === 'sync-now') { setCloudProvider('supabase'); return pushCloud({force:false}); }
+  if (action === 'pull-cloud') { setCloudProvider('supabase'); if(await confirmAction('Replace this device with cloud data?','Any newer unsynchronised local changes may be replaced.')) return pullCloud({force:true}); return; }
+  if (action === 'push-cloud') { setCloudProvider('supabase'); if(await confirmAction('Replace cloud data with this device?','The local app state will be uploaded as the current cloud version.')) return pushCloud({force:true}); return; }
   if (action === 'sign-out') { await cloudClient?.auth.signOut(); toast('Signed out.'); return; }
   if (action === 'install-app') return requestInstall();
   if (action === 'reset-data') { if(await confirmAction('Reset all local data?','This removes progress, notes and reviews from this device.')) { state=defaultState(); localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); hasLocalState=true; cloudDirty=true; renderCurrentView(); toast('Local data reset.'); } return; }
@@ -1950,7 +2329,12 @@ document.addEventListener('submit', async event => {
 });
 
 document.getElementById('timer-btn').addEventListener('click', openTimer);
-document.getElementById('sync-btn').addEventListener('click', () => cloudUser ? pushCloud() : showView('settings'));
+document.getElementById('sync-btn').addEventListener('click', () => {
+  if (cloudProvider === 'onedrive' && microsoftAccount) pushOneDrive();
+  else if (cloudProvider === 'supabase' && cloudUser) pushCloud();
+  else if (cloudProvider === 'local') toast('Cloud sync is set to local device only.');
+  else showView('settings');
+});
 document.getElementById('install-btn').addEventListener('click', requestInstall);
 document.querySelectorAll('[data-minutes]').forEach(btn => btn.addEventListener('click', () => setTimerMinutes(btn.dataset.minutes)));
 document.getElementById('timer-start').addEventListener('click', toggleTimer);
@@ -1959,9 +2343,19 @@ document.getElementById('timer-reset').addEventListener('click', () => setTimerM
 window.addEventListener('beforeinstallprompt', event => {
   event.preventDefault(); installPrompt=event; document.getElementById('install-btn').classList.remove('hidden');
 });
-window.addEventListener('online', () => { if(cloudUser) { updateSyncPill('syncing','Back online · syncing…'); cloudDirty ? pushCloud({auto:true}) : pullCloud({initial:true}); } });
-window.addEventListener('offline', () => { if(cloudUser) updateSyncPill('offline','Offline · changes saved'); });
-document.addEventListener('visibilitychange', () => { if(document.visibilityState==='visible' && cloudUser && navigator.onLine) pullCloud({initial:true}); });
+window.addEventListener('online', () => {
+  if (cloudProvider === 'onedrive' && microsoftAccount) { updateSyncPill('syncing','Back online · syncing OneDrive…'); cloudDirty ? pushOneDrive({auto:true}) : pullOneDrive({initial:true}); }
+  else if (cloudProvider === 'supabase' && cloudUser) { updateSyncPill('syncing','Back online · syncing Supabase…'); cloudDirty ? pushCloud({auto:true}) : pullCloud({initial:true}); }
+  else updateProviderStatus();
+});
+window.addEventListener('offline', () => {
+  if ((cloudProvider === 'onedrive' && microsoftAccount) || (cloudProvider === 'supabase' && cloudUser)) updateSyncPill('offline','Offline · changes saved');
+});
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState!=='visible' || !navigator.onLine) return;
+  if(cloudProvider==='onedrive' && microsoftAccount) pullOneDrive({initial:true});
+  if(cloudProvider==='supabase' && cloudUser) pullCloud({initial:true});
+});
 
 if ('serviceWorker' in navigator) {
   let reloadingForUpdate = false;
@@ -1980,5 +2374,11 @@ if ('Notification' in window && Notification.permission === 'default') {
 }
 
 showView('today');
+updateProviderStatus();
 initCloud();
-setInterval(() => { if(cloudUser && navigator.onLine && !cloudDirty) pullCloud({initial:true}); }, 60000);
+initMicrosoft();
+setInterval(() => {
+  if(!navigator.onLine || cloudDirty) return;
+  if(cloudProvider==='onedrive' && microsoftAccount) pullOneDrive({initial:true});
+  if(cloudProvider==='supabase' && cloudUser) pullCloud({initial:true});
+}, 60000);

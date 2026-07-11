@@ -1,7 +1,7 @@
 {
   "name": "Karate & Azure Progress Hub",
   "short_name": "Progress Hub",
-  "description": "Adaptive karate, kata and AZ-104 mastery tracker with one flexible task per day.",
+  "description": "Adaptive karate, kata and AZ-104 mastery tracker with Microsoft OneDrive or Supabase sync.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0b1020",

@@ -482,3 +482,32 @@ input[type="date"], input[type="time"] {
   .recall-question-add { grid-template-columns: 1fr; }
   .evidence-grid { grid-template-columns: 1fr; }
 }
+
+/* v1.7 Microsoft OneDrive provider */
+.provider-selector-card { box-shadow:none; }
+.provider-selector { display:grid; grid-template-columns:minmax(220px,1fr) minmax(240px,1fr); gap:18px; align-items:end; }
+.provider-current { min-height:48px; display:flex; align-items:center; gap:11px; padding:11px 13px; border:1px solid var(--line); background:rgba(255,255,255,.025); border-radius:12px; }
+.provider-dot { width:11px; height:11px; border-radius:50%; flex:0 0 auto; background:var(--muted); box-shadow:0 0 0 4px rgba(151,163,183,.1); }
+.provider-dot.onedrive { background:var(--blue); box-shadow:0 0 0 4px rgba(93,168,255,.12); }
+.provider-dot.supabase { background:var(--green); box-shadow:0 0 0 4px rgba(66,201,138,.12); }
+.provider-title { display:flex; gap:12px; align-items:flex-start; margin-bottom:16px; }
+.provider-title h2 { margin:0 0 4px; }
+.provider-title p { margin:0; }
+.microsoft-mark { width:34px; height:34px; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:2px; flex:0 0 auto; margin-top:1px; }
+.microsoft-mark i:nth-child(1) { background:#f25022; }
+.microsoft-mark i:nth-child(2) { background:#7fba00; }
+.microsoft-mark i:nth-child(3) { background:#00a4ef; }
+.microsoft-mark i:nth-child(4) { background:#ffb900; }
+.microsoft-btn { display:inline-flex; align-items:center; gap:8px; border:1px solid #8c98aa; background:#fff; color:#1f2937; border-radius:11px; padding:10px 14px; font-weight:800; cursor:pointer; }
+.microsoft-btn:hover { background:#eef2f7; }
+.microsoft-btn:disabled { opacity:.48; cursor:not-allowed; }
+.microsoft-mini { font-size:1.1rem; line-height:1; }
+.account-summary { display:grid; gap:4px; padding:13px 14px; border:1px solid rgba(93,168,255,.3); border-radius:12px; background:rgba(93,168,255,.07); }
+.account-summary span { color:var(--muted); font-size:.84rem; overflow-wrap:anywhere; }
+.privacy-note { border-left-color:var(--green); background:rgba(66,201,138,.07); color:#bfe5d2; }
+code { color:#b9d8ff; background:rgba(93,168,255,.09); border:1px solid rgba(93,168,255,.15); border-radius:6px; padding:1px 5px; overflow-wrap:anywhere; }
+
+@media (max-width: 760px) {
+  .provider-selector { grid-template-columns:1fr; align-items:stretch; }
+  .provider-title { align-items:center; }
+}

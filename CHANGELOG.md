@@ -2,6 +2,33 @@
 
 All notable changes to Karate & Azure Progress Hub are recorded here.
 
+## [1.7.0] — 2026-07-11
+
+### Added
+
+- Microsoft sign-in using MSAL Browser for a static single-page application.
+- Microsoft Graph OneDrive app-folder storage using `Files.ReadWrite.AppFolder`.
+- Automatic OneDrive synchronisation with local/remote timestamp comparison.
+- Manual OneDrive pull, push and sync controls.
+- Active cloud-provider selection: Local only, Microsoft OneDrive or Supabase.
+- Public deployment configuration in `js/microsoft-config.js`.
+- Pinned official MSAL Browser 5.17.0 runtime and licence in `vendor/`.
+- Microsoft Entra and OneDrive setup guide.
+- Provider-specific account badge and synchronisation status.
+
+### Preserved
+
+- Existing Supabase email/password authentication behaviour and database contract.
+- Existing `supabase-schema.sql` contents and row-level security policies.
+- Existing local storage key, state schema version 4 and progress records.
+- Offline-first operation and JSON backup/import compatibility.
+
+### Changed
+
+- PWA cache and asset references updated to version 1.7.0.
+- Settings reorganised to show the active cloud provider and separate OneDrive and Supabase controls.
+- Network reconnect, visibility and periodic sync actions now follow the selected cloud provider.
+
 ## [1.6.0] — 2026-07-11
 
 ### Added

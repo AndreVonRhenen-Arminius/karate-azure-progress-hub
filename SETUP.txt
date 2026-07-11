@@ -1,26 +1,26 @@
-KARATE & AZURE PROGRESS HUB v1.6.0
+KARATE & AZURE PROGRESS HUB v1.7.0
 
-This version removes fixed start times, uses one flexible task per day, and adds adaptive Azure and karate mastery tracking.
+LOCAL USE
+1. Double-click run-local.bat.
+2. Open http://localhost:8080/.
+3. Local progress is saved automatically in the browser.
 
-TO UPDATE THE LIVE APP
-1. Back up the current repository or download its ZIP.
-2. Export a JSON backup from the existing app if cloud sync is not current.
-3. Extract this ZIP.
-4. Open the existing GitHub repository.
-5. Select Add file > Upload files.
-6. Upload everything from inside the extracted app folder.
-7. Commit the replacements.
-8. Wait for GitHub Pages deployment to complete.
-9. Close and reopen the installed app on each device.
+MICROSOFT ONEDRIVE
+1. Follow MICROSOFT-ONEDRIVE-SETUP.md.
+2. Register http://localhost:8080/ and the deployed HTTPS URL as SPA redirect URIs.
+3. Add delegated permission Files.ReadWrite.AppFolder.
+4. Enter the Entra Application client ID in Settings.
+5. Select Microsoft OneDrive and sign in.
 
-No reinstallation is normally required.
+GITHUB PAGES
+Upload the complete folder to the repository root. Do not overwrite an existing js/config.js file unless explicitly intended.
 
-DATA SAFETY
-- Existing local progress and Supabase data are migrated, not replaced.
-- Supabase authentication and the database schema are unchanged.
-- Azure, syllabus, kata, daily, note and review records remain compatible.
-- Do not delete browser storage before confirming that cloud sync is current or a JSON backup exists.
+SUPABASE
+The previous Supabase configuration, authentication and user_app_state table remain supported and unchanged.
 
-LOCAL TEST
-Double-click run-local.bat, then open http://localhost:8080.
-Run node tests/smoke-test.cjs before deployment.
+VALIDATION
+- node tests/smoke-test.cjs
+- node tests/onedrive-sync-test.cjs
+
+SECURITY
+Never add a Microsoft client secret, Supabase service-role key, access token or refresh token to browser files.

@@ -1,0 +1,27 @@
+KARATE & AZURE PROGRESS HUB — UPDATE v1.7.0
+
+MAIN CHANGE
+- Adds Microsoft sign-in and OneDrive application-folder synchronisation.
+- Keeps Supabase authentication and data unchanged.
+- Lets the user select Local only, Microsoft OneDrive or Supabase.
+
+BEFORE MICROSOFT SIGN-IN CAN WORK
+1. Register a Microsoft Entra Single-page application.
+2. Add the exact deployed URL as a SPA redirect URI.
+3. Add delegated Microsoft Graph permission Files.ReadWrite.AppFolder.
+4. Enter the Application client ID in Settings or js/microsoft-config.js.
+
+DEPLOYMENT
+- Upload every file and folder in this release.
+- Preserve any separate js/config.js file already present in the repository.
+- Refresh the deployed site once after GitHub Pages completes deployment.
+
+VALIDATION
+- node --check app.js
+- node --check service-worker.js
+- node tests/smoke-test.cjs
+- node tests/onedrive-sync-test.cjs
+- Test Microsoft popup sign-in on the deployed HTTPS URL.
+- Confirm the first OneDrive copy is created.
+- Confirm changes synchronise between two devices.
+- Confirm Supabase still signs in and synchronises when selected.
