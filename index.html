@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#111827">
-  <meta name="description" content="Adaptive karate and AZ-104 mastery tracker with one flexible task per day and optional Microsoft OneDrive or Supabase cloud sync.">
+  <meta name="description" content="Alternating AZ-104 study and karate training tracker with one main task per day, expandable monthly and weekly goals, and optional OneDrive or Supabase sync.">
   <title>Karate & Azure Progress Hub — Mastery Coach</title>
   <link rel="manifest" href="manifest.webmanifest?v=1.8.0">
   <link rel="icon" href="icons/icon-192.png" sizes="192x192">
@@ -91,6 +91,47 @@
       <div class="timer-actions">
         <button type="button" id="timer-start" class="primary-btn">Start</button>
         <button type="button" id="timer-reset" class="secondary-btn">Reset</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="task-completion-dialog" class="dialog">
+    <form id="task-completion-form" class="dialog-card wide-dialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">TASK RESULT</p>
+          <h2 id="task-completion-title">Complete task</h2>
+        </div>
+        <button type="button" class="icon-btn" data-action="close-task-completion" aria-label="Close completion form">✕</button>
+      </div>
+      <div id="task-completion-fields"></div>
+      <div class="dialog-actions">
+        <button type="button" class="secondary-btn" data-action="close-task-completion">Cancel</button>
+        <button type="submit" class="primary-btn">Save result</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="reschedule-dialog" class="dialog">
+    <form id="reschedule-form" class="dialog-card">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">RESCHEDULE</p>
+          <h2>Move this task</h2>
+        </div>
+        <button type="button" class="icon-btn" data-action="close-reschedule" aria-label="Close reschedule form">✕</button>
+      </div>
+      <p id="reschedule-description" class="muted"></p>
+      <label>New date
+        <input id="reschedule-date" name="date" type="date" required>
+      </label>
+      <div>
+        <span class="field-label">Suggested suitable days</span>
+        <div id="reschedule-suggestions" class="suggestion-buttons"></div>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="secondary-btn" data-action="close-reschedule">Cancel</button>
+        <button type="submit" class="primary-btn">Move task</button>
       </div>
     </form>
   </dialog>

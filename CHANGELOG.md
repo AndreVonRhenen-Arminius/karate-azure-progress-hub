@@ -2,31 +2,37 @@
 
 All notable changes to Karate & Azure Progress Hub are recorded here.
 
-## [1.8.0] — 2026-07-11
+## [1.8.0] — 2026-07-12
 
 ### Added
 
-- Automatic daily task rollover for missed, partial and not-completed tasks.
-- Ordered queue behaviour that shifts every later task forward while preserving one task per day.
-- Original planned-date labels for carried tasks on Today and Weekly Plan.
-- **Skipped — move on** result for intentionally advancing without recording completion.
-- Programme settings for enabling rollover and selecting its start date.
-- State schema version 5 task-assignment metadata and additive migration.
-- Rollover smoke tests covering Saturday-to-Sunday and Sunday-to-Monday movement.
+- Editable alternating Azure, karate, rest, Azure-review, and karate-review day types.
+- One prominent main task per day with start, checklist, evidence, completion, missed, and reschedule actions.
+- Category-safe missed-task rescheduling that never creates a second task on a date.
+- Current Azure, Jion, and 3rd Dan grading-focus cards.
+- Six-stage Azure mastery records with date, evidence, notes, confidence, and review date.
+- Expandable AZ-104 paths, modules, units, practical evidence, and separate content/mastery percentages.
+- Current ARM-template progress at Unit 5 of 7 with PowerShell evidence requirements.
+- Full 3rd Dan Kihon, Kata, and Kumite tracking with separate right/left ratings.
+- Jion grading-readiness checklist that separates sequence knowledge from technical readiness.
+- Expandable six-month roadmap with monthly goals, weekly goals, evidence, and completion status.
+- Progress report with completed, partial, outstanding, current-focus, and on-track indicators.
+- Azure and karate completion forms and a dedicated rescheduling dialog.
+- `INSTALLATION.md` for updating local and GitHub Pages installations.
 
 ### Changed
 
-- Weekly Plan now forecasts future shifted tasks while assuming each future shown task is completed that day.
-- Daily completion and queue advancement are handled separately so skipped tasks do not inflate progress.
-- Date-key arithmetic is timezone-safe for consistent daily rollover.
-- PWA cache and asset references updated to version 1.8.0.
+- State schema increased from version 4 to version 5 using an additive migration.
+- Weekly Plan now edits day focus types rather than showing a fixed programme.
+- Today and Progress layouts prioritise evidence-based progress and future goals.
+- PWA assets and cache references updated to version 1.8.0.
 
-### Compatibility
+### Preserved
 
-- Upgrades from state version 4 begin rollover on the upgrade date, leaving older history unchanged.
-- Existing Supabase authentication functions and `supabase-schema.sql` remain unchanged.
-- Microsoft sign-in, OneDrive app-folder sync and cloud data format remain compatible.
-- Existing Azure, karate, kata, notes, reviews and daily progress are preserved.
+- Existing Supabase authentication and `user_app_state` contract.
+- Microsoft login, restricted OneDrive app-folder permission, and backup filename.
+- Existing local and cloud progress records.
+- Existing `supabase-schema.sql` and `js/microsoft-config.js` files.
 
 ## [1.7.0] — 2026-07-11
 

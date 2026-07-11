@@ -1,33 +1,12 @@
 KARATE & AZURE PROGRESS HUB — UPDATE v1.8.0
 
-MAIN CHANGE
-- Adds automatic daily task rollover.
-- If Saturday is unfinished, Saturday’s task appears on Sunday.
-- Sunday’s original task then moves to Monday after the carried task is completed.
-- All later tasks remain in order.
+Main update:
+- Alternating Azure and karate days
+- One task per day
+- Editable weekly focus types
+- Six-stage Azure mastery
+- Detailed Jion and 3rd Dan tracking
+- Expandable monthly and weekly roadmap
+- Evidence-based progress reports
 
-TASK RESULTS
-- Completed and Completed with difficulty advance the queue.
-- Completing every checklist item also advances the queue.
-- Partially completed and Not completed carry the task forward.
-- Skipped — move on advances the queue but does not count as completed.
-
-COMPATIBILITY
-- Existing history is preserved.
-- Rollover begins from the upgrade date for older saved data.
-- Supabase authentication and schema are unchanged.
-- OneDrive sync and Microsoft sign-in are unchanged.
-- Existing local, Supabase and OneDrive data remain compatible.
-
-DEPLOYMENT
-- Upload every file and folder in this release.
-- Preserve any existing js/config.js.
-- Preserve configured values in js/microsoft-config.js.
-- Refresh the site after GitHub Pages deploys.
-
-VALIDATION
-- node --check app.js
-- node --check service-worker.js
-- node tests/smoke-test.cjs
-- node tests/onedrive-sync-test.cjs
-- Mark a task unfinished and confirm it appears the next day.
+See INSTALLATION.md before replacing files in an existing deployment.

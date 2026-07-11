@@ -5,128 +5,121 @@
 - Application version: **1.8.0**
 - State schema version: **5**
 - Programme start date: **11 July 2026**
-- Deployment model: static GitHub Pages Progressive Web App
-- Cloud providers: local-only, Microsoft OneDrive app folder, or existing Supabase
+- Deployment: static GitHub Pages Progressive Web App
+- Cloud providers: local-only, Microsoft OneDrive app folder, or Supabase
 - Primary user: André
-- Main purposes:
-  - AZ-104 learning, practical evidence, active recall and spaced revision
-  - JKA 3rd Dan syllabus assessment and grading preparation
-  - Kata section learning and retention scheduling
-  - One flexible task per day
-  - Automatic rollover of unfinished tasks
-  - Notes, weekly reviews, progress and optional OneDrive or Supabase synchronisation
+
+## Main behaviour
+
+1. Every date has exactly one main task.
+2. Azure and karate cannot be generated as main tasks on the same date.
+3. Day types are editable: Azure, Karate, Rest, Azure Review, or Karate Review.
+4. No fixed task start times are displayed.
+5. Future tasks are generated from the weekly day-type pattern.
+6. A task becomes a historical snapshot when progress is recorded.
+7. Changing a day containing progress requires confirmation and clears that day only.
+8. Missed tasks are rescheduled to a compatible future day without stacking tasks.
+9. Current-focus cards do not create extra daily tasks.
 
 ## Protected areas
 
-Do not replace, remove or redesign the following unless André explicitly requests it:
+Do not replace, remove, or redesign these unless André explicitly requests it:
 
-1. Existing Supabase authentication behaviour in `app.js`.
-2. Supabase project configuration, publishable/anon key storage or cloud table contract.
-3. Existing local, Supabase or OneDrive progress data.
-4. `js/config.js`, if present in a deployed project copy.
-5. The `user_app_state` table structure and row-level security policies in `supabase-schema.sql`.
-6. Configured production values in `js/microsoft-config.js`.
+1. Existing Supabase authentication functions in `app.js`.
+2. Supabase project configuration or browser-stored publishable key.
+3. The `user_app_state` table and RLS policies in `supabase-schema.sql`.
+4. Microsoft authentication and OneDrive app-folder integration.
+5. Existing local, OneDrive, or Supabase progress data.
+6. `js/microsoft-config.js` after production values have been entered.
+7. `js/config.js` if it exists in a deployed copy. This archive does not contain it.
 
-Never add a Supabase service-role key, Microsoft client secret, access token or refresh token to browser code.
+Never add client secrets, access tokens, refresh tokens, service-role keys, or passwords to browser source code.
 
 ## Architecture
 
-- `index.html` — app shell, navigation, dialogs and versioned PWA assets.
-- `styles.css` — dark responsive UI, mastery controls and rollover indicators.
-- `app.js` — programme definitions, rollover queue, adaptive priorities, state, backups, timer, Microsoft Graph/OneDrive sync and Supabase sync.
-- `js/microsoft-config.js` — public Microsoft SPA client configuration; never contains secrets.
-- `vendor/msal-browser.min.js` — pinned MSAL Browser runtime.
-- `service-worker.js` — offline cache and network-first update behaviour.
-- `manifest.webmanifest` — installable PWA metadata.
-- `supabase-schema.sql` — existing single-row-per-user cloud state table and RLS policies.
-- `tests/smoke-test.cjs` — state, migration, rollover and rendering checks.
-- `tests/onedrive-sync-test.cjs` — mocked OneDrive read/write and conflict checks.
+- `index.html`: shell, navigation, timer, completion, reschedule, and confirmation dialogs.
+- `styles.css`: restrained dark interface with Azure, karate, status, roadmap, and responsive styles.
+- `app.js`: state schema, migrations, scheduling, task generation, Azure mastery, karate assessments, roadmap, reports, rendering, backups, OneDrive sync, and Supabase sync.
+- `js/microsoft-config.js`: public Microsoft SPA client configuration only.
+- `vendor/msal-browser.min.js`: pinned MSAL Browser runtime.
+- `service-worker.js`: offline assets and network-first update behaviour.
+- `manifest.webmanifest`: PWA metadata.
+- `supabase-schema.sql`: existing cloud state table and policies.
 
-The application has no build step. Local state remains the working copy even when a cloud provider is selected.
+There is no build step.
 
-## State and compatibility
+## State schema version 5
 
-Local state key:
+Version 5 adds:
 
-`ka_progress_hub_state_v1`
+- `settings.weeklyDayTypes`
+- `scheduleOverrides`
+- one saved task snapshot per daily record
+- task status, result, evidence, completion data, and rescheduling metadata
+- `azureFocus`
+- Azure units and six detailed mastery-stage records
+- full 3rd Dan Kihon, Kata, and Kumite assessments
+- Jion grading-readiness fields
+- six-month expandable roadmap with monthly and weekly goals
 
-State schema version 5 is additive. It adds:
+Migration is additive through `mergeDefaults()`. Unknown collection entries are retained. Existing notes, labs, daily data, kata data, syllabus records, and reviews are not reset.
 
-- `settings.rolloverEnabled`
-- `settings.rolloverStartDate`
-- `daily[date].taskSourceDate`
-- `daily[date].taskPlanMode`
+## Current seeded progress
 
-Older state is merged through `mergeDefaults()` rather than replaced.
+### Azure
 
-When a version 4 or earlier state is upgraded:
+- Certification: AZ-104
+- Path: Prerequisites for Azure administrators
+- Module: Deploy Azure infrastructure by using JSON ARM templates
+- Units complete: 4 of 7
+- Current unit: Unit 5 — Add parameters and outputs to an ARM template
+- Preferred tool: PowerShell
+- Learn: partial
+- Perform: partial
+- Understand, Test, Review, Retain: not completed
 
-- rollover is enabled;
-- rollover begins on the upgrade date;
-- existing daily records retain their original date and programme mode;
-- older historical progress is not rearranged.
+### Karate
 
-## Version 1.8.0 rollover behaviour
+- Current kata: Jion
+- Sequence: known
+- Grading readiness: not yet demonstrated
+- Only “Complete sequence known” starts at grading-standard level
+- Embusen, stances, transitions, rhythm, timing, kime, speed/power, kiai, questions, and reliable grading performance remain unassessed
 
-- The schedule is treated as an ordered task queue.
-- Each calendar date shows one task.
-- An unfinished task remains at the front of the queue on the following day.
-- Later tasks shift forward one date for every missed day.
-- A carried task displays its original planned date.
-- A task advances when all checklist items are complete or its result is completed, completed with difficulty, or skipped.
-- A partial or not-completed result does not advance the queue.
-- A skipped task advances but contributes zero completion progress.
-- Future Weekly Plan cards assume each unsaved future task will be completed on the date shown.
-- A task assignment is frozen once progress is recorded for that date.
-- Date-key arithmetic uses UTC-safe calculations so rollover remains consistent outside the Pacific/Auckland device timezone.
-- Minimum-mode recovery tasks do not permanently block later carried tasks.
+## Roadmap behaviour
 
-## Version 1.7.0 cloud behaviour retained
+- Six monthly sections begin in July 2026.
+- Each month contains monthly outcomes and four or five expandable weeks.
+- Every week contains at least one Azure and one karate outcome.
+- Goals require manual completion and can store evidence.
+- Roadmap progress contributes to report status but does not directly mark Azure mastery or karate readiness.
 
-- Microsoft sign-in remains optional and does not replace Supabase authentication.
-- Microsoft Graph permission remains `Files.ReadWrite.AppFolder`.
-- OneDrive stores `karate-azure-progress-state.json` in the app-specific folder.
+## Cloud behaviour
+
+- Local state remains the working copy.
+- Only the selected cloud provider receives automatic updates.
+- OneDrive uses `Files.ReadWrite.AppFolder` and `karate-azure-progress-state.json`.
+- Supabase uses the existing `user_app_state` contract.
 - Local and remote `updatedAt` values are compared before replacement.
-- Only the selected provider receives automatic updates.
-- Manual force-pull and force-push actions require confirmation.
-- No client secret, service-role key or access token is committed.
+- Force pull and force push require confirmation.
+- The app remains usable when offline.
 
-## Version 1.6.0 mastery behaviour retained
+## Release validation
 
-- No fixed task start or finish times.
-- Every normal and minimum day contains one main task.
-- Today prominently shows the current kata and 3rd Dan grading priority.
-- Azure recommendations use mastery, completion, recall, practical evidence and review dates.
-- Karate recommendations use ratings, checkpoints and practice recency.
-- Kata recommendations use section mastery, confidence and retention dates.
+Before packaging:
 
-## Validation
-
-Before release:
-
-1. Run `node --check app.js`.
-2. Run `node --check service-worker.js`.
-3. Run `node tests/smoke-test.cjs`.
-4. Run `node tests/onedrive-sync-test.cjs`.
-5. Confirm every programme day still contains one task and no fixed time.
-6. Confirm an unfinished Saturday task appears on Sunday.
-7. Confirm completing that task on Sunday places Sunday’s original task on Monday.
-8. Confirm a partial result continues carrying the same task.
-9. Confirm **Skipped — move on** advances the queue but does not count as completed.
-10. Confirm carried tasks display the original planned date on Today and Weekly Plan.
-11. Confirm existing version 4 daily records retain their original task date during migration.
-12. Confirm viewing Today or Weekly Plan does not create empty daily records.
-13. Confirm Azure mastery, 3rd Dan ratings and kata retention still save correctly.
-14. Verify local progress survives reload.
-15. Verify JSON backup import receives state version 5.
-16. Verify Supabase sign-in, pull and push without changing its configuration or schema.
-17. Verify Microsoft sign-in, OneDrive pull and OneDrive push.
-18. Verify the installed PWA refreshes to cache version 1.8.0.
-
-## Development priorities after 1.8.0
-
-- Add optional manual queue reordering without deleting progress.
-- Add optional exam and grading target dates.
-- Add exportable Azure lab and interview-evidence reports.
-- Add full browser automation if a test framework is introduced.
-- Keep future migrations additive and backward compatible.
+1. Run JavaScript syntax checks.
+2. Run smoke and OneDrive tests.
+3. Confirm all principal views render.
+4. Confirm Today and Week previews do not create daily records.
+5. Confirm one task per day and category-safe rescheduling.
+6. Confirm old version-4 state migrates to version 5 without losing custom data.
+7. Confirm current ARM and Jion progress values.
+8. Confirm monthly and weekly roadmap rendering.
+9. Confirm completion and reschedule dialogs exist.
+10. Confirm service-worker references match version 1.8.0.
+11. Confirm `supabase-schema.sql` and `js/microsoft-config.js` are unchanged.
+12. Confirm the existing Supabase/Microsoft cloud block is unchanged.
+13. Confirm there are no embedded secrets.
+14. Confirm ZIP integrity.
+15. Perform live Supabase and Microsoft sign-in checks only in the deployed environment with valid configuration.

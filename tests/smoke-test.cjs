@@ -3,20 +3,14 @@ const vm = require('vm');
 const assert = require('assert');
 const path = require('path');
 
-class ClassList {
-  add() {}
-  remove() {}
-  toggle() {}
-}
+class ClassList { add(){} remove(){} toggle(){} }
 class Element {
   constructor(id='') {
     this.id=id; this.innerHTML=''; this.textContent=''; this.value=''; this.checked=false;
-    this.files=[]; this.classList=new ClassList(); this.dataset={}; this.style={};
+    this.files=[]; this.classList=new ClassList(); this.dataset={}; this.style={}; this.disabled=false;
   }
-  addEventListener() {}
-  removeEventListener() {}
-  showModal() {}
-  click() {}
+  addEventListener(){} removeEventListener(){} showModal(){ this.open=true; } close(){ this.open=false; }
+  click(){} focus(){} reset(){}
 }
 const elements = new Map();
 const getElement = id => {
@@ -43,205 +37,230 @@ const context = {
   navigator: { onLine: true },
   window: { scrollTo(){}, addEventListener(){}, location: { origin:'http://localhost:8080', pathname:'/', reload(){} } },
   location: { origin:'http://localhost:8080', pathname:'/', reload(){} },
-  Notification: function(){},
-  Blob,
-  URL,
-  Intl,
-  Date,
-  Math,
-  JSON,
-  Object,
-  Array,
-  Map,
-  Set,
-  Promise,
-  String,
-  Number,
-  Boolean,
-  structuredClone,
+  Notification: function(){}, Blob, URL, Intl, Date, Math, JSON, Object, Array, Map, Set, Promise,
+  String, Number, Boolean, structuredClone,
   crypto: require('crypto').webcrypto,
   CSS: { escape: value => String(value) },
-  setTimeout: fn => { fn(); return 1; },
-  clearTimeout: () => {},
-  setInterval: () => 1,
-  clearInterval: () => {},
+  setTimeout: fn => { fn(); return 1; }, clearTimeout: () => {}, setInterval: () => 1, clearInterval: () => {}
 };
 context.Notification.permission = 'denied';
 vm.createContext(context);
-const appPath = process.argv[2] || path.join(__dirname, '..', 'app.js');
+const projectRoot = path.join(__dirname, '..');
+const appPath = process.argv[2] || path.join(projectRoot, 'app.js');
 const code = fs.readFileSync(appPath, 'utf8');
 vm.runInContext(code, context, {filename:'app.js'});
 vm.runInContext(`globalThis.testApi = {
   getState: () => state,
   setState: value => { state = value; },
   setSelectedDate: value => { selectedDateKey = value; },
-  defaultState,
-  mergeDefaults,
-  dayCompletion,
-  getDailyRecord,
-  getPlanModeForDate,
-  getTaskAssignmentForDate,
-  recordAdvancesQueue,
-  getDayTaskStatus,
-  renderToday,
-  renderWeek,
-  renderAzure,
-  renderDan,
-  renderKata,
-  renderProgress,
-  renderNotes,
-  renderSettings,
-  getAzurePriority,
-  getDanPriority,
-  getKataPriority,
-  recordAzureReview,
-  updateKataProgressFromSections,
-  getNextKataInterval,
-  addDays,
-  DAY_PLANS,
-  APP_VERSION,
-  MICROSOFT_GRAPH_SCOPES,
-  oneDriveStateUrl,
-  getCurrentRedirectUri,
-  loadCloudProvider
+  defaultState, mergeDefaults, dayCompletion, getDailyRecord, getPlanForDate, getTaskForDate,
+  getDayTypeForDate, getPlanModeForDate, renderToday, renderWeek, renderAzure, renderDan,
+  renderKata, renderProgress, renderNotes, renderSettings, getAzurePriority, getDanPriority,
+  getKataPriority, recordAzureReview, updateKataProgressFromSections, getNextKataInterval,
+  findNextSuitableDates, applyTaskCompletion, moduleContentPercent, moduleMasteryPercent, pathContentPercent,
+  pathMasteryPercent, currentAzureModule, currentAzureUnit, currentKata, addDays,
+  DAY_PLANS, DEFAULT_WEEKLY_DAY_TYPES, AZURE_STAGE_DEFS, DAY_TYPE_OPTIONS, APP_VERSION,
+  STATE_VERSION, MICROSOFT_GRAPH_SCOPES, oneDriveStateUrl, getCurrentRedirectUri,
+  loadCloudProvider, ONEDRIVE_STATE_FILE
 };`, context);
 
 const api = context.testApi;
 const initial = api.getState();
-assert.equal(api.APP_VERSION, '1.8.0', 'application should be version 1.8.0');
-assert.equal(initial.version, 5, 'state schema should be version 5');
-assert.equal(initial.settings.rolloverEnabled, true, 'automatic rollover should be enabled by default');
-assert.deepEqual(Object.keys(initial.daily), [], 'rendering should not create daily records');
+assert.equal(api.APP_VERSION, '1.8.0');
+assert.equal(api.STATE_VERSION, 5);
+assert.equal(initial.version, 5);
+assert.deepEqual(Object.keys(initial.daily), [], 'rendering must not create progress records');
+assert.equal(api.getPlanModeForDate(), 'alternating');
 
+// Editable alternating defaults contain one category per day and preserve a rest day.
+const defaults = JSON.parse(JSON.stringify(api.DEFAULT_WEEKLY_DAY_TYPES));
+assert.equal(defaults.Monday, 'karate');
+assert.equal(defaults.Tuesday, 'azure');
+assert.equal(defaults.Wednesday, 'rest');
+for (const type of Object.values(defaults)) {
+  assert.ok(['azure','karate','rest','azure-review','karate-review'].includes(type));
+}
 for (const [mode, days] of Object.entries(api.DAY_PLANS)) {
   for (const [day, plan] of Object.entries(days)) {
-    assert.equal(plan.tasks.length, 1, `${mode} ${day} should contain one task`);
-    assert.ok(!Object.prototype.hasOwnProperty.call(plan.tasks[0], 'time'), `${mode} ${day} should not contain a fixed time`);
+    assert.equal(plan.tasks.length, 1, `${mode} ${day} must contain one task`);
+    assert.ok(!Object.prototype.hasOwnProperty.call(plan.tasks[0], 'time'));
   }
 }
 
-const monday='2026-07-13';
-const record=api.getDailyRecord(monday);
-assert.equal(record.planMode,'normal');
-const mondayTask=api.DAY_PLANS.normal.Monday.tasks[0];
-mondayTask.items.forEach((_,index)=> { record.checks[`${mondayTask.id}::${index}`]=true; });
-assert.equal(api.dayCompletion(monday),100);
-api.getState().settings.programmeMode='minimum';
-assert.equal(api.getPlanModeForDate(monday),'normal');
-assert.equal(api.dayCompletion(monday),100);
+// Current Azure position is seeded exactly and content remains separate from mastery.
+const arm = api.currentAzureModule();
+assert.equal(arm.name, 'Deploy Azure infrastructure by using JSON ARM templates');
+assert.equal(arm.currentUnit, 5);
+assert.equal(arm.units.length, 7);
+assert.equal(arm.units.filter(unit => unit.complete).length, 4);
+assert.equal(api.currentAzureUnit(arm).name, 'Exercise — Add parameters and outputs to an ARM template');
+assert.equal(api.moduleContentPercent(arm), 57);
+assert.equal(api.moduleMasteryPercent(arm), 0);
+assert.equal(arm.masteryStages.learn.partial, true);
+assert.equal(arm.masteryStages.perform.partial, true);
+assert.deepEqual(Array.from(api.AZURE_STAGE_DEFS, entry => entry[0]), ['learn','understand','perform','test','review','retain']);
 
-const migrated=api.mergeDefaults({
-  version:3,
-  settings:{programmeMode:'normal'},
-  daily:{
-    '2026-07-14':{
-      planMode:'normal',
-      checks:{'new-kata-am::0':true,'tue-log-am::0':true}
-    }
-  }
+// Jion sequence knowledge is not treated as grading readiness.
+const jion = api.currentKata();
+assert.equal(jion.id, 'jion');
+assert.equal(jion.sequenceProgress, 100);
+assert.equal(jion.gradingReadiness, 0);
+assert.equal(jion.sections[0].level, 5);
+assert.ok(jion.sections.slice(1).every(section => section.level === 0));
+
+// Each generated day has exactly one main task and never combines categories.
+const monday = '2026-07-13';
+const tuesday = '2026-07-14';
+const wednesday = '2026-07-15';
+const mondayPlan = api.getPlanForDate(monday);
+const tuesdayPlan = api.getPlanForDate(tuesday);
+const wednesdayPlan = api.getPlanForDate(wednesday);
+assert.equal(mondayPlan.tasks.length, 1);
+assert.equal(tuesdayPlan.tasks.length, 1);
+assert.equal(wednesdayPlan.tasks.length, 1);
+assert.equal(mondayPlan.tasks[0].category, 'karate');
+assert.equal(tuesdayPlan.tasks[0].category, 'azure');
+assert.equal(wednesdayPlan.tasks[0].category, 'rest');
+assert.ok(tuesdayPlan.tasks[0].title.includes('ARM-template Unit 5'));
+assert.ok(tuesdayPlan.tasks[0].checklist.some(step => step.includes('allowed value')));
+assert.ok(tuesdayPlan.tasks[0].checklist.some(step => step.includes('Clean up')));
+assert.ok(mondayPlan.tasks[0].title.includes('Jion'));
+assert.equal(Object.keys(api.getState().daily).length, 0, 'previewing tasks must not create daily data');
+
+// Recording progress creates only the selected day record and supports partial completion.
+const record = api.getDailyRecord(tuesday);
+assert.equal(Object.keys(api.getState().daily).length, 1);
+assert.equal(record.task.category, 'azure');
+record.checks[`${record.task.id}::0`] = true;
+assert.ok(api.dayCompletion(tuesday) > 0 && api.dayCompletion(tuesday) < 100);
+record.task.checklist.forEach((_, index) => { record.checks[`${record.task.id}::${index}`] = true; });
+assert.equal(api.dayCompletion(tuesday), 100);
+
+// Missed-task suggestions stay in the same category and skip unsuitable days.
+const nextAzure = Array.from(api.findNextSuitableDates(tuesday, 'azure', 3));
+assert.ok(nextAzure.length >= 1);
+assert.ok(nextAzure.every(key => api.getDayTypeForDate(key).startsWith('azure')));
+const nextKarate = Array.from(api.findNextSuitableDates(monday, 'karate', 3));
+assert.ok(nextKarate.every(key => api.getDayTypeForDate(key).startsWith('karate')));
+
+// Full task completion requires evidence and cannot prematurely complete the ARM Learn stage.
+api.setState(api.defaultState());
+api.getDailyRecord(tuesday);
+const formLike = values => {
+  const map = new Map(Object.entries(values));
+  return { get: key => map.get(key), entries: () => map.entries() };
+};
+assert.throws(() => api.applyTaskCompletion(tuesday, formLike({ finished:'yes', evidence:'', confidence:'3', masteryStage:'learn' })), /Add evidence/);
+api.applyTaskCompletion(tuesday, formLike({
+  finished:'yes', summary:'Completed Unit 5', evidence:'Allowed deployment succeeded; invalid value failed; endpoint captured; resources removed.',
+  confidence:'3', masteryStage:'learn', notUnderstood:'', resourcesCreated:'yes', resourcesCleaned:'yes', scheduleReview:'yes'
+}));
+let completedArm = api.currentAzureModule();
+assert.equal(completedArm.units.filter(unit => unit.complete).length, 5);
+assert.equal(completedArm.complete, false, 'units 6 and 7 must remain outstanding');
+assert.equal(completedArm.masteryStages.learn.complete, false, 'Learn cannot be complete until all module units are complete');
+assert.equal(completedArm.masteryStages.learn.partial, true);
+assert.equal(api.getState().daily[tuesday].status, 'completed', 'the Unit 5 daily task itself can be complete');
+
+// Karate completion records both sides and evidence without making Jion grading-ready.
+api.setState(api.defaultState());
+api.getDailyRecord(monday);
+api.applyTaskCompletion(monday, formLike({
+  finished:'yes', summary:'Dedicated Jion session', evidence:'Video reference 001', confidence:'3', karateSection:'Kata', kata:'Jion',
+  improved:'Sequence flow', weak:'Transitions', rightRating:'3', leftRating:'2', instructorFeedback:'Keep the front knee stable',
+  mainCorrection:'Improve transitions', scheduleReview:'yes'
+}));
+const completedJion = api.currentKata();
+assert.equal(completedJion.gradingReadiness, 0);
+assert.equal(completedJion.mainCorrection, 'Improve transitions');
+assert.equal(completedJion.evidence, 'Video reference 001');
+const linkedGrading = api.getState().syllabus.find(item => item.id === api.getState().daily[monday].task.refs.syllabusId);
+assert.equal(linkedGrading.ratings.right, 3);
+assert.equal(linkedGrading.ratings.left, 2);
+
+// Old state is migrated additively and custom progress is retained.
+const migrated = api.mergeDefaults({
+  version: 4,
+  profile: { name: 'André' },
+  settings: { programmeMode:'normal' },
+  notes: [{ id:'kept-note', title:'Keep me', body:'Existing data', createdAt:'2026-01-01T00:00:00Z' }],
+  daily: { '2026-07-01': { notes:'Existing daily note', evidence:'Existing evidence', checks:{'old::0':true} } },
+  katas: [{ id:'jion', notes:'Existing Jion note', sequenceProgress:100, status:'sequence-known' }]
 });
-assert.equal(migrated.version,5);
-assert.equal(migrated.settings.rolloverEnabled,true);
-assert.ok(migrated.settings.rolloverStartDate);
-assert.equal(migrated.daily['2026-07-14'].taskSourceDate,'2026-07-14','existing history should keep its original task date');
-assert.equal(migrated.daily['2026-07-14'].checks['dan-group-a-am::4'],true,'old kata checklist should migrate into the combined Tuesday task');
-assert.equal(migrated.daily['2026-07-14'].checks['dan-group-a-am::7'],true,'old log checklist should migrate into the combined Tuesday task');
+assert.equal(migrated.version, 5);
+assert.equal(migrated.notes[0].id, 'kept-note');
+assert.equal(migrated.daily['2026-07-01'].notes, 'Existing daily note');
+assert.equal(migrated.daily['2026-07-01'].evidence, 'Existing evidence');
+assert.equal(migrated.katas.find(kata => kata.id === 'jion').notes, 'Existing Jion note');
+assert.equal(migrated.settings.weeklyDayTypes.Wednesday, 'rest');
+assert.equal(migrated.roadmap.months.length, 6);
+assert.ok(migrated.roadmap.months.every(month => month.weeks.length >= 4));
 
-const rollover=api.defaultState();
-rollover.settings.programmeStartDate='2026-07-11';
-rollover.settings.rolloverStartDate='2026-07-11';
-api.setState(rollover);
-const saturday='2026-07-11';
-const sunday='2026-07-12';
-const mondayAfter='2026-07-13';
-const saturdayRecord=api.getDailyRecord(saturday);
-assert.equal(saturdayRecord.taskSourceDate,saturday);
-assert.equal(api.getTaskAssignmentForDate(sunday).sourceDate,saturday,'an unfinished Saturday task should move to Sunday');
-assert.equal(api.getTaskAssignmentForDate(mondayAfter).sourceDate,sunday,'future projection should place Sunday task on Monday after Saturday is done on Sunday');
-api.setSelectedDate(sunday);
-api.renderToday();
-assert.ok(getElement('view-today').innerHTML.includes('Task carried over from Saturday'));
-assert.ok(getElement('view-today').innerHTML.includes('Skipped — move on'));
-assert.equal(Object.keys(api.getState().daily).length,1,'viewing a carried day should not create a new daily record');
-const sundayRecord=api.getDailyRecord(sunday);
-assert.equal(sundayRecord.taskSourceDate,saturday,'the carried task should be frozen when Sunday progress is recorded');
-assert.equal(api.getTaskAssignmentForDate(mondayAfter).sourceDate,saturday,'an unfinished carried task should remain at the front of the queue');
-const carriedTask=api.getTaskAssignmentForDate(sunday).task;
-carriedTask.items.forEach((_,index)=> { sundayRecord.checks[`${carriedTask.id}::${index}`]=true; });
-assert.equal(api.getTaskAssignmentForDate(mondayAfter).sourceDate,sunday,'completing the carried Saturday task on Sunday should move the Sunday task to Monday');
-assert.equal(api.getDayTaskStatus(sunday).label,'Completed');
-rollover.settings.programmeMode='minimum';
-assert.equal(api.getTaskAssignmentForDate(sunday).planMode,'normal','a carried task should retain the programme mode it had when assigned');
-
-const skipped=api.defaultState();
-skipped.settings.programmeStartDate='2026-07-11';
-skipped.settings.rolloverStartDate='2026-07-11';
-api.setState(skipped);
-const skippedSaturday=api.getDailyRecord(saturday);
-skippedSaturday.result='skipped';
-assert.equal(api.getTaskAssignmentForDate(sunday).sourceDate,sunday,'skipping should advance the queue without recording completion');
-assert.equal(api.dayCompletion(saturday),0,'a skipped task should not count as completed progress');
-
-const fresh=api.defaultState();
+// Recall and kata retention logic still work.
+const fresh = api.defaultState();
 api.setState(fresh);
-assert.equal(api.getAzurePriority().moduleId,'az-prerequisites-m1');
-assert.equal(api.getDanPriority().itemId,'kihon-1');
-assert.equal(api.getKataPriority().kataId,'jion');
+const currentArm = api.currentAzureModule();
+assert.equal(api.recordAzureReview('az-prerequisites', currentArm.id, 'independent'), true);
+assert.equal(currentArm.lastRecallResult, 'independent');
+assert.ok(currentArm.nextReview > currentArm.lastReviewed);
+const currentJion = api.currentKata();
+currentJion.sections.forEach(section => { section.level = 5; });
+api.updateKataProgressFromSections(currentJion);
+assert.equal(currentJion.gradingReadiness, 100);
+assert.equal(currentJion.status, 'grading-ready');
+assert.equal(api.getNextKataInterval(14), 30);
 
-const azureModule=fresh.azPaths[0].modules[0];
-assert.equal(api.recordAzureReview(fresh.azPaths[0].id,azureModule.id,'independent'),true);
-assert.equal(azureModule.lastRecallResult,'independent');
-assert.equal(azureModule.evidence.recalled,true);
-assert.ok(azureModule.nextReview > azureModule.lastReviewed);
-assert.equal(azureModule.recallHistory.length,1);
-
-const jion=fresh.katas.find(kata=>kata.id==='jion');
-jion.status='learning';
-jion.sections.forEach(section=> { section.level=5; });
-api.updateKataProgressFromSections(jion);
-assert.equal(jion.sequenceProgress,100);
-assert.equal(jion.status,'sequence-known');
-assert.equal(api.getNextKataInterval(14),30);
-
-api.setSelectedDate('2026-07-13');
+// All principal views render the new structures without creating phantom records.
+api.setState(api.defaultState());
+api.setSelectedDate(monday);
 api.renderToday();
-const todayHtml=getElement('view-today').innerHTML;
-assert.ok(todayHtml.includes('Single task for this day'));
+const todayHtml = getElement('view-today').innerHTML;
+assert.ok(todayHtml.toLowerCase().includes('today’s main task'));
+assert.ok(todayHtml.includes('Azure focus'));
 assert.ok(todayHtml.includes('Kata focus'));
-assert.ok(todayHtml.includes('3rd Dan grading focus'));
-assert.equal(Object.keys(api.getState().daily).length,0,'viewing Today should not create an empty daily record');
-
-
+assert.ok(todayHtml.includes('Grading-section focus'));
+assert.equal(Object.keys(api.getState().daily).length, 0);
 api.renderWeek();
-assert.ok(getElement('view-week').innerHTML.includes('one flexible task'));
-assert.ok(getElement('view-week').innerHTML.includes('automatic rollover'));
+assert.ok(getElement('view-week').innerHTML.toLowerCase().includes('editable alternating week'));
+assert.ok(getElement('view-week').innerHTML.includes('Only one main task'));
 api.renderAzure();
-assert.ok(getElement('view-azure').innerHTML.includes('Azure lab journal'));
-assert.ok(getElement('view-azure').innerHTML.includes('Active-recall questions'));
+const azureHtml = getElement('view-azure').innerHTML;
+assert.ok(azureHtml.includes('Content completion'));
+assert.ok(azureHtml.includes('Mastery'));
+assert.ok(azureHtml.includes('Exercise — Add parameters and outputs'));
+assert.ok(azureHtml.includes('Retain'));
 api.renderDan();
-assert.ok(getElement('view-dan').innerHTML.includes('Current grading section to focus on'));
+assert.ok(getElement('view-dan').innerHTML.includes('Current grading section'));
+api.renderKata();
+assert.ok(getElement('view-kata').innerHTML.includes('Jion'));
+assert.ok(getElement('view-kata').innerHTML.includes('Reliable grading-standard performance demonstrated'));
 api.renderProgress();
-assert.ok(getElement('view-progress').innerHTML.includes('Azure lab journals'));
+const progressHtml = getElement('view-progress').innerHTML;
+assert.ok(progressHtml.includes('Monthly → weekly goals'));
+assert.ok(progressHtml.includes('What lies ahead'));
+assert.ok(progressHtml.includes('Progress report'));
+assert.ok(progressHtml.includes('Overall karate grading readiness'));
 api.renderNotes();
 assert.ok(getElement('view-notes').innerHTML.includes('Weekly review'));
 api.renderSettings();
-assert.ok(getElement('view-settings').innerHTML.includes('One flexible task per day'));
-assert.ok(getElement('view-settings').innerHTML.includes('Automatic task rollover'));
-assert.ok(getElement('view-settings').innerHTML.includes('Rollover begins from'));
-assert.ok(getElement('view-settings').innerHTML.includes('Microsoft OneDrive'));
-assert.ok(getElement('view-settings').innerHTML.includes('Sign in with Microsoft'));
-assert.ok(getElement('view-settings').innerHTML.includes('Files.ReadWrite.AppFolder'));
+const settingsHtml = getElement('view-settings').innerHTML;
+assert.ok(settingsHtml.includes('Alternating programme settings'));
+assert.ok(settingsHtml.includes('Microsoft OneDrive'));
+assert.ok(settingsHtml.includes('Files.ReadWrite.AppFolder'));
+
+// Microsoft and OneDrive integration remains restricted and compatible.
 assert.deepEqual(Array.from(api.MICROSOFT_GRAPH_SCOPES), ['Files.ReadWrite.AppFolder']);
+assert.equal(api.ONEDRIVE_STATE_FILE, 'karate-azure-progress-state.json');
 assert.equal(api.getCurrentRedirectUri(), 'http://localhost:8080/');
 assert.ok(api.oneDriveStateUrl().endsWith('/me/drive/special/approot:/karate-azure-progress-state.json:/content'));
-assert.equal(api.loadCloudProvider(), 'supabase', 'legacy installations should retain Supabase as the default provider');
+assert.equal(api.loadCloudProvider(), 'supabase');
 
-jion.status='complete';
-jion.sequenceProgress=100;
-api.renderKata();
-const kataHtml=getElement('view-kata').innerHTML;
-assert.ok(kataHtml.includes('Recommended kata focus'));
-assert.ok(kataHtml.includes('Sequence known and retention'));
-assert.ok(kataHtml.indexOf('Jion') < kataHtml.indexOf('Currently learning'));
+// Required dialogs and versioned assets are included in the shell.
+const html = fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8');
+assert.ok(html.includes('id="task-completion-dialog"'));
+assert.ok(html.includes('id="task-completion-form"'));
+assert.ok(html.includes('id="reschedule-dialog"'));
+assert.ok(html.includes('app.js?v=1.8.0'));
+assert.ok(!/05:30|22:00|10:00\s*pm/i.test(code));
 
 console.log('Smoke tests passed');
