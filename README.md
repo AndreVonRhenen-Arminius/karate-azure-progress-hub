@@ -1,100 +1,150 @@
-# Karate & Azure Progress Hub — v1.8.0
+# Karate & Azure Progress Hub — v1.9.0
 
-An installable, offline-first Progressive Web App for alternating AZ-104 study and JKA 3rd Dan karate training. It tracks one main task per day, Azure content and mastery separately, Jion readiness, grading evidence, monthly and weekly goals, notes, and optional Microsoft OneDrive or Supabase synchronisation.
+An offline-first Progressive Web App for two coordinated goals:
 
-## Version 1.8.0
+1. JKA kata and 3rd Dan training on Tuesday, Thursday, and Saturday.
+2. An intensive 30–42 month Microsoft cloud career programme on Monday, Wednesday, Friday, and Sunday.
 
-This release adds the alternating progress system and evidence-based roadmap.
+The app retains one main task per day, local-first data storage, Microsoft login and OneDrive backup, Supabase synchronisation, AZ-104 mastery records, Jion and grading records, evidence, history, and monthly/weekly progress reporting.
 
-### Daily programme
+## Fixed weekly programme
 
-- One main task per day.
-- Azure and karate are never generated as main tasks on the same date.
-- Editable day types: Azure, Karate, Rest, Azure Review, or Karate Review.
-- No fixed start times.
-- Prominent Today card with duration, priority, reason, status, checklist, evidence, completion form, missed status, and rescheduling.
-- Missed work is moved to a suitable future day rather than stacked onto the next day.
+| Day | Main focus |
+|---|---|
+| Monday | Microsoft Cloud Study — Learn and Understand |
+| Tuesday | Post-class Jion and 3rd Dan training |
+| Wednesday | Microsoft Cloud Study — Guided Lab |
+| Thursday | Post-class Jion and 3rd Dan training |
+| Friday | Microsoft Cloud Study — Independent Lab |
+| Saturday | Dedicated Jion and 3rd Dan training |
+| Sunday | Microsoft Cloud Study — Test, Review, Portfolio and Automation |
 
-### Current focus
+No fixed clock times are displayed. Each day contains one main objective, an estimated duration, checklist, evidence, confidence, and result.
 
-- AZ-104 certification, learning path, module, unit, mastery stage, weak area, and next action.
-- Jion sequence, grading readiness, correction, weaker side, practice date, and retention state.
-- Current 3rd Dan section, specific technique, weakest ratings, and next training action.
+## Intensive Microsoft cloud programme
 
-### Azure progress
+### Target
 
-- Six mastery stages: Learn, Understand, Perform, Test, Review, and Retain.
-- Separate content-completion and mastery percentages.
-- Per-stage date, notes, evidence, confidence, and review date.
-- Expandable AZ-104 learning paths, modules, and units.
-- Practical lab journal, assessment scores, recall questions, and review scheduling.
-- Current ARM-template position seeded at 4 of 7 units complete, with Unit 5 next.
+- Completion range: 30–42 months.
+- Normal target: 10–14 total hours per week.
+- Technical target: 8–11 hours per week.
+- German target: 2–3 hours per week.
+- Maximum normal workload: 16 total hours per week.
+- Maximum uninterrupted technical session: 3 hours.
+- Recovery week: after 6–8 intensive weeks.
 
-### Karate progress
+### Certification sequence
 
-- Separate Kihon, Kata, and Kumite checklists.
-- Right- and left-side ratings plus stance, balance, hips, path, timing, power, and breathing.
-- Corrections, instructor feedback, evidence, practice dates, and reviews.
-- Jion sequence is marked known, while all grading-standard technical checks remain outstanding until assessed.
+`AZ-104 → SC-300 → MD-102 → MS-102 → AZ-700 → Bicep and Terraform → Terraform Associate 004 → AZ-305 → SC-500`
 
-### Roadmap and reports
+### Continuous skills
 
-- Expandable month → week roadmap for six months.
-- Measurable Azure and karate goals for every month and week.
-- Evidence fields and completion controls for each goal.
-- Ahead, On track, Slightly behind, or Behind indicators.
-- Completed, partial, and outstanding report sections.
-- Evidence-based, estimated, and not-enough-evidence labels.
+PowerShell, Microsoft Graph, Azure CLI, Git, CI/CD, Exchange Online, SharePoint Online, Microsoft Teams, Linux fundamentals, and German to B2.
+
+### Five-stage phase model
+
+1. Foundation
+2. Learn and Understand
+3. Perform and Build
+4. Test and Diagnose
+5. Exam and Retention
+
+Each phase records progress, objectives, exam date, required labs, independent performance, weak areas, practice scores, portfolio completion, retention, and exam result.
+
+### Weekly records
+
+The Cloud Programme view includes five connected sessions across four technical days:
+
+- Learn and Understand
+- Guided Lab
+- Independent Lab
+- Test and Review
+- Portfolio and Automation
+
+Each session stores its relevant modules, documentation, terminology, lab resources, possible cost, commands, errors, troubleshooting, validation, cleanup, scores, evidence, confidence, and duration.
+
+German is tracked separately by level, days studied, vocabulary, grammar, listening, speaking, reading, writing, technical topic, and total time.
+
+### Monthly and 42-month roadmap
+
+Every month contains:
+
+- knowledge goals;
+- 4–8 lab target;
+- at least two independent repetitions;
+- at least two assessed sessions;
+- top-three weak-area improvement;
+- one portfolio milestone;
+- one relevant automation/deployment improvement;
+- 8–12 German hours;
+- five expandable weekly plans;
+- a monthly review.
+
+The completion forecast recalculates from weighted phase progress and recorded weekly history.
+
+### Quality controls
+
+The app monitors:
+
+- two low-technical-hour weeks;
+- two weeks without a lab;
+- three weeks without an assessment;
+- three weeks of increasing weak areas;
+- two weeks below 90 German minutes;
+- two low-energy weeks;
+- weeks over 16 hours;
+- sessions over three hours.
+
+Energy, concentration, enjoyment, sleep impact, family impact, confidence, stress, and rushed-lab behaviour are rated from 1–5. A 25% reduced next week can be created when capacity is low.
+
+### Exam booking gate
+
+A phase is not ready to book based only on its target date. The gate requires:
+
+- all major objectives studied;
+- at least 80% of required labs complete;
+- important tasks performed independently;
+- no critical weak areas;
+- three recent scores of at least 80%;
+- portfolio substantially complete;
+- delayed retention check passed.
+
+## Existing progress retained
+
+- AZ-104 ARM-template module remains at Unit 5 of 7.
+- Azure content completion and six-stage mastery remain separate.
+- Jion sequence remains known but not automatically grading-ready.
+- Kihon, Kata, and Kumite evidence and right/left ratings remain available.
+- Existing daily history, notes, labs, reviews, cloud data, and settings are retained through an additive migration.
 
 ## Cloud storage
 
-The existing providers remain available:
+Available providers remain:
 
 - Local device only
 - Microsoft OneDrive app folder
 - Supabase
 
-Microsoft Graph permission remains restricted to:
-
-`Files.ReadWrite.AppFolder`
-
-OneDrive state file:
-
-`karate-azure-progress-state.json`
-
-The app continues to use local storage as the working copy and can operate offline.
-
-## Updating an existing installation
-
-Read `INSTALLATION.md` for the complete step-by-step process.
-
-Important protections:
-
-- Do not replace a separate production `js/config.js` if your deployed repository contains one.
-- Keep your existing `js/microsoft-config.js` values if they contain your Microsoft client ID and redirect URI.
-- Do not delete browser storage before confirming the updated app has loaded and synchronised.
-- Export a JSON backup before updating.
+OneDrive permission remains `Files.ReadWrite.AppFolder` and the state file remains `karate-azure-progress-state.json`.
 
 ## Data compatibility
 
 - Local state key: `ka_progress_hub_state_v1`
-- State schema: version 5
+- State schema: version 6
 - Microsoft configuration key: `ka_progress_hub_microsoft_config_v1`
 - Active provider key: `ka_progress_hub_cloud_provider_v1`
 - Supabase configuration key: `ka_progress_hub_cloud_config_v1`
 - Supabase table: `user_app_state`
 
-Schema version 5 is additive. `mergeDefaults()` retains existing daily records, notes, Azure progress, labs, syllabus assessments, kata records, weekly reviews, and cloud data while adding the alternating schedule and roadmap.
+Schema 6 is additive. It adds the intensive programme while retaining existing version-5 data and unknown custom entries.
 
-## Local testing
+## Installation
 
-On Windows, run:
+Read `INSTALLATION.md` before replacing the deployed files. Export a JSON backup and preserve any production `js/config.js` and configured `js/microsoft-config.js` first.
 
-`run-local.bat`
+## Local test
 
-Then open:
-
-`http://localhost:8080/`
+Run `run-local.bat`, then open `http://localhost:8080/`.
 
 Validation commands:
 
@@ -104,20 +154,3 @@ node --check service-worker.js
 node tests/smoke-test.cjs
 node tests/onedrive-sync-test.cjs
 ```
-
-## Main files
-
-- `INSTALLATION.md` — update and installation instructions
-- `PROJECT_CONTEXT.md` — architecture, state rules, and protected areas
-- `CHANGELOG.md` — release history
-- `MICROSOFT-ONEDRIVE-SETUP.md` — Microsoft Entra and OneDrive setup
-- `index.html` — app shell and dialogs
-- `app.js` — scheduling, mastery, roadmap, rendering, storage, and cloud sync
-- `styles.css` — desktop and mobile interface
-- `js/microsoft-config.js` — public Microsoft SPA configuration
-- `vendor/msal-browser.min.js` — MSAL Browser runtime
-- `service-worker.js` — offline cache and update handling
-- `manifest.webmanifest` — PWA metadata
-- `supabase-schema.sql` — existing Supabase schema and RLS policies
-- `tests/smoke-test.cjs` — state, migration, scheduling, and rendering tests
-- `tests/onedrive-sync-test.cjs` — mocked OneDrive sync tests

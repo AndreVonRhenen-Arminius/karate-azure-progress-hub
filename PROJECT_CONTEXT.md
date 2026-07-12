@@ -1,125 +1,136 @@
 # Project Context — Karate & Azure Progress Hub
 
-## Current baseline
+## Current release
 
-- Application version: **1.8.0**
-- State schema version: **5**
-- Programme start date: **11 July 2026**
-- Deployment: static GitHub Pages Progressive Web App
-- Cloud providers: local-only, Microsoft OneDrive app folder, or Supabase
-- Primary user: André
+- Application version: **1.9.0**
+- State schema: **6**
+- Architecture: static HTML, CSS, and JavaScript PWA
+- Build step: none
+- Primary timezone: Pacific/Auckland
 
-## Main behaviour
+## Product purpose
 
-1. Every date has exactly one main task.
-2. Azure and karate cannot be generated as main tasks on the same date.
-3. Day types are editable: Azure, Karate, Rest, Azure Review, or Karate Review.
-4. No fixed task start times are displayed.
-5. Future tasks are generated from the weekly day-type pattern.
-6. A task becomes a historical snapshot when progress is recorded.
-7. Changing a day containing progress requires confirmation and clears that day only.
-8. Missed tasks are rescheduled to a compatible future day without stacking tasks.
-9. Current-focus cards do not create extra daily tasks.
+The app coordinates two programmes without placing Azure/Microsoft cloud and karate as main tasks on the same day:
+
+- Microsoft cloud study: Monday, Wednesday, Friday, Sunday.
+- Jion and JKA 3rd Dan training: Tuesday, Thursday, Saturday.
+
+Tuesday and Thursday are post-karate-class Jion/Dan 3 sessions. Saturday is a dedicated Jion/Dan 3 session.
+
+## Scheduling invariants
+
+1. One date has exactly one main task.
+2. No fixed clock time is shown.
+3. Monday, Wednesday, Friday, and Sunday generate Microsoft cloud tasks.
+4. Tuesday, Thursday, and Saturday generate karate tasks.
+5. A short supporting skill and German activity may be embedded inside a cloud task; they do not become separate main tasks.
+6. Missed work is rescheduled to the next compatible day and never stacked onto an occupied date.
+7. Historical tasks are saved snapshots and are not rewritten when future priorities change.
+8. The programme remains editable through weekday defaults and date-specific overrides, but existing progress requires confirmation before replacement.
+
+## Intensive programme model
+
+The programme target is 30–42 months with a normal 10–14 hour weekly commitment:
+
+- 8–11 technical hours;
+- 2–3 German hours;
+- 16-hour maximum normal week;
+- three-hour maximum uninterrupted technical session;
+- recovery week after 6–8 intensive weeks.
+
+Certification sequence:
+
+`AZ-104 → SC-300 → MD-102 → MS-102 → AZ-700 → Bicep and Terraform → Terraform Associate 004 → AZ-305 → SC-500`
+
+Continuous skills:
+
+PowerShell, Microsoft Graph, Azure CLI, Git, CI/CD, Exchange Online, SharePoint Online, Microsoft Teams, Linux fundamentals, and German to B2.
+
+Each phase follows Foundation, Learn and Understand, Perform and Build, Test and Diagnose, and Exam and Retention. Short phases use integrated stage labels while preserving all five outcome types.
+
+## State schema 6
+
+Schema 6 adds `intensiveProgramme`:
+
+- programme targets and sustainability limits;
+- ten phase records;
+- continuous-skill competency records;
+- 42 monthly plans;
+- five weekly goals per programme month;
+- detailed weekly records indexed by Monday date;
+- five specialised session records;
+- German weekly record;
+- quality and burnout ratings;
+- warning, pace, recovery, forecast, and exam-readiness inputs;
+- career milestones and final completion standards.
+
+Migration uses `mergeDefaults()` and is additive. Existing version-5 daily records, Azure modules, mastery stages, labs, karate records, roadmap, notes, weekly reviews, OneDrive state, and Supabase state remain valid.
 
 ## Protected areas
 
 Do not replace, remove, or redesign these unless André explicitly requests it:
 
-1. Existing Supabase authentication functions in `app.js`.
-2. Supabase project configuration or browser-stored publishable key.
-3. The `user_app_state` table and RLS policies in `supabase-schema.sql`.
-4. Microsoft authentication and OneDrive app-folder integration.
-5. Existing local, OneDrive, or Supabase progress data.
-6. `js/microsoft-config.js` after production values have been entered.
-7. `js/config.js` if it exists in a deployed copy. This archive does not contain it.
+1. Existing Supabase authentication functions and state contract in `app.js`.
+2. `supabase-schema.sql`, the `user_app_state` table, and its RLS policies.
+3. Microsoft authentication, MSAL runtime, and OneDrive app-folder integration.
+4. OneDrive permission `Files.ReadWrite.AppFolder` and filename `karate-azure-progress-state.json`.
+5. Existing local, OneDrive, and Supabase user data.
+6. `js/microsoft-config.js` after production values are entered.
+7. `js/config.js` if it exists in a deployed repository. This release does not contain it.
+8. Existing authentication keys and browser-stored configuration.
 
-Never add client secrets, access tokens, refresh tokens, service-role keys, or passwords to browser source code.
+Never add client secrets, passwords, service-role keys, access tokens, or refresh tokens to browser source code.
 
-## Architecture
+## Main files
 
-- `index.html`: shell, navigation, timer, completion, reschedule, and confirmation dialogs.
-- `styles.css`: restrained dark interface with Azure, karate, status, roadmap, and responsive styles.
-- `app.js`: state schema, migrations, scheduling, task generation, Azure mastery, karate assessments, roadmap, reports, rendering, backups, OneDrive sync, and Supabase sync.
-- `js/microsoft-config.js`: public Microsoft SPA client configuration only.
-- `vendor/msal-browser.min.js`: pinned MSAL Browser runtime.
-- `service-worker.js`: offline assets and network-first update behaviour.
+- `index.html`: application shell, navigation, dialogs, and versioned asset references.
+- `styles.css`: responsive dashboard, Azure, karate, roadmap, and intensive-programme styles.
+- `app.js`: state, migration, scheduling, tasks, mastery, karate, intensive programme, reports, local backup, OneDrive, and Supabase.
+- `service-worker.js`: offline cache.
 - `manifest.webmanifest`: PWA metadata.
-- `supabase-schema.sql`: existing cloud state table and policies.
+- `js/microsoft-config.js`: public SPA client ID, authority, and redirect URI only.
+- `vendor/msal-browser.min.js`: pinned MSAL Browser runtime.
+- `supabase-schema.sql`: protected Supabase table and RLS definition.
+- `MICROSOFT-ONEDRIVE-SETUP.md`: Microsoft Entra setup.
+- `INSTALLATION.md`: deployment/update guide.
+- `tests/smoke-test.cjs`: state, migration, scheduling, rendering, mastery, and intensive-programme tests.
+- `tests/onedrive-sync-test.cjs`: mocked OneDrive read/write/conflict tests.
 
-There is no build step.
-
-## State schema version 5
-
-Version 5 adds:
-
-- `settings.weeklyDayTypes`
-- `scheduleOverrides`
-- one saved task snapshot per daily record
-- task status, result, evidence, completion data, and rescheduling metadata
-- `azureFocus`
-- Azure units and six detailed mastery-stage records
-- full 3rd Dan Kihon, Kata, and Kumite assessments
-- Jion grading-readiness fields
-- six-month expandable roadmap with monthly and weekly goals
-
-Migration is additive through `mergeDefaults()`. Unknown collection entries are retained. Existing notes, labs, daily data, kata data, syllabus records, and reviews are not reset.
-
-## Current seeded progress
-
-### Azure
+## Current seeded Azure position
 
 - Certification: AZ-104
-- Path: Prerequisites for Azure administrators
 - Module: Deploy Azure infrastructure by using JSON ARM templates
-- Units complete: 4 of 7
-- Current unit: Unit 5 — Add parameters and outputs to an ARM template
+- Four of seven units complete
+- Unit 5 next: Add parameters and outputs to an ARM template
 - Preferred tool: PowerShell
-- Learn: partial
-- Perform: partial
-- Understand, Test, Review, Retain: not completed
+- Learn and Perform partial
+- Understand, Test, Review, and Retain not complete
 
-### Karate
+Unit completion does not automatically equal mastery.
+
+## Current seeded karate position
 
 - Current kata: Jion
-- Sequence: known
-- Grading readiness: not yet demonstrated
-- Only “Complete sequence known” starts at grading-standard level
-- Embusen, stances, transitions, rhythm, timing, kime, speed/power, kiai, questions, and reliable grading performance remain unassessed
+- Sequence known
+- Grading readiness not demonstrated
+- Embusen, stances, transitions, rhythm, timing, kime, speed/power, kiai, technical questions, and reliable grading performance remain separately assessed
 
-## Roadmap behaviour
-
-- Six monthly sections begin in July 2026.
-- Each month contains monthly outcomes and four or five expandable weeks.
-- Every week contains at least one Azure and one karate outcome.
-- Goals require manual completion and can store evidence.
-- Roadmap progress contributes to report status but does not directly mark Azure mastery or karate readiness.
-
-## Cloud behaviour
-
-- Local state remains the working copy.
-- Only the selected cloud provider receives automatic updates.
-- OneDrive uses `Files.ReadWrite.AppFolder` and `karate-azure-progress-state.json`.
-- Supabase uses the existing `user_app_state` contract.
-- Local and remote `updatedAt` values are compared before replacement.
-- Force pull and force push require confirmation.
-- The app remains usable when offline.
+Sequence knowledge does not equal grading readiness.
 
 ## Release validation
 
-Before packaging:
+Before packaging a release:
 
 1. Run JavaScript syntax checks.
 2. Run smoke and OneDrive tests.
-3. Confirm all principal views render.
-4. Confirm Today and Week previews do not create daily records.
-5. Confirm one task per day and category-safe rescheduling.
-6. Confirm old version-4 state migrates to version 5 without losing custom data.
-7. Confirm current ARM and Jion progress values.
-8. Confirm monthly and weekly roadmap rendering.
-9. Confirm completion and reschedule dialogs exist.
-10. Confirm service-worker references match version 1.8.0.
-11. Confirm `supabase-schema.sql` and `js/microsoft-config.js` are unchanged.
-12. Confirm the existing Supabase/Microsoft cloud block is unchanged.
-13. Confirm there are no embedded secrets.
-14. Confirm ZIP integrity.
-15. Perform live Supabase and Microsoft sign-in checks only in the deployed environment with valid configuration.
+3. Verify the Monday/Wednesday/Friday/Sunday study schedule and Tuesday/Thursday/Saturday karate schedule.
+4. Verify one task per day and no fixed task times.
+5. Verify schema-5 state migrates to schema 6 without data loss.
+6. Verify all 42 programme months, ten phases, five weekly sessions, monthly templates, and German records render.
+7. Verify warning thresholds, recovery-week controls, forecast, and exam booking gate.
+8. Verify AZ-104 and Jion seeded progress is unchanged.
+9. Compare protected file hashes against the source release.
+10. Check for embedded secrets.
+11. Verify the service-worker cache and asset query strings are version 1.9.0.
+12. Test ZIP integrity.
+13. Test live Microsoft and Supabase login only in the deployed environment with valid credentials.

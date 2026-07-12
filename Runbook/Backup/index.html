@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0b1220" />
+  <title>Support Operations Runbook — André Von Rhenen</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar modern-topbar">
+    <button id="btnSidebar" class="icon-button mobile-menu-button" type="button" aria-label="Open navigation" title="Open navigation">
+      <span></span><span></span><span></span>
+    </button>
+    <a class="brand" href="#runbook-home" aria-label="Runbook home">
+      <div class="logo">TR</div>
+      <div class="title">
+        <div class="h1">Support Operations</div>
+        <div class="sub">André's offline troubleshooting runbook</div>
+      </div>
+    </a>
+    <div class="top-search-wrap">
+      <span class="top-search-icon" aria-hidden="true">⌕</span>
+      <input id="search" class="search" placeholder="Filter navigation" aria-label="Filter navigation" />
+      <button id="btnClearNavSearch" class="search-clear" type="button" aria-label="Clear navigation search" title="Clear">×</button>
+    </div>
+    <nav class="top-actions" aria-label="Runbook actions">
+      <a class="btn top-action-link" href="#case-working-template" title="Open Case Desk">Case Desk</a>
+      <button id="btnGlobalSearch" class="btn" type="button" title="Search the whole runbook">Ctrl+K</button>
+      <button id="btnFavorite" class="btn" type="button">☆ Pin</button>
+      <button id="btnHome" class="btn icon-action" type="button" title="Operations Home" aria-label="Operations Home">⌂</button>
+      <button id="btnTheme" class="btn icon-action" type="button" title="Switch theme" aria-label="Switch theme">◐</button>
+    </nav>
+  </header>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-heading"><span>Navigation</span></div>
+      <div id="nav"></div>
+      <div class="sidebar-foot">Case Desk → Troubleshoot → Evidence → Output</div>
+    </aside>
+    <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+    <main class="main"><div id="content"></div></main>
+  </div>
+  <div id="globalSearchOverlay" class="global-search-overlay" hidden>
+    <div class="global-search-panel">
+      <div class="global-search-head">
+        <div><strong>Command Centre</strong><div class="muted">Search pages, symptoms, commands, templates and case tools.</div></div>
+        <button id="btnCloseGlobalSearch" class="btn secondary" type="button">Close</button>
+      </div>
+      <input id="globalSearchInput" class="search global-search-input" placeholder="Try: DNS, AP offline, show vlan, follow-up, escalation..." />
+      <div id="globalSearchResults" class="global-search-results"></div>
+    </div>
+  </div>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

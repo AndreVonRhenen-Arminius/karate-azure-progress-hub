@@ -8,8 +8,8 @@ const MICROSOFT_GRAPH_BASE = 'https://graph.microsoft.com/v1.0';
 const MICROSOFT_GRAPH_SCOPES = ['Files.ReadWrite.AppFolder'];
 const ONEDRIVE_STATE_FILE = 'karate-azure-progress-state.json';
 
-const APP_VERSION = '1.8.0';
-const STATE_VERSION = 5;
+const APP_VERSION = '1.9.0';
+const STATE_VERSION = 6;
 const PROGRAMME_START_DATE = '2026-07-11';
 
 const STATUS_OPTIONS = [
@@ -44,20 +44,20 @@ const AZ_STATUS_OPTIONS = [
 ];
 
 const DAY_TYPE_OPTIONS = [
-  ['azure', 'Azure Study Day'],
+  ['azure', 'Microsoft Cloud Study Day'],
   ['karate', 'Karate Training Day'],
   ['rest', 'Rest or Recovery Day'],
-  ['azure-review', 'Review Day — Azure'],
+  ['azure-review', 'Review Day — Microsoft Cloud'],
   ['karate-review', 'Review Day — Karate']
 ];
 
 const DEFAULT_WEEKLY_DAY_TYPES = {
-  Monday: 'karate',
-  Tuesday: 'azure',
-  Wednesday: 'rest',
+  Monday: 'azure',
+  Tuesday: 'karate',
+  Wednesday: 'azure',
   Thursday: 'karate',
   Friday: 'azure',
-  Saturday: 'karate-review',
+  Saturday: 'karate',
   Sunday: 'azure'
 };
 
@@ -124,22 +124,22 @@ const KATA_SECTION_NAMES = [
 // Kept as a compatibility fallback for old daily records. Active scheduling uses editable day types.
 const DAY_PLANS = {
   normal: {
-    Monday: { family: 'Karate training day.', tasks: [{ id: 'legacy-mon-karate', title: 'Karate training', type: 'karate', items: ['Complete the planned karate session', 'Record ratings and evidence'] }] },
-    Tuesday: { family: 'Azure study day.', tasks: [{ id: 'legacy-tue-azure', title: 'Azure study', type: 'azure', items: ['Complete the planned Azure work', 'Validate and record evidence'] }] },
-    Wednesday: { family: 'Rest or recovery day.', tasks: [{ id: 'legacy-wed-rest', title: 'Rest or recovery', type: 'rest', items: ['Protect recovery and prepare for the next task'] }] },
-    Thursday: { family: 'Karate training day.', tasks: [{ id: 'legacy-thu-karate', title: 'Karate training', type: 'karate', items: ['Complete the planned karate session', 'Record ratings and evidence'] }] },
-    Friday: { family: 'Azure study day.', tasks: [{ id: 'legacy-fri-azure', title: 'Azure study', type: 'azure', items: ['Complete the planned Azure work', 'Validate and record evidence'] }] },
-    Saturday: { family: 'Karate review day.', tasks: [{ id: 'legacy-sat-karate-review', title: 'Karate review', type: 'karate-review', items: ['Review the due kata or grading section', 'Record the retention result'] }] },
-    Sunday: { family: 'Azure study day.', tasks: [{ id: 'legacy-sun-azure', title: 'Azure study', type: 'azure', items: ['Complete the planned Azure work', 'Record the next action'] }] }
+    Monday: { family: 'Microsoft cloud study day.', tasks: [{ id: 'legacy-mon-study', title: 'Microsoft cloud study', type: 'azure', items: ['Complete the planned technical session', 'Record evidence and German practice'] }] },
+    Tuesday: { family: 'Karate and Dan 3 training day.', tasks: [{ id: 'legacy-tue-karate', title: 'Post-class kata and Dan 3 training', type: 'karate', items: ['Complete kata and grading practice', 'Record ratings and evidence'] }] },
+    Wednesday: { family: 'Microsoft cloud study day.', tasks: [{ id: 'legacy-wed-study', title: 'Microsoft cloud guided lab', type: 'azure', items: ['Complete the planned guided lab', 'Validate and record evidence'] }] },
+    Thursday: { family: 'Karate and Dan 3 training day.', tasks: [{ id: 'legacy-thu-karate', title: 'Post-class kata and Dan 3 training', type: 'karate', items: ['Complete kata and grading practice', 'Record ratings and evidence'] }] },
+    Friday: { family: 'Microsoft cloud study day.', tasks: [{ id: 'legacy-fri-study', title: 'Microsoft cloud independent lab', type: 'azure', items: ['Complete the independent task', 'Troubleshoot and record evidence'] }] },
+    Saturday: { family: 'Karate and Dan 3 training day.', tasks: [{ id: 'legacy-sat-karate', title: 'Dedicated kata and Dan 3 training', type: 'karate', items: ['Complete the planned karate session', 'Record corrections and evidence'] }] },
+    Sunday: { family: 'Microsoft cloud validation day.', tasks: [{ id: 'legacy-sun-study', title: 'Test, review and portfolio', type: 'azure', items: ['Test and review the week', 'Update portfolio and German record'] }] }
   },
   minimum: {
-    Monday: { family: 'Reduced karate task.', tasks: [{ id: 'legacy-min-mon-karate', title: 'Minimum karate task', type: 'karate', items: ['Complete one focused technique or kata review'] }] },
-    Tuesday: { family: 'Reduced Azure task.', tasks: [{ id: 'legacy-min-tue-azure', title: 'Minimum Azure task', type: 'azure', items: ['Complete one focused Azure step'] }] },
-    Wednesday: { family: 'Recovery day.', tasks: [{ id: 'legacy-min-wed-rest', title: 'Recovery', type: 'rest', items: ['No study or training required'] }] },
-    Thursday: { family: 'Reduced karate task.', tasks: [{ id: 'legacy-min-thu-karate', title: 'Minimum karate task', type: 'karate', items: ['Complete one focused technique or kata review'] }] },
-    Friday: { family: 'Reduced Azure task.', tasks: [{ id: 'legacy-min-fri-azure', title: 'Minimum Azure task', type: 'azure', items: ['Complete one focused Azure step'] }] },
-    Saturday: { family: 'Karate retention review.', tasks: [{ id: 'legacy-min-sat-review', title: 'Minimum karate review', type: 'karate-review', items: ['Review one due kata or grading section'] }] },
-    Sunday: { family: 'Reduced Azure task.', tasks: [{ id: 'legacy-min-sun-azure', title: 'Minimum Azure task', type: 'azure', items: ['Complete one focused Azure step'] }] }
+    Monday: { family: 'Reduced cloud study task.', tasks: [{ id: 'legacy-min-mon-study', title: 'Minimum cloud study task', type: 'azure', items: ['Complete one focused technical step'] }] },
+    Tuesday: { family: 'Reduced karate task.', tasks: [{ id: 'legacy-min-tue-karate', title: 'Minimum kata or Dan 3 task', type: 'karate', items: ['Complete one focused kata or grading correction'] }] },
+    Wednesday: { family: 'Reduced cloud study task.', tasks: [{ id: 'legacy-min-wed-study', title: 'Minimum guided practice', type: 'azure', items: ['Complete one focused guided task'] }] },
+    Thursday: { family: 'Reduced karate task.', tasks: [{ id: 'legacy-min-thu-karate', title: 'Minimum kata or Dan 3 task', type: 'karate', items: ['Complete one focused kata or grading correction'] }] },
+    Friday: { family: 'Reduced cloud study task.', tasks: [{ id: 'legacy-min-fri-study', title: 'Minimum independent task', type: 'azure', items: ['Repeat one task without instructions'] }] },
+    Saturday: { family: 'Reduced karate task.', tasks: [{ id: 'legacy-min-sat-karate', title: 'Minimum kata retention task', type: 'karate', items: ['Review one due kata or grading section'] }] },
+    Sunday: { family: 'Reduced review task.', tasks: [{ id: 'legacy-min-sun-study', title: 'Minimum test and review', type: 'azure', items: ['Complete one recall or portfolio step'] }] }
   }
 };
 
@@ -253,6 +253,61 @@ const DEFAULT_KATAS = [
   evidence: '',
   gradingReadiness: 0
 }));
+
+
+const INTENSIVE_PHASE_DEFS = [
+  { id:'az-104', order:1, short:'AZ-104', name:'AZ-104: Microsoft Azure Administrator', months:'1–5', targetDuration:4.5, outcome:'Azure administration foundation', skills:['PowerShell','Azure CLI','Git'] },
+  { id:'sc-300', order:2, short:'SC-300', name:'SC-300: Identity and Access Administrator', months:'6–8', targetDuration:3, outcome:'Identity and access administration', skills:['Microsoft Graph','PowerShell','Identity automation'] },
+  { id:'md-102', order:3, short:'MD-102', name:'MD-102: Endpoint Administrator', months:'9–12', targetDuration:3.5, outcome:'Endpoint and Intune administration', skills:['Microsoft Graph','Intune automation','PowerShell'] },
+  { id:'ms-102', order:4, short:'MS-102', name:'MS-102: Microsoft 365 Administrator', months:'13–15', targetDuration:3, outcome:'Microsoft 365 administration', skills:['Exchange Online','SharePoint Online','Microsoft Teams'] },
+  { id:'az-700', order:5, short:'AZ-700', name:'AZ-700: Azure Network Engineer', months:'16–19', targetDuration:3.5, outcome:'Azure networking specialisation', skills:['Azure CLI','PowerShell','Network automation'] },
+  { id:'iac', order:6, short:'Bicep + Terraform', name:'Bicep and Terraform practical competency', months:'20–23', targetDuration:3.5, outcome:'Infrastructure-as-code competency', skills:['Bicep','Terraform','Git','CI/CD'] },
+  { id:'terraform-004', order:7, short:'Terraform 004', name:'Terraform Associate 004', months:'24', targetDuration:1.25, outcome:'Terraform certification', skills:['Terraform','Git','CI/CD'] },
+  { id:'az-305', order:8, short:'AZ-305', name:'AZ-305: Azure Solutions Architect', months:'25–28', targetDuration:3.5, outcome:'Azure solution architecture', skills:['Architecture documentation','Azure design','Cost and resilience'] },
+  { id:'sc-500', order:9, short:'SC-500', name:'SC-500: Cloud and infrastructure security', months:'29–32', targetDuration:3.5, outcome:'Cloud infrastructure security', skills:['Security automation','Monitoring','Defender for Cloud'] },
+  { id:'consolidation', order:10, short:'Career + B2', name:'Consolidation, German B2 and employment', months:'33–42', targetDuration:4.25, outcome:'Commercial readiness, interviews, renewals and German B2', skills:['Technical German','Interview preparation','Portfolio','Commercial experience'] }
+];
+
+const INTENSIVE_STAGE_DEFS = [
+  ['foundation','Foundation','Exam structure, prerequisites, tools, plan and baseline assessment.'],
+  ['learn','Learn and Understand','Official modules, documentation, structured notes, explanations and knowledge checks.'],
+  ['perform','Perform and Build','Guided and independent labs, command-line work, validation, troubleshooting and evidence.'],
+  ['test','Test and Diagnose','Scenarios, practical challenges, weak-area correction, reteaching and retesting.'],
+  ['exam','Exam and Retention','Timed assessments, final practical checks, portfolio, exam and delayed retention.']
+];
+
+const INTENSIVE_SESSION_DEFS = [
+  { id:'session-1', label:'Session 1 — Learn and Understand', day:'Monday', duration:'90–120 minutes', objective:'Learn and explain the next objective', type:'learn' },
+  { id:'session-2', label:'Session 2 — Guided Lab', day:'Wednesday', duration:'90–120 minutes', objective:'Complete a guided practical lab and validate it', type:'guided-lab' },
+  { id:'session-3', label:'Session 3 — Independent Lab', day:'Friday', duration:'120–180 minutes', objective:'Repeat the task independently and troubleshoot errors', type:'independent-lab' },
+  { id:'session-4', label:'Session 4 — Test and Review', day:'Sunday', duration:'60–90 minutes', objective:'Complete active recall, scenarios and weak-area correction', type:'test-review' },
+  { id:'session-5', label:'Session 5 — Portfolio and Automation', day:'Sunday', duration:'90–120 minutes', objective:'Document, automate and publish evidence from the same objective', type:'portfolio' }
+];
+
+const CONTINUOUS_SKILL_DEFS = [
+  ['powershell','PowerShell'], ['graph','Microsoft Graph'], ['azure-cli','Azure CLI'], ['git','Git'], ['cicd','CI/CD'],
+  ['exchange','Exchange Online'], ['sharepoint','SharePoint Online'], ['teams','Microsoft Teams'], ['linux','Linux fundamentals'], ['german','German to B2']
+];
+
+const COMPLETION_STANDARD_DEFS = [
+  'AZ-104 certified','SC-300 certified','MD-102 certified','MS-102 completed','AZ-700 certified','Bicep practical competency',
+  'Terraform practical competency','Terraform Associate 004 certified','AZ-305 certified','SC-500 certified','PowerShell practical competency',
+  'Microsoft Graph practical competency','Azure CLI practical competency','Git and CI/CD practical competency','Exchange Online practical competency',
+  'SharePoint Online practical competency','Microsoft Teams practical competency','Linux fundamentals completed','German B2 achieved',
+  'Portfolio projects completed','Independent troubleshooting demonstrated','Commercial Azure or Microsoft 365 experience developed'
+];
+
+const CAREER_MILESTONES = [
+  { id:'after-az104', label:'After AZ-104', roles:['Junior Azure Administrator','Azure Support Engineer','Cloud Support Engineer','Infrastructure Support Engineer','Junior Cloud Engineer'] },
+  { id:'after-sc300', label:'After AZ-104 and SC-300', roles:['Junior Identity Administrator','Entra ID Administrator','IAM Support Engineer','Microsoft Cloud Administrator'] },
+  { id:'after-ms102', label:'After MD-102 and MS-102', roles:['Microsoft 365 Administrator','Endpoint Administrator','Intune Administrator','Modern Workplace Engineer','Microsoft 365 Support Engineer'] },
+  { id:'after-terraform', label:'After AZ-700 and Terraform', roles:['Azure Cloud Engineer','Cloud Infrastructure Engineer','Azure Network Engineer','Cloud Automation Engineer','Microsoft Cloud Consultant'] },
+  { id:'after-sc500', label:'After AZ-305 and SC-500', roles:['Senior Cloud Engineer','Azure Infrastructure Consultant','Cloud Security Engineer','Azure Solutions Architect','Microsoft Cloud Infrastructure Architect'] }
+];
+
+const OLD_V18_WEEKLY_DAY_TYPES = {
+  Monday:'karate', Tuesday:'azure', Wednesday:'rest', Thursday:'karate', Friday:'azure', Saturday:'karate-review', Sunday:'azure'
+};
 
 const ROADMAP_BLUEPRINTS = [
   {
@@ -392,6 +447,177 @@ function defaultAzureUnits(pathId, moduleId, name) {
   return [{ id: `${moduleId}-u1`, number: 1, name: `${name} module content`, complete: false }];
 }
 
+
+function addMonthsKey(key, count) {
+  const date = parseDateKey(key);
+  date.setDate(1);
+  date.setMonth(date.getMonth() + Number(count || 0));
+  return calendarDateKey(date);
+}
+
+function monthKeyForDate(key = getNZDateKey()) {
+  return String(key).slice(0, 7);
+}
+
+function programmePhaseForMonth(monthNumber) {
+  const n = Number(monthNumber || 1);
+  if (n <= 5) return INTENSIVE_PHASE_DEFS[0];
+  if (n <= 8) return INTENSIVE_PHASE_DEFS[1];
+  if (n <= 12) return INTENSIVE_PHASE_DEFS[2];
+  if (n <= 15) return INTENSIVE_PHASE_DEFS[3];
+  if (n <= 19) return INTENSIVE_PHASE_DEFS[4];
+  if (n <= 23) return INTENSIVE_PHASE_DEFS[5];
+  if (n === 24) return INTENSIVE_PHASE_DEFS[6];
+  if (n <= 28) return INTENSIVE_PHASE_DEFS[7];
+  if (n <= 32) return INTENSIVE_PHASE_DEFS[8];
+  return INTENSIVE_PHASE_DEFS[9];
+}
+
+function phaseMonthPosition(phase, monthNumber) {
+  const range = String(phase.months).split('–').map(Number);
+  const start = range[0] || Number(monthNumber || 1);
+  const end = range[1] || start;
+  return { position: Math.max(1, Number(monthNumber) - start + 1), length: Math.max(1, end - start + 1) };
+}
+
+function stageForProgrammeMonth(phase, monthNumber) {
+  const { position, length } = phaseMonthPosition(phase, monthNumber);
+  if (length === 1) return ['integrated','Foundation → Exam and Retention','Complete all five stages in one concentrated certification month.'];
+  if (length === 2) return position === 1
+    ? ['foundation-learn','Foundation + Learn and Understand','Set up the phase and complete the core learning.']
+    : ['perform-test-exam','Perform, Test, Exam and Retention','Build, diagnose, pass the exam gate and schedule retention.'];
+  if (length === 3) return position === 1
+    ? ['foundation-learn','Foundation + Learn and Understand','Set up the phase and complete core objectives.']
+    : position === 2
+      ? INTENSIVE_STAGE_DEFS[2]
+      : ['test-exam','Test, Diagnose, Exam and Retention','Resolve weak areas, meet the booking gate and retain the knowledge.'];
+  if (length === 4) return position === 1 ? INTENSIVE_STAGE_DEFS[0] : position === 2 ? INTENSIVE_STAGE_DEFS[1] : position === 3 ? INTENSIVE_STAGE_DEFS[2] : ['test-exam','Test, Diagnose, Exam and Retention','Complete the final assessment, exam and retention work.'];
+  const ratio = position / length;
+  if (position === 1) return INTENSIVE_STAGE_DEFS[0];
+  if (ratio <= 0.4) return INTENSIVE_STAGE_DEFS[1];
+  if (ratio <= 0.7) return INTENSIVE_STAGE_DEFS[2];
+  if (ratio < 1) return INTENSIVE_STAGE_DEFS[3];
+  return INTENSIVE_STAGE_DEFS[4];
+}
+
+function defaultProgrammeSession(def, phase) {
+  return {
+    id:def.id, label:def.label, day:def.day, type:def.type, plannedDuration:def.duration,
+    topic:`${phase.short}: ${def.objective}`, officialModule:'', documentation:'', terminology:'', concepts:'', examObjectives:'', teachBack:false,
+    lab:'', objective:'', resources:'', possibleCost:'', portalTasks:'', powershellTasks:'', cliTasks:'',
+    challenge:'', instructionsAllowed:'Requirements and official documentation only', commandsUsed:'', problems:'', troubleshooting:'', independentResult:'',
+    topicsTested:'', questionTypes:'', practiceScore:'', practicalResult:'', weakAreas:'', corrections:'', retestResult:'', retentionDate:'',
+    project:'', milestone:'', automationTool:phase.skills[0] || '', scriptDeployment:'', gitActivity:'',
+    evidence:'', durationHours:0, confidence:3, status:'not-started', validation:'', cleanup:'', score:''
+  };
+}
+
+function defaultIntensiveWeekPlan(monthId, weekIndex, phase, stage) {
+  return {
+    id:`${monthId}-week-${weekIndex + 1}`,
+    label:`Week ${weekIndex + 1}`,
+    mainOutcome:`${phase.short} — ${stage[1]}: ${INTENSIVE_SESSION_DEFS[Math.min(weekIndex, 4)].objective}.`,
+    technicalTarget:10,
+    germanTarget:2.5,
+    status:'not-started',
+    evidence:''
+  };
+}
+
+function defaultIntensiveMonth(startDate, index) {
+  const monthStart = addMonthsKey(`${String(startDate).slice(0, 7)}-01`, index);
+  const monthNumber = index + 1;
+  const phase = programmePhaseForMonth(monthNumber);
+  const stage = stageForProgrammeMonth(phase, monthNumber);
+  const label = new Intl.DateTimeFormat('en-NZ', { month:'long', year:'numeric' }).format(parseDateKey(monthStart));
+  const id = `intensive-month-${monthStart}`;
+  return {
+    id, monthNumber, monthStart, label, phaseId:phase.id, stageId:stage[0], stageLabel:stage[1], startingProgress:0, targetEndingProgress:Math.min(100, Math.round((phaseMonthPosition(phase, monthNumber).position / phaseMonthPosition(phase, monthNumber).length) * 100)),
+    targetExamDate:'', primaryOutcome:`${phase.outcome}: complete the ${stage[1].toLowerCase()} outcomes without reducing lab or evidence requirements.`,
+    goals:{
+      knowledge:{ text:`Complete one substantial ${phase.short} objective group and explain the key concepts.`, complete:false, evidence:'' },
+      labs:{ target:6, actual:0, complete:false, evidence:'' },
+      independent:{ target:2, actual:0, complete:false, evidence:'' },
+      assessments:{ target:2, actual:0, targetScore:80, complete:false, evidence:'' },
+      weakAreas:{ target:3, actual:0, complete:false, evidence:'' },
+      portfolio:{ text:`Complete one meaningful ${phase.short} portfolio milestone.`, progress:0, complete:false, evidence:'' },
+      automation:{ text:`Create or improve one ${phase.skills[0] || 'automation'} script, deployment or documented workflow.`, complete:false, evidence:'' },
+      german:{ targetHours:10, actualHours:0, complete:false, evidence:'', topic:`Technical German vocabulary related to ${phase.short}.` }
+    },
+    plan:{
+      officialModules:'', documentationTopics:'', conceptsToExplain:'', examObjectives:'',
+      guidedLabs:'', independentLabs:'', troubleshootingTasks:'', resourcesToDeploy:'', validationRequirements:'', cleanupRequirements:'',
+      knowledgeQuizzes:'', scenarioAssessments:'', practicalChallenges:'', targetScores:'80% or higher', weakAreasToResolve:'',
+      portfolioMilestone:`Complete one ${phase.short} portfolio milestone.`, powershellTask:'', azureCliTask:'', graphTask:'', iacTask:'', gitCicdTask:'',
+      germanLevel:'A0/A1', vocabularyTarget:'', grammarTarget:'', listeningHours:2, speakingHours:1, readingTasks:'', writingTasks:'', technicalGermanTopic:`${phase.short} technical vocabulary`
+    },
+    review:{ plannedProgress:0, actualProgress:0, labsCompleted:0, independentPassed:0, assessmentResults:'', portfolioProgress:0, germanHours:0, weakAreas:'', scheduleStatus:'On Intensive Target', carryOver:'', nextPriority:'' },
+    weeks:Array.from({length:5}, (_, weekIndex) => defaultIntensiveWeekPlan(id, weekIndex, phase, stage))
+  };
+}
+
+function defaultIntensiveProgramme(startDate = PROGRAMME_START_DATE) {
+  return {
+    targetMonths:36,
+    targetRangeMin:30,
+    targetRangeMax:42,
+    weeklyTechnicalTarget:10,
+    weeklyGermanTarget:2.5,
+    weeklyTotalTarget:12.5,
+    maximumWeeklyHours:16,
+    maximumTechnicalSessionHours:3,
+    recoveryFrequencyWeeks:7,
+    activePhaseId:'az-104',
+    careerProfile:'Microsoft Cloud Infrastructure and Modern Workplace Engineer specialising in Azure, Microsoft Entra ID, Intune, Microsoft 365, Azure networking, automation, infrastructure as code and cloud security',
+    phases:INTENSIVE_PHASE_DEFS.map((phase, index) => ({
+      ...phase, status:index === 0 ? 'active' : 'not-started', progress:0, currentObjective:index === 0 ? 'Deploy Azure infrastructure by using JSON ARM templates' : phase.outcome,
+      examDate:'', examPassed:false, objectivesStudied:false, labsCompletePercent:0, independentReady:false, criticalWeakAreas:0,
+      practiceScores:'', portfolioPercent:0, retentionPassed:false, notes:''
+    })),
+    skills:CONTINUOUS_SKILL_DEFS.map(([id, name]) => ({ id, name, progress:0, evidence:'', lastPractised:'' })),
+    months:Array.from({length:42}, (_, index) => defaultIntensiveMonth(startDate, index)),
+    weeks:{},
+    completionStandards:COMPLETION_STANDARD_DEFS.map((text, index) => ({ id:`standard-${index + 1}`, text, complete:false, evidence:'' }))
+  };
+}
+
+function mergeIntensiveProgramme(base, saved) {
+  if (!saved || typeof saved !== 'object') return base;
+  const phaseMap = new Map((saved.phases || []).map(item => [item.id, item]));
+  const skillMap = new Map((saved.skills || []).map(item => [item.id, item]));
+  const standardMap = new Map((saved.completionStandards || []).map(item => [item.id, item]));
+  const monthMap = new Map((saved.months || []).map(item => [item.id, item]));
+  return {
+    ...base,
+    ...saved,
+    phases:base.phases.map(item => ({ ...item, ...(phaseMap.get(item.id) || {}) })),
+    skills:base.skills.map(item => ({ ...item, ...(skillMap.get(item.id) || {}) })),
+    completionStandards:base.completionStandards.map(item => ({ ...item, ...(standardMap.get(item.id) || {}) })),
+    weeks:{ ...base.weeks, ...(saved.weeks || {}) },
+    months:base.months.map(month => {
+      const stored = monthMap.get(month.id) || {};
+      const storedWeeks = new Map((stored.weeks || []).map(week => [week.id, week]));
+      return {
+        ...month,
+        ...stored,
+        goals:{
+          knowledge:{...month.goals.knowledge, ...(stored.goals?.knowledge || {})},
+          labs:{...month.goals.labs, ...(stored.goals?.labs || {})},
+          independent:{...month.goals.independent, ...(stored.goals?.independent || {})},
+          assessments:{...month.goals.assessments, ...(stored.goals?.assessments || {})},
+          weakAreas:{...month.goals.weakAreas, ...(stored.goals?.weakAreas || {})},
+          portfolio:{...month.goals.portfolio, ...(stored.goals?.portfolio || {})},
+          automation:{...month.goals.automation, ...(stored.goals?.automation || {})},
+          german:{...month.goals.german, ...(stored.goals?.german || {})}
+        },
+        plan:{...month.plan, ...(stored.plan || {})},
+        review:{...month.review, ...(stored.review || {})},
+        weeks:month.weeks.map(week => ({...week, ...(storedWeeks.get(week.id) || {})}))
+      };
+    })
+  };
+}
+
 function defaultRoadmap(startDate = PROGRAMME_START_DATE) {
   const [year, month] = startDate.split('-').map(Number);
   return {
@@ -516,6 +742,7 @@ function defaultState() {
     daily: {},
     scheduleOverrides: {},
     roadmap: defaultRoadmap(PROGRAMME_START_DATE),
+    intensiveProgramme: defaultIntensiveProgramme(PROGRAMME_START_DATE),
     notes: [],
     weeklyReviews: [],
     updatedAt: new Date().toISOString()
@@ -672,6 +899,12 @@ function mergeDefaults(saved) {
       notes: '',
       evidence: '',
       energy: 3,
+      concentration: 3,
+      enjoyment: 3,
+      stress: 3,
+      technicalMinutes: 0,
+      germanMinutes: 0,
+      portfolioMinutes: 0,
       confidence: 3,
       result: 'not-set',
       status: record.result === 'completed' ? 'completed' : 'not-started',
@@ -688,9 +921,16 @@ function mergeDefaults(saved) {
   }));
   merged.scheduleOverrides = saved.scheduleOverrides && typeof saved.scheduleOverrides === 'object' ? saved.scheduleOverrides : {};
   merged.roadmap = mergeRoadmap(base.roadmap, saved.roadmap);
+  merged.intensiveProgramme = mergeIntensiveProgramme(base.intensiveProgramme, saved.intensiveProgramme);
   merged.notes = Array.isArray(saved.notes) ? saved.notes : [];
   merged.weeklyReviews = Array.isArray(saved.weeklyReviews) ? saved.weeklyReviews : [];
   if (!['normal', 'minimum'].includes(merged.settings.programmeMode)) merged.settings.programmeMode = 'normal';
+
+  if (Number(saved.version || 1) < 6) {
+    const savedTypes = saved.settings?.weeklyDayTypes;
+    const usedOldDefaults = !savedTypes || Object.keys(OLD_V18_WEEKLY_DAY_TYPES).every(day => savedTypes[day] === OLD_V18_WEEKLY_DAY_TYPES[day]);
+    if (usedOldDefaults) merged.settings.weeklyDayTypes = { ...DEFAULT_WEEKLY_DAY_TYPES };
+  }
 
   if (Number(saved.version || 1) < 5) {
     const arm = merged.azPaths.find(path => path.id === 'az-prerequisites')?.modules.find(module => module.id === 'az-prerequisites-m4');
@@ -762,6 +1002,7 @@ const pageTitles = {
   azure: ['CERTIFICATION STUDY', 'AZ-104'],
   dan: ['JKA SYLLABUS', '3rd Dan Preparation'],
   kata: ['SEQUENCE & RETENTION', 'Kata Library'],
+  programme: ['30–42 MONTH INTENSIVE PLAN', 'Cloud Study Programme'],
   progress: ['MEASURABLE RESULTS', 'Progress'],
   notes: ['REFLECTION', 'Notes & Reviews'],
   settings: ['APP CONTROL', 'Settings']
@@ -841,10 +1082,14 @@ function getDayName(key = getNZDateKey()) {
   return new Intl.DateTimeFormat('en-NZ', { weekday: 'long' }).format(parseDateKey(key));
 }
 
+function calendarDateKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
 function addDays(key, count) {
   const date = parseDateKey(key);
   date.setDate(date.getDate() + count);
-  return getNZDateKey(date);
+  return calendarDateKey(date);
 }
 
 function getWeekStart(key = getNZDateKey()) {
@@ -852,7 +1097,7 @@ function getWeekStart(key = getNZDateKey()) {
   const day = date.getDay();
   const diff = day === 0 ? -6 : 1 - day;
   date.setDate(date.getDate() + diff);
-  return getNZDateKey(date);
+  return calendarDateKey(date);
 }
 
 function dayTypeLabel(value) {
@@ -956,6 +1201,12 @@ function getDailyRecord(key = getNZDateKey(), { create = true } = {}) {
     notes: '',
     evidence: '',
     energy: 3,
+    concentration: 3,
+    enjoyment: 3,
+    stress: 3,
+    technicalMinutes: 0,
+    germanMinutes: 0,
+    portfolioMinutes: 0,
     confidence: 3,
     result: 'not-set',
     status: 'not-started',
@@ -991,6 +1242,244 @@ function taskSubKey(taskId, index) {
   return `${taskId}::${index}`;
 }
 
+
+function activeProgrammePhase() {
+  const programme = state.intensiveProgramme || defaultIntensiveProgramme(state.settings.programmeStartDate || PROGRAMME_START_DATE);
+  return programme.phases.find(phase => phase.id === programme.activePhaseId)
+    || programme.phases.find(phase => phase.status === 'active')
+    || programme.phases[0];
+}
+
+function studySessionForDate(key) {
+  const day = getDayName(key);
+  if (day === 'Monday') return INTENSIVE_SESSION_DEFS[0];
+  if (day === 'Wednesday') return INTENSIVE_SESSION_DEFS[1];
+  if (day === 'Friday') return INTENSIVE_SESSION_DEFS[2];
+  if (day === 'Sunday') return { ...INTENSIVE_SESSION_DEFS[3], id:'session-4-5', label:'Sessions 4 and 5 — Test, Review, Portfolio and Automation', duration:'150–180 minutes', objective:'Validate, correct and publish this week’s work' };
+  return INTENSIVE_SESSION_DEFS[0];
+}
+
+function phaseTopic(phase = activeProgrammePhase()) {
+  if (phase?.id === 'az-104') {
+    const module = currentAzureModule();
+    const unit = currentAzureUnit(module);
+    return unit?.name || module?.name || phase.currentObjective;
+  }
+  return phase?.currentObjective || phase?.outcome || 'Current certification objective';
+}
+
+function studyChecklist(session, phase, topic) {
+  const common = [
+    `Keep the main objective limited to ${topic}`,
+    `Use ${phase.skills.slice(0,2).join(' and ') || 'the phase tools'} where relevant`,
+    'Validate the result and capture evidence',
+    'Record questions, weak areas and the next action',
+    'Complete 20–45 minutes of German study'
+  ];
+  if (session.type === 'learn') return ['Complete the official learning material and relevant documentation','Write structured notes and key terminology','Explain the concepts without copying the source','Complete a short knowledge check',...common];
+  if (session.type === 'guided-lab') return ['Review possible charges and prerequisites','Complete the guided portal or command-line lab','Validate each major configuration','Troubleshoot at least one issue or explain what would fail','Clean up chargeable resources',...common];
+  if (session.type === 'independent-lab') return ['Build from requirements without step-by-step instructions','Use PowerShell, Azure CLI, Graph, Bicep or Terraform where relevant','Diagnose errors independently','Prove the final result with commands or screenshots','Clean up resources and document the solution',...common];
+  return ['Complete scenario questions or a practical challenge','Explain commands and decisions without notes','Correct and retest weak areas','Update the portfolio or automation evidence from the same objective','Commit documentation or code to Git where appropriate','Schedule the next retention review',...common];
+}
+
+function defaultIntensiveWeekRecord(weekStart = getWeekStart()) {
+  const phase = activeProgrammePhase();
+  return {
+    weekStart,
+    activePhaseId:phase.id,
+    stageId:'learn',
+    startingProgress:Number(phase.progress || 0),
+    targetProgress:Math.min(100, Number(phase.progress || 0) + 4),
+    mainOutcome:`Advance ${phase.short} through evidence-based learning, labs, testing and portfolio work.`,
+    technicalTarget:Number(state.intensiveProgramme?.weeklyTechnicalTarget || 10),
+    germanTarget:Number(state.intensiveProgramme?.weeklyGermanTarget || 2.5),
+    recoveryWeek:false,
+    temporarilyReduced:false,
+    sessions:Object.fromEntries(INTENSIVE_SESSION_DEFS.map(def => [def.id, defaultProgrammeSession(def, phase)])),
+    german:{ currentLevel:'A0/A1', daysCompleted:0, vocabularySessions:0, grammarSessions:0, listeningMinutes:0, speakingMinutes:0, readingMinutes:0, writingTasks:0, technicalGerman:'', additionalMinutes:0, dailyMinutes:{} },
+    labsCompleted:0,
+    assessmentsCompleted:0,
+    portfolioHours:0,
+    independentTasksPassed:0,
+    weakAreaCount:0,
+    knowledgeCompleted:'',
+    assessmentResult:'',
+    portfolioProgress:'',
+    strongAreas:'',
+    weakAreas:'',
+    blockedItems:'',
+    carryOver:'',
+    nextPriority:'',
+    scheduleStatus:'On Intensive Target',
+    quality:{ energy:3, concentration:3, enjoyment:3, sleepImpact:1, familyImpact:1, confidence:3, stress:3, rushingLabs:false },
+    updatedAt:''
+  };
+}
+
+function getIntensiveWeek(weekStart = getWeekStart(), { create = true } = {}) {
+  const programme = state.intensiveProgramme;
+  const base = defaultIntensiveWeekRecord(weekStart);
+  const saved = programme.weeks?.[weekStart];
+  const merged = saved ? {
+    ...base, ...saved,
+    sessions:Object.fromEntries(INTENSIVE_SESSION_DEFS.map(def => [def.id, { ...base.sessions[def.id], ...(saved.sessions?.[def.id] || {}) }])),
+    german:{...base.german, ...(saved.german || {}), dailyMinutes:{...base.german.dailyMinutes, ...(saved.german?.dailyMinutes || {})}},
+    quality:{...base.quality, ...(saved.quality || {})}
+  } : base;
+  if (create && !saved) programme.weeks[weekStart] = merged;
+  return merged;
+}
+
+function getWeekIntensityMetrics(weekStart = getWeekStart()) {
+  const week = getIntensiveWeek(weekStart, {create:false});
+  const technicalHours = Object.values(week.sessions || {}).reduce((sum, session) => sum + Number(session.durationHours || 0), 0);
+  const loggedGermanMinutes = Object.values(week.german?.dailyMinutes || {}).reduce((sum, value) => sum + Number(value || 0), 0) + Number(week.german?.additionalMinutes || 0);
+  const detailedGermanMinutes = Number(week.german?.listeningMinutes || 0) + Number(week.german?.speakingMinutes || 0) + Number(week.german?.readingMinutes || 0);
+  const germanMinutes = Math.max(loggedGermanMinutes, detailedGermanMinutes);
+  const germanHours = germanMinutes / 60;
+  const germanDays = Math.max(Number(week.german?.daysCompleted || 0), Object.values(week.german?.dailyMinutes || {}).filter(value => Number(value || 0) > 0).length);
+  const completedSessions = Object.values(week.sessions || {}).filter(session => session.status === 'completed').length;
+  return { week, technicalHours, germanHours, germanDays, completedSessions, totalHours:technicalHours + germanHours };
+}
+
+function getProgrammePhaseProgress(phase) {
+  const manual = Number(phase?.progress || 0);
+  if (phase?.id !== 'az-104') return Math.max(0, Math.min(100, manual));
+  const modules = getAllAzureModules();
+  const units = modules.flatMap(({module}) => module.units || []);
+  const content = percent(units.filter(unit => unit.complete).length, units.length);
+  const stages = modules.flatMap(({module}) => AZURE_STAGE_DEFS.map(([id]) => module.masteryStages?.[id]));
+  const mastery = percent(stages.filter(stage => stage?.complete).length, stages.length);
+  return Math.max(manual, Math.round(content * 0.45 + mastery * 0.55));
+}
+
+function overallProgrammeProgress() {
+  const phases = state.intensiveProgramme?.phases || [];
+  const totalWeight = phases.reduce((sum, phase) => sum + Number(phase.targetDuration || 0), 0) || 1;
+  const achieved = phases.reduce((sum, phase) => sum + Number(phase.targetDuration || 0) * getProgrammePhaseProgress(phase) / 100, 0);
+  return Math.round(achieved / totalWeight * 100);
+}
+
+function monthsBetween(startKey, endKey) {
+  const start = parseDateKey(startKey);
+  const end = parseDateKey(endKey);
+  return Math.max(0, (end.getFullYear() - start.getFullYear()) * 12 + end.getMonth() - start.getMonth() + (end.getDate() - start.getDate()) / 30);
+}
+
+function programmeForecast() {
+  const programme = state.intensiveProgramme;
+  const start = state.settings.programmeStartDate || PROGRAMME_START_DATE;
+  const originalEnd = addMonthsKey(start, Number(programme.targetMonths || 36));
+  const progress = overallProgrammeProgress();
+  const elapsed = Math.max(0.1, monthsBetween(start, getNZDateKey()));
+  const savedWeeks = Object.keys(programme.weeks || {}).length;
+  let forecastMonths = Number(programme.targetMonths || 36);
+  let reason = 'Not enough completed weekly history yet; using the 36-month intensive target.';
+  if (savedWeeks >= 2 && progress > 0) {
+    forecastMonths = Math.max(elapsed, elapsed / (progress / 100));
+    reason = 'Forecast uses weighted phase progress and the pace recorded in completed weeks.';
+  }
+  const forecastEnd = addMonthsKey(start, Math.ceil(forecastMonths));
+  const remainingWeeksToTarget = Math.max(1, monthsBetween(getNZDateKey(), originalEnd) * 4.345);
+  const requiredWeeklyPace = Math.max(0, (100 - progress) / remainingWeeksToTarget);
+  return { progress, originalEnd, forecastEnd, differenceMonths:Math.round(forecastMonths - Number(programme.targetMonths || 36)), reason, requiredWeeklyPace };
+}
+
+function recoveryWeekDue() {
+  const weeks = Object.values(state.intensiveProgramme?.weeks || {}).sort((a,b) => a.weekStart.localeCompare(b.weekStart));
+  let consecutive = 0;
+  for (let index = weeks.length - 1; index >= 0; index -= 1) {
+    if (weeks[index].recoveryWeek) break;
+    const metrics = getWeekIntensityMetrics(weeks[index].weekStart);
+    if (metrics.technicalHours > 0 || metrics.germanHours > 0) consecutive += 1;
+  }
+  return { due:consecutive >= Number(state.intensiveProgramme?.recoveryFrequencyWeeks || 7), consecutive };
+}
+
+function programmeWarnings() {
+  const weeks = Object.values(state.intensiveProgramme?.weeks || {}).sort((a,b) => b.weekStart.localeCompare(a.weekStart));
+  const metrics = weeks.map(week => ({ week, ...getWeekIntensityMetrics(week.weekStart) }));
+  const warnings = [];
+  if (metrics.length >= 2 && metrics.slice(0,2).every(item => item.technicalHours < 8 && !item.week.recoveryWeek)) warnings.push('Fewer than 8 technical hours were completed for two consecutive weeks.');
+  if (metrics.length >= 2 && metrics.slice(0,2).every(item => Number(item.week.labsCompleted || 0) === 0 && !item.week.recoveryWeek)) warnings.push('No practical lab was completed for two consecutive weeks.');
+  if (metrics.length >= 3 && metrics.slice(0,3).every(item => Number(item.week.assessmentsCompleted || 0) === 0 && !item.week.recoveryWeek)) warnings.push('No assessment was completed for three consecutive weeks.');
+  if (metrics.length >= 3 && metrics[0].week.weakAreaCount > metrics[1].week.weakAreaCount && metrics[1].week.weakAreaCount > metrics[2].week.weakAreaCount) warnings.push('The weak-area count increased for three consecutive weeks.');
+  if (metrics.length >= 2 && metrics.slice(0,2).every(item => item.germanHours < 1.5)) warnings.push('German study was below 90 minutes for two consecutive weeks.');
+  if (metrics.length >= 2 && metrics.slice(0,2).every(item => Number(item.week.quality?.energy || 3) <= 2)) warnings.push('Energy was rated 1 or 2 for two consecutive weeks.');
+  if (metrics.some(item => item.totalHours > Number(state.intensiveProgramme?.maximumWeeklyHours || 16))) warnings.push('A recorded week exceeded the normal 16-hour sustainability limit.');
+  if (metrics.some(item => Object.values(item.week.sessions || {}).some(session => Number(session.durationHours || 0) > Number(state.intensiveProgramme?.maximumTechnicalSessionHours || 3)))) warnings.push('A technical session exceeded the normal three-hour uninterrupted limit.');
+  return warnings;
+}
+
+function weekRequiresReduction(week, metrics = null) {
+  const calculated = metrics || getWeekIntensityMetrics(week.weekStart);
+  const q = week.quality || {};
+  const hasActivity = calculated.technicalHours > 0 || calculated.germanHours > 0 || Object.values(week.sessions || {}).some(session => session.status !== 'not-started');
+  const moreThanHalfIncomplete = hasActivity && calculated.completedSessions < 3;
+  return Number(q.energy || 3) <= 2 || Number(q.concentration || 3) <= 2 || Number(q.sleepImpact || 1) >= 4 || Number(q.familyImpact || 1) >= 4 || moreThanHalfIncomplete || Boolean(q.rushingLabs);
+}
+
+function nextWeekReductionRecommended(weekStart = getWeekStart()) {
+  const metrics = getWeekIntensityMetrics(weekStart);
+  return weekRequiresReduction(metrics.week, metrics);
+}
+
+function programmePaceStatus(weekStart = getWeekStart()) {
+  const metrics = getWeekIntensityMetrics(weekStart);
+  if (metrics.week.recoveryWeek) return 'Recovery Week';
+  if (metrics.week.temporarilyReduced) return 'Temporarily Reduced';
+  const weekdayOrder = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const expected = (weekdayOrder.indexOf(getDayName(getNZDateKey())) + 1) / 7;
+  const techRatio = metrics.technicalHours / Math.max(1, Number(metrics.week.technicalTarget || 10));
+  const germanRatio = metrics.germanHours / Math.max(0.5, Number(metrics.week.germanTarget || 2.5));
+  const ratio = Math.min(techRatio, germanRatio);
+  if (ratio >= Math.max(1, expected + 0.15)) return 'Accelerated';
+  if (ratio >= Math.max(0.75, expected - 0.1)) return 'On Intensive Target';
+  if (ratio >= Math.max(0.5, expected - 0.25)) return 'Slightly Below Intensive Target';
+  if (metrics.technicalHours === 0 && expected < 0.25) return 'On Intensive Target';
+  return 'Behind';
+}
+
+function examReadiness(phase = activeProgrammePhase()) {
+  const scores = String(phase.practiceScores || '').split(/[;,\s]+/).map(Number).filter(value => Number.isFinite(value) && value >= 0 && value <= 100).slice(-3);
+  const average = scores.length ? scores.reduce((a,b) => a+b,0) / scores.length : 0;
+  let score = 0;
+  if (phase.objectivesStudied) score += 20;
+  score += Math.min(20, Number(phase.labsCompletePercent || 0) * 0.2);
+  if (phase.independentReady) score += 15;
+  if (Number(phase.criticalWeakAreas || 0) === 0) score += 15;
+  score += Math.min(15, average * 0.15);
+  score += Math.min(10, Number(phase.portfolioPercent || 0) * 0.1);
+  if (phase.retentionPassed) score += 5;
+  score = Math.round(score);
+  const category = score < 60 ? 'Continue learning and labs' : score < 70 ? 'Major gaps remain' : score < 80 ? 'Nearly ready — targeted review required' : score < 90 ? 'Ready to book' : 'Strong readiness';
+  const eligible = Boolean(phase.objectivesStudied && Number(phase.labsCompletePercent || 0) >= 80 && phase.independentReady && Number(phase.criticalWeakAreas || 0) === 0 && scores.length >= 3 && scores.every(value => value >= 80) && Number(phase.portfolioPercent || 0) >= 70 && phase.retentionPassed);
+  return { score, category, eligible, average:Math.round(average), scores };
+}
+
+function renderIntensityDashboard(referenceDate = getNZDateKey()) {
+  const weekStart = getWeekStart(referenceDate);
+  const metrics = getWeekIntensityMetrics(weekStart);
+  const forecast = programmeForecast();
+  const recovery = recoveryWeekDue();
+  const warnings = programmeWarnings();
+  const phase = activeProgrammePhase();
+  const readiness = examReadiness(phase);
+  const pace = programmePaceStatus(weekStart);
+  const reduction = nextWeekReductionRecommended(weekStart);
+  return `<div class="section-heading"><div><h2>Intensive programme dashboard</h2><p>${escapeHTML(phase.name)} · 30–42 month evidence-based route</p></div><span class="badge ${pace.includes('Behind') ? 'red' : pace.includes('Below') || reduction ? 'amber' : 'green'}">${escapeHTML(pace)}</span></div>
+  <div class="grid four intensity-grid">
+    <article class="card metric-card"><span>Technical target</span><strong>${metrics.technicalHours.toFixed(1)} / ${Number(metrics.week.technicalTarget || 10).toFixed(1)} h</strong><small>Minimum intensive week: 8 hours</small></article>
+    <article class="card metric-card"><span>German target</span><strong>${metrics.germanHours.toFixed(1)} / ${Number(metrics.week.germanTarget || 2.5).toFixed(1)} h</strong><small>${metrics.germanDays}/5 study days recorded</small></article>
+    <article class="card metric-card"><span>Labs and assessment</span><strong>${Number(metrics.week.labsCompleted || 0)} labs · ${Number(metrics.week.assessmentsCompleted || 0)} assessed</strong><small>${Number(metrics.week.portfolioHours || 0).toFixed(1)} portfolio hours</small></article>
+    <article class="card metric-card"><span>Recovery week</span><strong>${recovery.due ? 'Due now' : `${recovery.consecutive}/7 intensive weeks`}</strong><small>${recovery.due ? 'Plan a 5–7 hour technical week.' : 'Recovery is part of the programme.'}</small></article>
+  </div>
+  <div class="grid two" style="margin-top:16px">
+    <article class="card"><h3>Completion forecast</h3><p><strong>Original:</strong> ${escapeHTML(formatDateKey(forecast.originalEnd,{month:'long',year:'numeric'}))}</p><p><strong>Current forecast:</strong> ${escapeHTML(formatDateKey(forecast.forecastEnd,{month:'long',year:'numeric'}))} (${forecast.differenceMonths >= 0 ? '+' : ''}${forecast.differenceMonths} months)</p><p><strong>Required weekly pace:</strong> ${forecast.requiredWeeklyPace.toFixed(2)} programme percentage points</p><p class="muted small">${escapeHTML(forecast.reason)}</p></article>
+    <article class="card"><h3>Quality and readiness</h3><p><strong>Programme progress:</strong> ${forecast.progress}%</p><p><strong>${escapeHTML(phase.short)} exam readiness:</strong> ${readiness.score}% — ${escapeHTML(readiness.category)}</p><p><strong>Energy / concentration / stress:</strong> ${metrics.week.quality.energy}/5 · ${metrics.week.quality.concentration}/5 · ${metrics.week.quality.stress}/5</p><p class="${reduction ? 'warning-text' : 'muted'}">${reduction ? 'Reduce next week by 20–30% and prioritise outstanding work, weak areas, validation and review.' : 'Current quality controls do not require a pace reduction.'}</p></article>
+  </div>${reduction ? `<div class="form-actions"><button class="secondary-btn" data-action="apply-reduced-next-week">Apply a 25% reduced target next week</button></div>` : ''}${recovery.due ? `<div class="form-actions"><button class="secondary-btn" data-action="schedule-recovery-next-week">Schedule next week as recovery</button></div>` : ''}${warnings.length ? `<article class="card warning-panel"><h3>Programme warnings</h3><ul>${warnings.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul></article>` : ''}`;
+}
+
 function buildDailyTask(key, dayType = getDayTypeForDate(key)) {
   const dateToken = key.replaceAll('-', '');
   const azure = getAzurePriority(key);
@@ -1001,41 +1490,34 @@ function buildDailyTask(key, dayType = getDayTypeForDate(key)) {
   const currentStage = azureModule ? getCurrentMasteryStage(azureModule) : AZURE_STAGE_DEFS[0];
 
   if (dayType === 'azure') {
-    const isArmUnitFive = azureModule?.id === 'az-prerequisites-m4' && Number(unit?.number) === 5;
+    const phase = activeProgrammePhase();
+    const session = studySessionForDate(key);
+    const topic = phaseTopic(phase);
+    const isArmUnitFive = phase.id === 'az-104' && azureModule?.id === 'az-prerequisites-m4' && Number(unit?.number) === 5;
+    const title = isArmUnitFive && getDayName(key) === 'Monday'
+      ? 'Learn and prepare ARM-template Unit 5 using PowerShell'
+      : `${session.label.replace(/^Session[s]? \d(?: and \d)? — /,'')} — ${phase.short}`;
     return {
-      id: `task-${dateToken}-azure`,
-      category: 'azure',
-      dayType,
-      title: isArmUnitFive ? 'Complete ARM-template Unit 5 using PowerShell' : (azure ? `${azure.title} — ${unit?.name || currentStage[1]}` : 'AZ-104 focused study'),
-      reason: isArmUnitFive
-        ? 'This is the next incomplete unit in your current AZ-104 module and is required before the module can be completed.'
-        : (azure?.reason || 'This is the highest-priority incomplete Azure topic.'),
-      duration: isArmUnitFive ? '60–90 minutes' : '45–60 minutes',
-      priority: 'high',
-      section: 'AZ-104',
-      learningPath: azure?.path?.name || currentAZPath()?.name || '',
-      module: azureModule?.name || '',
-      unit: unit?.name || '',
-      masteryStage: currentStage?.[1] || 'Learn',
-      refs: { pathId: azure?.path?.id || currentAZPath()?.id || '', moduleId: azureModule?.id || '', unitId: unit?.id || '' },
-      checklist: isArmUnitFive ? [
-        'Open the module and Unit 5 exercise',
+      id:`task-${dateToken}-azure`, category:'azure', dayType, title,
+      reason:isArmUnitFive ? 'Unit 5 is the next incomplete AZ-104 unit. It must be learned, deployed, validated, failed safely with an invalid value, and cleaned up.' : `${session.objective}. This advances the active ${phase.short} phase while keeping practical evidence and retention requirements intact.`,
+      duration:session.duration, priority:'high', section:phase.name,
+      learningPath:phase.id === 'az-104' ? (azure?.path?.name || currentAZPath()?.name || '') : `${phase.short} intensive phase`,
+      module:phase.id === 'az-104' ? (azureModule?.name || '') : phase.currentObjective,
+      unit:phase.id === 'az-104' ? (unit?.name || '') : topic,
+      masteryStage:phase.id === 'az-104' ? (currentStage?.[1] || 'Learn') : session.label,
+      studySessionId:session.id, supportingSkill:phase.skills.join(' · '), germanTask:`20–45 minutes of German, including ${phase.short} technical vocabulary.`,
+      refs:{ pathId:azure?.path?.id || currentAZPath()?.id || '', moduleId:azureModule?.id || '', unitId:unit?.id || '', phaseId:phase.id },
+      checklist:isArmUnitFive ? [
+        'Open Unit 5 and review parameters, allowed values and outputs',
         'Complete the PowerShell-based ARM template work',
         'Deploy successfully using an allowed value',
         'Confirm the expected failure using an invalid value',
         'Capture the storage endpoint output',
-        'Validate the final result',
+        'Validate the result and record anything not understood',
         'Clean up all resources created by the exercise',
-        'Add evidence and record anything not understood'
-      ] : [
-        'Open the current module or lab',
-        'Complete the required learning or practical work',
-        'Validate the result',
-        'Add evidence',
-        'Record anything not understood',
-        'Clean up resources if required',
-        'Mark the task complete'
-      ]
+        'Complete the short supporting-skill and German tasks',
+        'Add evidence before marking the task complete'
+      ] : studyChecklist(session, phase, topic)
     };
   }
 
@@ -1068,27 +1550,33 @@ function buildDailyTask(key, dayType = getDayTypeForDate(key)) {
 
   if (dayType === 'karate') {
     const jion = currentKata();
+    const day = getDayName(key);
+    const afterClass = day === 'Tuesday' || day === 'Thursday';
     return {
-      id: `task-${dateToken}-karate`,
-      category: 'karate',
-      dayType,
-      title: jion?.id === 'jion' ? 'Dedicated Jion technical training session' : `Dedicated ${jion?.name || 'kata'} training session`,
-      reason: `${jion?.name || 'The current kata'} sequence is known, but grading readiness has not yet been demonstrated. ${grading ? `The current grading weakness is ${grading.title}.` : ''}`,
-      duration: '45–60 minutes',
-      priority: 'high',
-      section: 'Kata',
-      kata: jion?.name || 'Jion',
-      gradingFocus: grading?.title || '',
-      refs: { kataId: jion?.id || 'jion', syllabusId: grading?.item?.id || grading?.itemId || '' },
-      checklist: [
-        'Warm up',
-        'Complete one slow technical performance',
-        'Complete one normal performance',
-        'Complete one grading-speed performance',
-        'Review stances and transitions',
-        'Practise the weaker side or grading weakness',
-        'Record instructor feedback or video evidence if available',
-        'Identify one main correction and mark the task complete'
+      id:`task-${dateToken}-karate`, category:'karate', dayType,
+      title:afterClass ? 'Post-class Jion and 3rd Dan training' : 'Saturday Jion and 3rd Dan development session',
+      reason:`${afterClass ? 'Use the period after the normal karate class' : 'Use Saturday’s dedicated session'} to improve Jion grading readiness and the weakest current 3rd Dan section. Knowing the sequence alone is not grading readiness.`,
+      duration:afterClass ? '30–45 minutes after karate class' : '60–90 minutes', priority:'high', section:'Kata and 3rd Dan grading',
+      kata:jion?.name || 'Jion', gradingFocus:grading?.title || 'Current weakest grading section',
+      refs:{ kataId:jion?.id || 'jion', syllabusId:grading?.item?.id || grading?.itemId || '' },
+      checklist:afterClass ? [
+        'Reset and hydrate after the normal class',
+        'Perform Jion once slowly with technical control',
+        'Practise the current grading-section weakness',
+        'Practise the weaker side separately',
+        'Perform one normal or grading-speed Jion',
+        'Record right-side and left-side ratings',
+        'Record instructor feedback or one main correction',
+        'Add evidence and mark the session result'
+      ] : [
+        'Warm up and prepare for focused grading work',
+        'Perform one slow technical Jion',
+        'Perform one normal Jion',
+        'Perform one grading-speed Jion',
+        'Train the current weakest Kihon or Kumite section',
+        'Practise both sides and assess the weaker side',
+        'Record video or instructor feedback where available',
+        'Set one correction and the next retention date'
       ]
     };
   }
@@ -1361,6 +1849,20 @@ function getModuleRecallQuestions(module) {
 }
 
 function getAzureFocusSummary() {
+  const phase = activeProgrammePhase();
+  if (phase?.id !== 'az-104') {
+    const currentMonth = state.intensiveProgramme?.months?.find(month => month.monthStart.slice(0,7) === monthKeyForDate());
+    const stage = INTENSIVE_STAGE_DEFS.find(item => item[0] === currentMonth?.stageId) || INTENSIVE_STAGE_DEFS[1];
+    return {
+      certification: phase?.name || 'Microsoft Cloud programme',
+      path: `Phase ${phase?.order || ''} · Months ${phase?.months || ''}`,
+      module: phase?.currentObjective || phase?.outcome || '',
+      unit: `Supporting skills: ${(phase?.skills || []).join(', ')}`,
+      stage: stage[1],
+      weakArea: phase?.criticalWeakAreas ? `${phase.criticalWeakAreas} critical weak area(s) recorded` : 'No critical weak area recorded',
+      nextAction: `Complete the next ${studySessionForDate(getNZDateKey()).label.toLowerCase()} task with evidence.`
+    };
+  }
   const path = currentAZPath();
   const module = currentAzureModule();
   const unit = currentAzureUnit(module);
@@ -1386,7 +1888,7 @@ function renderFocusSummary(referenceDate = getNZDateKey()) {
   const weakSide = kata?.weakerSide === 'right' ? 'Right' : kata?.weakerSide === 'left' ? 'Left' : kata?.weakerSide === 'equal' ? 'Equal' : 'Not assessed';
   return `<div class="focus-cards grid three">
     <article class="card focus-detail azure-outline">
-      <span class="focus-kicker azure-text">Azure focus</span>
+      <span class="focus-kicker azure-text">Cloud study focus</span>
       <h3>${escapeHTML(azure.module)}</h3>
       <dl>
         <div><dt>Certification</dt><dd>${escapeHTML(azure.certification)}</dd></div>
@@ -1445,6 +1947,7 @@ function renderCurrentView() {
     today: renderToday,
     week: renderWeek,
     azure: renderAzure,
+    programme: renderProgramme,
     dan: renderDan,
     kata: renderKata,
     progress: renderProgress,
@@ -1501,7 +2004,7 @@ function renderToday() {
         <div><span>Estimated duration</span><strong>${escapeHTML(task.duration)}</strong></div>
         <div><span>Current section</span><strong>${escapeHTML(task.section || dayTypeLabel(dayType))}</strong></div>
       </div>
-      ${task.category === 'azure' ? `<div class="task-context"><span>${escapeHTML(task.learningPath || '')}</span><strong>${escapeHTML(task.module || '')}</strong><span>${escapeHTML(task.unit || '')}</span><span>Mastery: ${escapeHTML(task.masteryStage || '')}</span></div>` : ''}
+      ${task.category === 'azure' ? `<div class="task-context"><span>${escapeHTML(task.learningPath || '')}</span><strong>${escapeHTML(task.module || '')}</strong><span>${escapeHTML(task.unit || '')}</span><span>Stage: ${escapeHTML(task.masteryStage || '')}</span><span>Supporting skill: ${escapeHTML(task.supportingSkill || '')}</span><span>German: ${escapeHTML(task.germanTask || '')}</span></div>` : ''}
       ${task.category === 'karate' ? `<div class="task-context"><span>Current kata: ${escapeHTML(task.kata || 'Jion')}</span><strong>${escapeHTML(task.gradingFocus || 'Jion technical assessment')}</strong></div>` : ''}
       <div class="progress-line"><span style="width:${completion}%"></span></div>
       <div class="task-action-row">
@@ -1513,6 +2016,8 @@ function renderToday() {
         <button class="ghost-btn danger-text" data-action="miss-task" ${['completed','missed'].includes(status) ? 'disabled' : ''}>Mark as missed</button>
       </div>
     </article>
+
+    ${renderIntensityDashboard(key)}
 
     <div class="section-heading"><div><h2>Current focus summary</h2><p>These cards show progress only and do not create extra tasks today.</p></div></div>
     ${renderFocusSummary(key)}
@@ -1536,8 +2041,17 @@ function renderToday() {
         <label>Confidence
           <select data-daily-field="confidence" data-date="${key}">${ratingOptions(record.confidence || 3)}</select>
         </label>
-        <label>Energy and recovery
+        <label>Energy
           <select data-daily-field="energy" data-date="${key}">${ratingOptions(record.energy || 3)}</select>
+        </label>
+        <label>Concentration
+          <select data-daily-field="concentration" data-date="${key}">${ratingOptions(record.concentration || 3)}</select>
+        </label>
+        <label>Study enjoyment
+          <select data-daily-field="enjoyment" data-date="${key}">${ratingOptions(record.enjoyment || 3)}</select>
+        </label>
+        <label>Stress
+          <select data-daily-field="stress" data-date="${key}">${ratingOptions(record.stress || 3)}</select>
         </label>
       </div>
     </article>`;
@@ -1755,6 +2269,95 @@ function renderRoadmapGoal(goal) {
   return `<div class="roadmap-goal ${goal.complete?'complete':''}"><label><input type="checkbox" data-roadmap-goal="${goal.id}" ${goal.complete?'checked':''}><span><em class="${goal.category.toLowerCase()}">${escapeHTML(goal.category)}</em>${escapeHTML(goal.text)}</span></label><input type="text" data-roadmap-evidence="${goal.id}" value="${escapeHTML(goal.evidence||'')}" placeholder="Evidence or note"></div>`;
 }
 
+
+function renderProgrammePhaseCards() {
+  return `<div class="phase-roadmap">${state.intensiveProgramme.phases.map(phase => {
+    const progress = getProgrammePhaseProgress(phase);
+    const active = phase.id === state.intensiveProgramme.activePhaseId;
+    return `<article class="card phase-card ${active ? 'active-phase' : ''}"><div class="phase-card-head"><div><span class="badge ${active ? 'green' : 'blue'}">Phase ${phase.order} · Months ${escapeHTML(phase.months)}</span><h3>${escapeHTML(phase.name)}</h3><p>${escapeHTML(phase.outcome)}</p></div><strong>${progress}%</strong></div><div class="progress-line"><span style="width:${progress}%"></span></div><div class="module-badges">${phase.skills.map(skill => `<span class="badge">${escapeHTML(skill)}</span>`).join('')}</div><div class="stage-list">${INTENSIVE_STAGE_DEFS.map(([,label]) => `<span class="badge">${escapeHTML(label)}</span>`).join('')}</div><div class="form-grid"><label>Status<select data-phase-field="status" data-phase-id="${phase.id}">${[['not-started','Not started'],['active','Active'],['paused','Paused'],['complete','Complete']].map(([v,l]) => `<option value="${v}" ${phase.status===v?'selected':''}>${l}</option>`).join('')}</select></label><label>Manual progress %<input type="number" min="0" max="100" step="1" data-phase-field="progress" data-phase-id="${phase.id}" value="${Number(phase.progress||0)}"></label><label>Current objective<input data-phase-field="currentObjective" data-phase-id="${phase.id}" value="${escapeHTML(phase.currentObjective||'')}"></label><label>Exam date<input type="date" data-phase-field="examDate" data-phase-id="${phase.id}" value="${escapeHTML(phase.examDate||'')}"></label></div>${active ? '<span class="badge green">Current active phase</span>' : `<button class="ghost-btn" data-action="set-active-phase" data-id="${phase.id}">Make active</button>`}</article>`;
+  }).join('')}</div>`;
+}
+
+function renderIntensiveSessionFields(def, session, weekStart) {
+  const common = `<div class="form-grid"><label>Main topic<input data-week-session-field="topic" data-session-id="${def.id}" data-week-start="${weekStart}" value="${escapeHTML(session.topic||'')}"></label><label>Status<select data-week-session-field="status" data-session-id="${def.id}" data-week-start="${weekStart}">${TASK_STATUS_OPTIONS.slice(0,5).map(([v,l]) => `<option value="${v}" ${session.status===v?'selected':''}>${l}</option>`).join('')}</select></label><label>Duration hours<input type="number" min="0" max="3" step="0.25" data-week-session-field="durationHours" data-session-id="${def.id}" data-week-start="${weekStart}" value="${Number(session.durationHours||0)}"></label><label>Confidence<select data-week-session-field="confidence" data-session-id="${def.id}" data-week-start="${weekStart}">${ratingOptions(session.confidence||3)}</select></label></div>`;
+  const text = (field, label, placeholder='') => `<label>${label}<textarea data-week-session-field="${field}" data-session-id="${def.id}" data-week-start="${weekStart}" placeholder="${escapeHTML(placeholder)}">${escapeHTML(session[field]||'')}</textarea></label>`;
+  const input = (field, label, type='text', attrs='') => `<label>${label}<input type="${type}" ${attrs} data-week-session-field="${field}" data-session-id="${def.id}" data-week-start="${weekStart}" value="${escapeHTML(String(session[field]??''))}"></label>`;
+  let specific='';
+  if (def.id === 'session-1') specific = `<div class="form-grid">${input('officialModule','Official module')}${input('documentation','Documentation')}${input('terminology','Key terminology')}${input('examObjectives','Exam objectives covered')}</div><div class="form-grid">${text('concepts','Concepts to explain')}${text('evidence','Notes and evidence')}</div><label class="checkbox-label"><input type="checkbox" data-week-session-field="teachBack" data-session-id="${def.id}" data-week-start="${weekStart}" ${session.teachBack?'checked':''}> Teach-back completed without copying the source</label>`;
+  else if (def.id === 'session-2') specific = `<div class="form-grid">${input('lab','Guided lab')}${input('objective','Objective')}${input('resources','Resources')}${input('possibleCost','Possible cost')}</div><div class="form-grid">${text('portalTasks','Portal tasks')}${text('powershellTasks','PowerShell tasks')}${text('cliTasks','Azure CLI tasks')}${text('validation','Validation')}</div><div class="form-grid">${text('problems','Problems encountered')}${text('troubleshooting','Troubleshooting performed')}${text('cleanup','Cleanup')}${text('evidence','Evidence')}</div>`;
+  else if (def.id === 'session-3') specific = `<div class="form-grid">${input('challenge','Independent practical challenge')}${input('instructionsAllowed','Instructions allowed')}${input('resources','Resources created')}${input('independentResult','Independent result')}</div><div class="form-grid">${text('commandsUsed','Commands used')}${text('problems','Problems encountered')}${text('troubleshooting','Troubleshooting performed')}${text('validation','Validation result')}</div><div class="form-grid">${text('cleanup','Cleanup')}${text('evidence','Evidence')}</div>`;
+  else if (def.id === 'session-4') specific = `<div class="form-grid">${input('topicsTested','Topics tested')}${input('questionTypes','Question types')}${input('practiceScore','Practice score','number','min="0" max="100"')}${input('practicalResult','Practical result')}</div><div class="form-grid">${text('weakAreas','Weak areas')}${text('corrections','Corrections')}${text('retestResult','Retest result')}${input('retentionDate','Retention review date','date')}</div>${text('evidence','Assessment evidence')}`;
+  else specific = `<div class="form-grid">${input('project','Portfolio project')}${input('milestone','Milestone')}${input('automationTool','Automation tool')}${input('gitActivity','Git activity')}</div><div class="form-grid">${text('scriptDeployment','Script or deployment')}${text('documentation','Documentation')}${text('validation','Validation')}${text('evidence','Evidence')}</div>`;
+  return `${common}${specific}`;
+}
+
+function renderCurrentIntensiveWeek() {
+  const weekStart = getWeekStart();
+  const week = getIntensiveWeek(weekStart, {create:false});
+  const metrics = getWeekIntensityMetrics(weekStart);
+  const phase = state.intensiveProgramme.phases.find(item => item.id === week.activePhaseId) || activeProgrammePhase();
+  return `<article class="card intensive-week-card"><div class="section-heading"><div><p class="eyebrow">WEEK OF ${escapeHTML(formatDateKey(weekStart,{day:'numeric',month:'long',year:'numeric'}).toUpperCase())}</p><h2>Intensive weekly record</h2><p>Monday, Wednesday, Friday and Sunday are Microsoft cloud study days. Tuesday, Thursday and Saturday remain karate and Dan 3 training days.</p></div><span class="badge blue">${metrics.technicalHours.toFixed(1)} technical h · ${metrics.germanHours.toFixed(1)} German h</span></div>
+  <div class="form-grid"><label>Active certification<select data-week-field="activePhaseId" data-week-start="${weekStart}">${state.intensiveProgramme.phases.map(item => `<option value="${item.id}" ${item.id===week.activePhaseId?'selected':''}>${escapeHTML(item.short)}</option>`).join('')}</select></label><label>Current phase stage<select data-week-field="stageId" data-week-start="${weekStart}">${INTENSIVE_STAGE_DEFS.map(([id,label]) => `<option value="${id}" ${week.stageId===id?'selected':''}>${escapeHTML(label)}</option>`).join('')}</select></label><label>Starting progress %<input type="number" min="0" max="100" data-week-field="startingProgress" data-week-start="${weekStart}" value="${Number(week.startingProgress||0)}"></label><label>Target progress %<input type="number" min="0" max="100" data-week-field="targetProgress" data-week-start="${weekStart}" value="${Number(week.targetProgress||0)}"></label><label>Technical target h<input type="number" min="5" max="16" step="0.5" data-week-field="technicalTarget" data-week-start="${weekStart}" value="${Number(week.technicalTarget||10)}"></label><label>German target h<input type="number" min="1" max="6" step="0.25" data-week-field="germanTarget" data-week-start="${weekStart}" value="${Number(week.germanTarget||2.5)}"></label></div>
+  <label>Main weekly outcome<textarea data-week-field="mainOutcome" data-week-start="${weekStart}">${escapeHTML(week.mainOutcome||'')}</textarea></label>
+  <div class="toggle-row"><label><input type="checkbox" data-week-field="recoveryWeek" data-week-start="${weekStart}" ${week.recoveryWeek?'checked':''}> Recovery week</label><label><input type="checkbox" data-week-field="temporarilyReduced" data-week-start="${weekStart}" ${week.temporarilyReduced?'checked':''}> Temporarily reduced by 20–30%</label></div>
+  <div class="session-list">${INTENSIVE_SESSION_DEFS.map(def => { const session=week.sessions[def.id]; return `<details class="session-card" ${def.id==='session-1'?'open':''}><summary><span>${escapeHTML(def.label)} · ${escapeHTML(def.day)} · ${escapeHTML(def.duration)}</span><span class="badge ${session.status==='completed'?'green':session.status==='partial'?'amber':'blue'}">${escapeHTML(session.status.replaceAll('-',' '))}</span></summary><div class="session-body">${renderIntensiveSessionFields(def,session,weekStart)}</div></details>`; }).join('')}</div>
+  <div class="section-heading compact"><div><h3>German weekly record</h3><p>Complete German on at least five days, including one speaking and one technical-German session.</p></div></div><div class="form-grid"><label>Current level<input data-week-german="currentLevel" data-week-start="${weekStart}" value="${escapeHTML(week.german.currentLevel||'A0/A1')}"></label><label>Days completed<input type="number" min="0" max="7" data-week-german="daysCompleted" data-week-start="${weekStart}" value="${Number(week.german.daysCompleted||0)}"></label><label>Vocabulary sessions<input type="number" min="0" max="14" data-week-german="vocabularySessions" data-week-start="${weekStart}" value="${Number(week.german.vocabularySessions||0)}"></label><label>Grammar sessions<input type="number" min="0" max="14" data-week-german="grammarSessions" data-week-start="${weekStart}" value="${Number(week.german.grammarSessions||0)}"></label><label>Listening minutes<input type="number" min="0" data-week-german="listeningMinutes" data-week-start="${weekStart}" value="${Number(week.german.listeningMinutes||0)}"></label><label>Speaking minutes<input type="number" min="0" data-week-german="speakingMinutes" data-week-start="${weekStart}" value="${Number(week.german.speakingMinutes||0)}"></label><label>Reading minutes<input type="number" min="0" data-week-german="readingMinutes" data-week-start="${weekStart}" value="${Number(week.german.readingMinutes||0)}"></label><label>Writing tasks<input type="number" min="0" data-week-german="writingTasks" data-week-start="${weekStart}" value="${Number(week.german.writingTasks||0)}"></label><label>Additional German minutes<input type="number" min="0" data-week-german="additionalMinutes" data-week-start="${weekStart}" value="${Number(week.german.additionalMinutes||0)}"></label><label>Technical German topic<input data-week-german="technicalGerman" data-week-start="${weekStart}" value="${escapeHTML(week.german.technicalGerman||`${phase.short} vocabulary`)}"></label></div>
+  <div class="section-heading compact"><div><h3>Weekly review and quality controls</h3></div></div><div class="form-grid"><label>Labs completed<input type="number" min="0" data-week-field="labsCompleted" data-week-start="${weekStart}" value="${Number(week.labsCompleted||0)}"></label><label>Assessments completed<input type="number" min="0" data-week-field="assessmentsCompleted" data-week-start="${weekStart}" value="${Number(week.assessmentsCompleted||0)}"></label><label>Portfolio hours<input type="number" min="0" max="10" step="0.25" data-week-field="portfolioHours" data-week-start="${weekStart}" value="${Number(week.portfolioHours||0)}"></label><label>Independent tasks passed<input type="number" min="0" data-week-field="independentTasksPassed" data-week-start="${weekStart}" value="${Number(week.independentTasksPassed||0)}"></label><label>Current weak-area count<input type="number" min="0" data-week-field="weakAreaCount" data-week-start="${weekStart}" value="${Number(week.weakAreaCount||0)}"></label><label>Schedule status<select data-week-field="scheduleStatus" data-week-start="${weekStart}">${['Accelerated','On Intensive Target','Slightly Below Intensive Target','Recovery Week','Temporarily Reduced','Behind','Paused'].map(v => `<option ${week.scheduleStatus===v?'selected':''}>${v}</option>`).join('')}</select></label></div>
+  <div class="quality-grid">${[['energy','Energy'],['concentration','Concentration'],['enjoyment','Study enjoyment'],['sleepImpact','Sleep impact'],['familyImpact','Family impact'],['confidence','Confidence'],['stress','Stress']].map(([field,label]) => `<label>${label}<select data-week-quality="${field}" data-week-start="${weekStart}">${ratingOptions(week.quality[field]||3)}</select></label>`).join('')}<label class="checkbox-label"><input type="checkbox" data-week-quality="rushingLabs" data-week-start="${weekStart}" ${week.quality.rushingLabs?'checked':''}> I rushed labs without understanding them</label></div>
+  <div class="form-grid"><label>Knowledge completed<textarea data-week-field="knowledgeCompleted" data-week-start="${weekStart}">${escapeHTML(week.knowledgeCompleted||'')}</textarea></label><label>Assessment result<textarea data-week-field="assessmentResult" data-week-start="${weekStart}">${escapeHTML(week.assessmentResult||'')}</textarea></label><label>Portfolio progress<textarea data-week-field="portfolioProgress" data-week-start="${weekStart}">${escapeHTML(week.portfolioProgress||'')}</textarea></label><label>Strong areas<textarea data-week-field="strongAreas" data-week-start="${weekStart}">${escapeHTML(week.strongAreas||'')}</textarea></label><label>Weak areas<textarea data-week-field="weakAreas" data-week-start="${weekStart}">${escapeHTML(week.weakAreas||'')}</textarea></label><label>Blocked items<textarea data-week-field="blockedItems" data-week-start="${weekStart}">${escapeHTML(week.blockedItems||'')}</textarea></label><label>Carry-over work<textarea data-week-field="carryOver" data-week-start="${weekStart}">${escapeHTML(week.carryOver||'')}</textarea></label><label>Next highest-priority task<textarea data-week-field="nextPriority" data-week-start="${weekStart}">${escapeHTML(week.nextPriority||'')}</textarea></label></div></article>`;
+}
+
+function renderExamReadiness() {
+  const phase = activeProgrammePhase();
+  const readiness = examReadiness(phase);
+  return `<article class="card exam-readiness-card"><div class="section-heading"><div><h2>${escapeHTML(phase.short)} exam booking gate</h2><p>A target date alone never makes the exam ready to book.</p></div><span class="badge ${readiness.score>=80?'green':readiness.score>=70?'amber':'red'}">${readiness.score}% · ${escapeHTML(readiness.category)}</span></div><div class="form-grid"><label class="checkbox-label"><input type="checkbox" data-phase-field="objectivesStudied" data-phase-id="${phase.id}" ${phase.objectivesStudied?'checked':''}> All major objectives studied</label><label>Required labs complete %<input type="number" min="0" max="100" data-phase-field="labsCompletePercent" data-phase-id="${phase.id}" value="${Number(phase.labsCompletePercent||0)}"></label><label class="checkbox-label"><input type="checkbox" data-phase-field="independentReady" data-phase-id="${phase.id}" ${phase.independentReady?'checked':''}> Important tasks performed independently</label><label>Critical weak areas<input type="number" min="0" data-phase-field="criticalWeakAreas" data-phase-id="${phase.id}" value="${Number(phase.criticalWeakAreas||0)}"></label><label>Recent practice scores<input data-phase-field="practiceScores" data-phase-id="${phase.id}" value="${escapeHTML(phase.practiceScores||'')}" placeholder="Example: 82, 84, 88"></label><label>Portfolio substantially complete %<input type="number" min="0" max="100" data-phase-field="portfolioPercent" data-phase-id="${phase.id}" value="${Number(phase.portfolioPercent||0)}"></label><label class="checkbox-label"><input type="checkbox" data-phase-field="retentionPassed" data-phase-id="${phase.id}" ${phase.retentionPassed?'checked':''}> Delayed retention check passed</label><label class="checkbox-label"><input type="checkbox" data-phase-field="examPassed" data-phase-id="${phase.id}" ${phase.examPassed?'checked':''}> Official exam passed</label></div><div class="inline-note ${readiness.eligible?'success':'warning'}">${readiness.eligible ? 'All booking rules are currently satisfied.' : 'Do not book yet. Complete every booking rule, including three consistent scores of at least 80%.'}</div></article>`;
+}
+
+function renderMonthlyPlan(month) {
+  const p=month.plan || {};
+  const field=(key,label,area='textarea') => area==='input'
+    ? `<label>${label}<input data-intensive-month-plan="${key}" data-month-id="${month.id}" value="${escapeHTML(String(p[key]??''))}"></label>`
+    : `<label>${label}<textarea data-intensive-month-plan="${key}" data-month-id="${month.id}">${escapeHTML(p[key]||'')}</textarea></label>`;
+  return `<details class="monthly-plan"><summary>Detailed monthly plan</summary><div class="monthly-plan-sections">
+    <section><h4>Knowledge goals</h4><div class="form-grid">${field('officialModules','Official modules')}${field('documentationTopics','Documentation topics')}${field('conceptsToExplain','Concepts to explain')}${field('examObjectives','Exam objectives')}</div></section>
+    <section><h4>Practical goals</h4><div class="form-grid">${field('guidedLabs','Guided labs')}${field('independentLabs','Independent labs')}${field('troubleshootingTasks','Troubleshooting tasks')}${field('resourcesToDeploy','Resources to deploy')}${field('validationRequirements','Validation requirements')}${field('cleanupRequirements','Cleanup requirements')}</div></section>
+    <section><h4>Assessment goals</h4><div class="form-grid">${field('knowledgeQuizzes','Knowledge quizzes')}${field('scenarioAssessments','Scenario assessments')}${field('practicalChallenges','Practical challenges')}${field('targetScores','Target scores','input')}${field('weakAreasToResolve','Weak areas to resolve')}</div></section>
+    <section><h4>Portfolio and relevant automation</h4><div class="form-grid">${field('portfolioMilestone','Portfolio milestone')}${field('powershellTask','PowerShell task')}${field('azureCliTask','Azure CLI task')}${field('graphTask','Microsoft Graph task')}${field('iacTask','Bicep or Terraform task')}${field('gitCicdTask','Git or CI/CD task')}</div></section>
+    <section><h4>German goals</h4><div class="form-grid">${field('germanLevel','Current level','input')}${field('vocabularyTarget','Vocabulary target')}${field('grammarTarget','Grammar target')}${field('listeningHours','Listening hours','input')}${field('speakingHours','Speaking hours','input')}${field('readingTasks','Reading tasks')}${field('writingTasks','Writing tasks')}${field('technicalGermanTopic','Technical German topic')}</div></section>
+  </div></details>`;
+}
+
+function renderIntensiveMonths() {
+  return `<div class="intensive-month-list">${state.intensiveProgramme.months.map(month => {
+    const phase = state.intensiveProgramme.phases.find(item => item.id === month.phaseId) || programmePhaseForMonth(month.monthNumber);
+    const stageLabel = month.stageLabel || INTENSIVE_STAGE_DEFS.find(item => item[0] === month.stageId)?.[1] || 'Integrated phase work';
+    const completedGoals = Object.values(month.goals).filter(goal => goal.complete).length;
+    return `<details class="roadmap-month intensive-month" ${month.monthStart.slice(0,7)===monthKeyForDate()?'open':''}><summary><div><span class="roadmap-month-label">Month ${month.monthNumber} · ${escapeHTML(month.label)}</span><strong>${escapeHTML(phase.short)} — ${escapeHTML(stageLabel)}</strong></div><div class="roadmap-summary-meta"><span class="badge blue">${completedGoals}/8 goals</span><span class="badge">Target ${month.targetEndingProgress}%</span></div></summary><div class="roadmap-month-body"><div class="form-grid"><label>Starting progress %<input type="number" min="0" max="100" data-intensive-month-field="startingProgress" data-month-id="${month.id}" value="${Number(month.startingProgress||0)}"></label><label>Target ending progress %<input type="number" min="0" max="100" data-intensive-month-field="targetEndingProgress" data-month-id="${month.id}" value="${Number(month.targetEndingProgress||0)}"></label><label>Target exam date<input type="date" data-intensive-month-field="targetExamDate" data-month-id="${month.id}" value="${escapeHTML(month.targetExamDate||'')}"></label><label>Primary outcome<textarea data-intensive-month-field="primaryOutcome" data-month-id="${month.id}">${escapeHTML(month.primaryOutcome||'')}</textarea></label></div>
+    ${renderMonthlyPlan(month)}
+    <div class="monthly-goal-grid">${[['knowledge','Knowledge'],['labs','Practical labs'],['independent','Independent performance'],['assessments','Assessment'],['weakAreas','Weak-area review'],['portfolio','Portfolio'],['automation','Automation'],['german','German']].map(([key,label]) => { const goal=month.goals[key]; const descriptor=goal.text || (key==='german' ? `${goal.targetHours} hours · ${goal.topic}` : `Target ${goal.target||0} · Actual ${goal.actual||0}`); return `<article class="goal-card ${goal.complete?'complete':''}"><label class="goal-check"><input type="checkbox" data-intensive-month-goal="complete" data-goal-key="${key}" data-month-id="${month.id}" ${goal.complete?'checked':''}><strong>${label}</strong></label><p>${escapeHTML(descriptor)}</p>${['labs','independent','assessments','weakAreas'].includes(key)?`<div class="compact-numbers"><label>Target<input type="number" min="0" data-intensive-month-goal="target" data-goal-key="${key}" data-month-id="${month.id}" value="${Number(goal.target||0)}"></label><label>Actual<input type="number" min="0" data-intensive-month-goal="actual" data-goal-key="${key}" data-month-id="${month.id}" value="${Number(goal.actual||0)}"></label></div>`:''}${key==='german'?`<div class="compact-numbers"><label>Target h<input type="number" min="0" data-intensive-month-goal="targetHours" data-goal-key="${key}" data-month-id="${month.id}" value="${Number(goal.targetHours||0)}"></label><label>Actual h<input type="number" min="0" step="0.25" data-intensive-month-goal="actualHours" data-goal-key="${key}" data-month-id="${month.id}" value="${Number(goal.actualHours||0)}"></label></div>`:''}<textarea data-intensive-month-goal="evidence" data-goal-key="${key}" data-month-id="${month.id}" placeholder="Evidence">${escapeHTML(goal.evidence||'')}</textarea></article>`; }).join('')}</div>
+    <div class="roadmap-weeks">${month.weeks.map(week => `<details class="roadmap-week"><summary><span>${escapeHTML(week.label)}</span><span class="badge ${week.status==='completed'?'green':week.status==='partial'?'amber':'blue'}">${escapeHTML(week.status.replaceAll('-',' '))}</span></summary><div class="roadmap-week-body"><label>Main weekly outcome<textarea data-intensive-month-week="mainOutcome" data-week-id="${week.id}" data-month-id="${month.id}">${escapeHTML(week.mainOutcome||'')}</textarea></label><div class="form-grid"><label>Technical target h<input type="number" min="5" max="16" step="0.5" data-intensive-month-week="technicalTarget" data-week-id="${week.id}" data-month-id="${month.id}" value="${Number(week.technicalTarget||10)}"></label><label>German target h<input type="number" min="1" max="6" step="0.25" data-intensive-month-week="germanTarget" data-week-id="${week.id}" data-month-id="${month.id}" value="${Number(week.germanTarget||2.5)}"></label><label>Status<select data-intensive-month-week="status" data-week-id="${week.id}" data-month-id="${month.id}">${TASK_STATUS_OPTIONS.slice(0,5).map(([v,l]) => `<option value="${v}" ${week.status===v?'selected':''}>${l}</option>`).join('')}</select></label></div><label>Weekly evidence<textarea data-intensive-month-week="evidence" data-week-id="${week.id}" data-month-id="${month.id}">${escapeHTML(week.evidence||'')}</textarea></label></div></details>`).join('')}</div>
+    <details class="monthly-review"><summary>Monthly review</summary><div class="form-grid">${[['plannedProgress','Planned progress %'],['actualProgress','Actual progress %'],['labsCompleted','Labs completed'],['independentPassed','Independent tasks passed'],['portfolioProgress','Portfolio progress %'],['germanHours','German hours']].map(([field,label]) => `<label>${label}<input type="number" min="0" step="0.25" data-intensive-month-review="${field}" data-month-id="${month.id}" value="${Number(month.review[field]||0)}"></label>`).join('')}<label>Schedule status<select data-intensive-month-review="scheduleStatus" data-month-id="${month.id}">${['Ahead','On Intensive Target','Slightly Below Intensive Target','Recovery Week','Temporarily Reduced','Behind','Paused'].map(v => `<option ${month.review.scheduleStatus===v?'selected':''}>${v}</option>`).join('')}</select></label></div><div class="form-grid"><label>Assessment results<textarea data-intensive-month-review="assessmentResults" data-month-id="${month.id}">${escapeHTML(month.review.assessmentResults||'')}</textarea></label><label>Weak areas<textarea data-intensive-month-review="weakAreas" data-month-id="${month.id}">${escapeHTML(month.review.weakAreas||'')}</textarea></label><label>Carry-over work<textarea data-intensive-month-review="carryOver" data-month-id="${month.id}">${escapeHTML(month.review.carryOver||'')}</textarea></label><label>Next month priority<textarea data-intensive-month-review="nextPriority" data-month-id="${month.id}">${escapeHTML(month.review.nextPriority||'')}</textarea></label></div></details></div></details>`;
+  }).join('')}</div>`;
+}
+
+function renderProgramme() {
+  const programme = state.intensiveProgramme;
+  const forecast = programmeForecast();
+  const workload = `<div class="grid five workload-grid">${[['Main certification learning','3–4 h'],['Practical labs','3–4 h'],['Testing and review','1.5–2 h'],['Portfolio or automation','1.5–2 h'],['German','2–3 h']].map(([label,value]) => `<article class="card metric-card"><span>${escapeHTML(label)}</span><strong>${escapeHTML(value)}</strong></article>`).join('')}</div><article class="card programme-rules"><h3>Minimum intensive week and sustainability limits</h3><div class="grid two"><div><p><strong>Minimum:</strong> 8 technical hours, 2 German hours, one practical lab, and one assessment or active-recall session.</p><p><strong>Normal target:</strong> 10–14 total hours.</p></div><div><p><strong>Maximum:</strong> 16 hours per week, no technical session longer than 3 hours, and no more than six consecutive intensive study days.</p><p>Evidence, independent performance, troubleshooting and retention remain mandatory.</p></div></div></article>`;
+  const recovery = `<article class="card recovery-protocol"><div class="section-heading"><div><h2>Recovery-week protocol</h2><p>Schedule one after every 6–8 intensive weeks. It is part of the programme and does not count as falling behind.</p></div><span class="badge green">5–7 technical hours</span></div><div class="grid two"><ul><li>Do not begin a major new objective.</li><li>Review completed material and flashcards.</li><li>Repeat one weak practical lab.</li><li>Continue German at normal intensity.</li></ul><ul><li>Clean up notes and Git repositories.</li><li>Finish incomplete documentation.</li><li>Review the next study block.</li><li>Protect sleep, concentration and family capacity.</li></ul></div></article>`;
+  document.getElementById('view-programme').innerHTML = `<div class="hero programme-hero"><p class="eyebrow">INTENSIVE MICROSOFT CLOUD PROGRAMME</p><h2>30–42 months · practical, evidence-based and employability focused</h2><p>${escapeHTML(programme.careerProfile)}</p><div class="hero-meta"><span class="badge blue">10–14 total hours/week</span><span class="badge blue">8–11 technical hours</span><span class="badge blue">2–3 German hours</span><span class="badge green">${forecast.progress}% weighted progress</span></div></div>
+  ${renderIntensityDashboard()}
+  <div class="section-heading"><div><h2>Weekly workload standard</h2><p>The pace is intensive, but labs, independent work, troubleshooting, portfolio evidence and retention cannot be skipped.</p></div></div>${workload}
+  <div class="section-heading"><div><h2>Certification and technical phase sequence</h2><p>AZ-104 → SC-300 → MD-102 → MS-102 → AZ-700 → Bicep and Terraform → Terraform 004 → AZ-305 → SC-500.</p></div></div>${renderProgrammePhaseCards()}
+  <div class="section-heading"><div><h2>Current week</h2><p>Each day has one main objective. Tuesday, Thursday and Saturday remain karate-only main-task days.</p></div></div>${renderCurrentIntensiveWeek()}
+  ${recovery}
+  <div class="section-heading"><div><h2>Exam readiness</h2></div></div>${renderExamReadiness()}
+  <div class="section-heading"><div><h2>Continuous supporting skills</h2><p>Prioritise the skills that support the active certification.</p></div></div><div class="grid three skill-grid">${programme.skills.map(skill => `<article class="card"><h3>${escapeHTML(skill.name)}</h3><div class="progress-line"><span style="width:${Number(skill.progress||0)}%"></span></div><label>Practical competency %<input type="number" min="0" max="100" data-skill-field="progress" data-skill-id="${skill.id}" value="${Number(skill.progress||0)}"></label><label>Evidence<textarea data-skill-field="evidence" data-skill-id="${skill.id}">${escapeHTML(skill.evidence||'')}</textarea></label><label>Last practised<input type="date" data-skill-field="lastPractised" data-skill-id="${skill.id}" value="${escapeHTML(skill.lastPractised||'')}"></label></article>`).join('')}</div>
+  <div class="section-heading"><div><h2>42-month expandable month → week roadmap</h2><p>The original intensive target is ${programme.targetMonths} months. Months 33–42 provide delay, retake, German B2, interview and commercial-experience capacity.</p></div></div>${renderIntensiveMonths()}
+  <div class="section-heading"><div><h2>Career application milestones</h2><p>Applications begin as soon as the relevant certification and practical evidence are present.</p></div></div><div class="grid two">${CAREER_MILESTONES.map(milestone => `<article class="card"><h3>${escapeHTML(milestone.label)}</h3><ul>${milestone.roles.map(role => `<li>${escapeHTML(role)}</li>`).join('')}</ul></article>`).join('')}</div>
+  <div class="section-heading"><div><h2>Final completion standard</h2><p>The programme is complete only when every required certification, practical skill, portfolio and employability outcome is demonstrated.</p></div></div><div class="standard-grid">${programme.completionStandards.map(item => `<article class="card standard-item ${item.complete?'complete':''}"><label><input type="checkbox" data-standard-complete="${item.id}" ${item.complete?'checked':''}><span>${escapeHTML(item.text)}</span></label><textarea data-standard-evidence="${item.id}" placeholder="Evidence">${escapeHTML(item.evidence||'')}</textarea></article>`).join('')}</div>`;
+}
+
 function renderProgress() {
   const today=getNZDateKey();
   const modules=getAllAzureModules().map(({module})=>module);
@@ -1841,7 +2444,7 @@ function renderSettings() {
   document.getElementById('view-settings').innerHTML = `
     <div class="grid two">
       <article class="card">
-        <h2>Alternating programme settings</h2>
+        <h2>Weekly focus settings</h2>
         <div class="form-grid">
           <label>Programme start date<input id="programme-start-date" type="date" value="${escapeHTML(state.settings.programmeStartDate || PROGRAMME_START_DATE)}"></label>
           <label>Daily structure<input type="text" value="One main task per day" disabled></label>
@@ -1849,9 +2452,20 @@ function renderSettings() {
         <div class="weekly-default-grid" style="margin-top:14px">
           ${Object.keys(DEFAULT_WEEKLY_DAY_TYPES).map(day => `<label>${day}<select data-weekly-default="${day}">${dayTypeOptions(state.settings.weeklyDayTypes?.[day] || DEFAULT_WEEKLY_DAY_TYPES[day])}</select></label>`).join('')}
         </div>
-        <div class="inline-note" style="margin-top:13px">Azure and karate are never generated as main tasks on the same day. Review days remain tied to Azure or karate, and rest days remain available.</div>
+        <div class="inline-note" style="margin-top:13px">Recommended pattern: Microsoft cloud study on Monday, Wednesday, Friday and Sunday; post-class kata/Dan 3 on Tuesday and Thursday; dedicated karate training on Saturday. Only one main task is generated per day.</div>
         <div class="form-actions"><button class="primary-btn" data-action="save-programme-settings">Save programme settings</button></div>
         <p class="muted small" style="margin-top:12px">App version ${APP_VERSION} · State schema ${STATE_VERSION}</p>
+      </article>
+
+      <article class="card">
+        <h2>Intensive study targets</h2>
+        <div class="form-grid">
+          <label>Original target months<input type="number" min="30" max="42" data-intensive-programme-field="targetMonths" value="${Number(state.intensiveProgramme.targetMonths||36)}"></label>
+          <label>Technical hours/week<input type="number" min="8" max="14" step="0.5" data-intensive-programme-field="weeklyTechnicalTarget" value="${Number(state.intensiveProgramme.weeklyTechnicalTarget||10)}"></label>
+          <label>German hours/week<input type="number" min="2" max="4" step="0.25" data-intensive-programme-field="weeklyGermanTarget" value="${Number(state.intensiveProgramme.weeklyGermanTarget||2.5)}"></label>
+          <label>Recovery frequency (weeks)<input type="number" min="6" max="8" data-intensive-programme-field="recoveryFrequencyWeeks" value="${Number(state.intensiveProgramme.recoveryFrequencyWeeks||7)}"></label>
+        </div>
+        <div class="inline-note warning">Do not routinely exceed 16 total study hours, three uninterrupted technical hours, or six consecutive intensive study days.</div>
       </article>
       <article class="card">
         <h2>Backup and restore</h2>
@@ -2504,6 +3118,8 @@ function openTaskCompletionDialog(dateKey = selectedDateKey) {
       <label>Which mastery stage was demonstrated?<select name="masteryStage">${AZURE_STAGE_DEFS.map(([id,label]) => `<option value="${id}" ${task.masteryStage === label ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
       <label>What did you not understand?<textarea name="notUnderstood"></textarea></label>
       <div class="form-grid"><label>Did the task create Azure resources?<select name="resourcesCreated"><option value="yes">Yes</option><option value="no">No</option></select></label><label>Were the resources cleaned up?<select name="resourcesCleaned"><option value="yes">Yes</option><option value="no">No</option><option value="not-applicable">Not applicable</option></select></label></div>
+      <div class="form-grid"><label>Main technical minutes<input name="technicalMinutes" type="number" min="0" max="180" value="${Number(record.technicalMinutes||0)}"></label><label>Portfolio/automation minutes<input name="portfolioMinutes" type="number" min="0" max="120" value="${Number(record.portfolioMinutes||0)}"></label><label>German minutes<input name="germanMinutes" type="number" min="0" max="90" value="${Number(record.germanMinutes||0)}"></label></div>
+      <label>Was a practical lab completed?<select name="labCompleted"><option value="no">No</option><option value="yes">Yes</option></select></label><label>Was an assessment or active-recall session completed?<select name="assessmentCompleted"><option value="no">No</option><option value="yes">Yes</option></select></label>
       <label>Should a review be scheduled?<select name="scheduleReview"><option value="yes">Yes</option><option value="no">No</option></select></label>`;
   } else if (task.category === 'karate') {
     fields.innerHTML = `${common}
@@ -2549,10 +3165,43 @@ function applyTaskCompletion(dateKey, data) {
   record.status = finished === 'yes' ? 'completed' : finished === 'partial' ? 'partial' : 'missed';
   record.result = record.status;
   record.completedAt = finished === 'yes' ? new Date().toISOString() : '';
+  const previousCompletionData = record.completionData || {};
   record.completionData = Object.fromEntries(data.entries());
   if (finished === 'yes') task.checklist.forEach((_, index) => { record.checks[taskSubKey(task.id, index)] = true; });
 
   if (task.category === 'azure') {
+    record.technicalMinutes = Number(data.get('technicalMinutes') || 0);
+    record.portfolioMinutes = Number(data.get('portfolioMinutes') || 0);
+    record.germanMinutes = Number(data.get('germanMinutes') || 0);
+    const weekStart = getWeekStart(dateKey);
+    const intensiveWeek = getIntensiveWeek(weekStart);
+    const sessionDef = studySessionForDate(dateKey);
+    if (sessionDef.id === 'session-4-5') {
+      intensiveWeek.sessions['session-4'].durationHours = record.technicalMinutes / 60;
+      intensiveWeek.sessions['session-4'].status = record.status;
+      intensiveWeek.sessions['session-4'].evidence = evidence;
+      intensiveWeek.sessions['session-4'].confidence = record.confidence;
+      intensiveWeek.sessions['session-5'].durationHours = record.portfolioMinutes / 60;
+      intensiveWeek.sessions['session-5'].status = record.status;
+      intensiveWeek.sessions['session-5'].evidence = evidence;
+      intensiveWeek.sessions['session-5'].confidence = record.confidence;
+    } else if (intensiveWeek.sessions[sessionDef.id]) {
+      intensiveWeek.sessions[sessionDef.id].durationHours = (record.technicalMinutes + record.portfolioMinutes) / 60;
+      intensiveWeek.sessions[sessionDef.id].status = record.status;
+      intensiveWeek.sessions[sessionDef.id].evidence = evidence;
+      intensiveWeek.sessions[sessionDef.id].confidence = record.confidence;
+    }
+    intensiveWeek.german.dailyMinutes[dateKey] = record.germanMinutes;
+    if (String(data.get('labCompleted')) === 'yes') intensiveWeek.labsCompleted = Math.max(1, Number(intensiveWeek.labsCompleted || 0) + (previousCompletionData.labCounted ? 0 : 1));
+    if (String(data.get('assessmentCompleted')) === 'yes') intensiveWeek.assessmentsCompleted = Math.max(1, Number(intensiveWeek.assessmentsCompleted || 0) + (previousCompletionData.assessmentCounted ? 0 : 1));
+    intensiveWeek.portfolioHours = Math.max(Number(intensiveWeek.portfolioHours || 0), record.portfolioMinutes / 60);
+    intensiveWeek.quality.energy = record.energy || intensiveWeek.quality.energy;
+    intensiveWeek.quality.concentration = record.concentration || intensiveWeek.quality.concentration;
+    intensiveWeek.quality.enjoyment = record.enjoyment || intensiveWeek.quality.enjoyment;
+    intensiveWeek.quality.stress = record.stress || intensiveWeek.quality.stress;
+    intensiveWeek.updatedAt = new Date().toISOString();
+    record.completionData.labCounted = String(data.get('labCompleted')) === 'yes';
+    record.completionData.assessmentCounted = String(data.get('assessmentCompleted')) === 'yes';
     const module = findAZModule(task.refs?.pathId, task.refs?.moduleId);
     if (module) {
       const stageId = String(data.get('masteryStage') || 'learn');
@@ -2649,6 +3298,9 @@ document.addEventListener('click', async event => {
   if (action === 'delete-note') { if(await confirmAction('Delete note?','This note will be removed.')){state.notes=state.notes.filter(note=>note.id!==id);saveState({render:true});} return; }
   if (action === 'export-backup') return exportBackup();
   if (action === 'choose-import') return document.getElementById('import-file').click();
+  if (action === 'set-active-phase') { state.intensiveProgramme.activePhaseId=id; state.intensiveProgramme.phases.forEach(phase=>{if(phase.id===id)phase.status='active';else if(phase.status==='active')phase.status='not-started';}); saveState({render:true}); toast('Active certification phase updated.'); return; }
+  if (action === 'apply-reduced-next-week') { const current=getIntensiveWeek(getWeekStart(),{create:false});const nextStart=addDays(getWeekStart(),7);const next=getIntensiveWeek(nextStart);next.technicalTarget=Math.max(5,Math.round(Number(current.technicalTarget||10)*0.75*2)/2);next.germanTarget=Number(current.germanTarget||2.5);next.temporarilyReduced=true;next.recoveryWeek=false;next.scheduleStatus='Temporarily Reduced';next.mainOutcome='Reduced-capacity week: prioritise outstanding required work, weak areas, practical validation and review before new learning.';next.updatedAt=new Date().toISOString();saveState({render:true});toast(`Next week reduced to ${next.technicalTarget} technical hours.`);return; }
+  if (action === 'schedule-recovery-next-week') { const nextStart=addDays(getWeekStart(),7);const next=getIntensiveWeek(nextStart);next.technicalTarget=6;next.germanTarget=Number(state.intensiveProgramme.weeklyGermanTarget||2.5);next.recoveryWeek=true;next.temporarilyReduced=false;next.scheduleStatus='Recovery Week';next.mainOutcome='Recovery week: consolidate completed material, repeat one weak lab, clean notes and Git evidence, finish documentation, and prepare the next block.';next.updatedAt=new Date().toISOString();saveState({render:true});toast('Next week scheduled as a recovery week.');return; }
   if (action === 'save-programme-settings') { state.settings.programmeStartDate=document.getElementById('programme-start-date').value||PROGRAMME_START_DATE; document.querySelectorAll('[data-weekly-default]').forEach(select=>{state.settings.weeklyDayTypes[select.dataset.weeklyDefault]=select.value;}); saveState({render:true});toast('Alternating schedule saved.');return; }
   if (action === 'save-sync-provider') { const selected=document.getElementById('cloud-provider').value;setCloudProvider(selected);if(selected==='onedrive'&&microsoftAccount)await pullOneDrive({initial:true});if(selected==='supabase'&&cloudUser)await pullCloud({initial:true});renderSettings();return; }
   if (action === 'save-microsoft-config') { const clientId=document.getElementById('microsoft-client-id').value.trim();const authority=document.getElementById('microsoft-authority').value.trim().replace(/\/$/,'')||'https://login.microsoftonline.com/common';const redirectUri=document.getElementById('microsoft-redirect-uri').value.trim()||getCurrentRedirectUri();if(!clientId)return toast('Enter the Microsoft application client ID.');localStorage.setItem(MICROSOFT_CONFIG_KEY,JSON.stringify({clientId,authority,redirectUri}));toast('Microsoft configuration saved. Reloading app…');setTimeout(()=>location.reload(),600);return; }
@@ -2685,6 +3337,19 @@ document.addEventListener('change', async event => {
   if (el.matches('[data-kata-section]')) { const item=findKata(el.dataset.kataSection);const section=item?.sections.find(entry=>entry.id===el.dataset.sectionId);if(!section)return;section.level=Number(el.value);updateKataProgressFromSections(item);saveState({render:true});return; }
   if (el.matches('[data-kata-field]')) { const item=findKata(el.dataset.kataId);item[el.dataset.kataField]=el.value;saveState();return; }
   if (el.matches('[data-roadmap-goal]')) { const goal=findRoadmapGoal(el.dataset.roadmapGoal);if(goal){goal.complete=el.checked;saveState({render:true});}return; }
+  if (el.matches('[data-intensive-programme-field]')) { const field=el.dataset.intensiveProgrammeField;state.intensiveProgramme[field]=el.type==='number'?Number(el.value):el.value;saveState({render:true});return; }
+  if (el.matches('[data-phase-field]')) { const phase=state.intensiveProgramme.phases.find(item=>item.id===el.dataset.phaseId);if(phase){phase[el.dataset.phaseField]=el.type==='checkbox'?el.checked:el.type==='number'?Number(el.value):el.value;saveState({render:true});}return; }
+  if (el.matches('[data-week-field]')) { const week=getIntensiveWeek(el.dataset.weekStart);week[el.dataset.weekField]=el.type==='checkbox'?el.checked:el.type==='number'?Number(el.value):el.value;week.updatedAt=new Date().toISOString();saveState({render:true});return; }
+  if (el.matches('[data-week-quality]')) { const week=getIntensiveWeek(el.dataset.weekStart);week.quality[el.dataset.weekQuality]=el.type==='checkbox'?el.checked:Number(el.value);saveState({render:true});return; }
+  if (el.matches('[data-week-german]')) { const week=getIntensiveWeek(el.dataset.weekStart);week.german[el.dataset.weekGerman]=el.type==='number'?Number(el.value):el.value;saveState({render:true});return; }
+  if (el.matches('[data-week-session-field]')) { const week=getIntensiveWeek(el.dataset.weekStart);const session=week.sessions[el.dataset.sessionId];if(session){session[el.dataset.weekSessionField]=el.type==='checkbox'?el.checked:el.type==='number'?Number(el.value):el.value;saveState({render:true});}return; }
+  if (el.matches('[data-intensive-month-field]')) { const month=state.intensiveProgramme.months.find(item=>item.id===el.dataset.monthId);if(month){month[el.dataset.intensiveMonthField]=el.type==='number'?Number(el.value):el.value;saveState();}return; }
+  if (el.matches('[data-intensive-month-plan]')) { const month=state.intensiveProgramme.months.find(item=>item.id===el.dataset.monthId);if(month){month.plan ||= {};month.plan[el.dataset.intensiveMonthPlan]=el.type==='number'?Number(el.value):el.value;saveState();}return; }
+  if (el.matches('[data-intensive-month-goal]')) { const month=state.intensiveProgramme.months.find(item=>item.id===el.dataset.monthId);const goal=month?.goals?.[el.dataset.goalKey];if(goal){goal[el.dataset.intensiveMonthGoal]=el.type==='checkbox'?el.checked:el.type==='number'?Number(el.value):el.value;saveState({render:el.type==='checkbox'});}return; }
+  if (el.matches('[data-intensive-month-week]')) { const month=state.intensiveProgramme.months.find(item=>item.id===el.dataset.monthId);const week=month?.weeks.find(item=>item.id===el.dataset.weekId);if(week){week[el.dataset.intensiveMonthWeek]=el.type==='number'?Number(el.value):el.value;saveState({render:el.tagName==='SELECT'});}return; }
+  if (el.matches('[data-intensive-month-review]')) { const month=state.intensiveProgramme.months.find(item=>item.id===el.dataset.monthId);if(month){month.review[el.dataset.intensiveMonthReview]=el.type==='number'?Number(el.value):el.value;saveState();}return; }
+  if (el.matches('[data-skill-field]')) { const skill=state.intensiveProgramme.skills.find(item=>item.id===el.dataset.skillId);if(skill){skill[el.dataset.skillField]=el.type==='number'?Number(el.value):el.value;saveState({render:el.type==='number'});}return; }
+  if (el.matches('[data-standard-complete]')) { const item=state.intensiveProgramme.completionStandards.find(entry=>entry.id===el.dataset.standardComplete);if(item){item.complete=el.checked;saveState({render:true});}return; }
   if (el.id==='import-file'&&el.files?.[0]){importBackup(el.files[0]);el.value='';return;}
 });
 
@@ -2699,6 +3364,17 @@ document.addEventListener('input', event => {
   if(el.matches('[data-kata-notes]'))scheduleInputSave(`kata:${el.dataset.kataNotes}`,()=>{findKata(el.dataset.kataNotes).notes=el.value;saveState();});
   if(el.matches('[data-kata-field]'))scheduleInputSave(`kata-field:${el.dataset.kataId}:${el.dataset.kataField}`,()=>{findKata(el.dataset.kataId)[el.dataset.kataField]=el.value;saveState();});
   if(el.matches('[data-roadmap-evidence]'))scheduleInputSave(`roadmap:${el.dataset.roadmapEvidence}`,()=>{const goal=findRoadmapGoal(el.dataset.roadmapEvidence);if(goal){goal.evidence=el.value;saveState();}});
+  if(el.matches('[data-week-field]') && ['TEXTAREA','INPUT'].includes(el.tagName) && !['number','checkbox'].includes(el.type))scheduleInputSave(`int-week:${el.dataset.weekStart}:${el.dataset.weekField}`,()=>{const week=getIntensiveWeek(el.dataset.weekStart);week[el.dataset.weekField]=el.value;saveState();});
+  if(el.matches('[data-week-session-field]') && ['TEXTAREA','INPUT'].includes(el.tagName) && !['number','checkbox'].includes(el.type))scheduleInputSave(`int-session:${el.dataset.weekStart}:${el.dataset.sessionId}:${el.dataset.weekSessionField}`,()=>{const week=getIntensiveWeek(el.dataset.weekStart);week.sessions[el.dataset.sessionId][el.dataset.weekSessionField]=el.value;saveState();});
+  if(el.matches('[data-week-german]') && el.type!=='number')scheduleInputSave(`int-german:${el.dataset.weekStart}:${el.dataset.weekGerman}`,()=>{const week=getIntensiveWeek(el.dataset.weekStart);week.german[el.dataset.weekGerman]=el.value;saveState();});
+  if(el.matches('[data-phase-field]') && ['TEXTAREA','INPUT'].includes(el.tagName) && !['number','date','checkbox'].includes(el.type))scheduleInputSave(`int-phase:${el.dataset.phaseId}:${el.dataset.phaseField}`,()=>{const phase=state.intensiveProgramme.phases.find(item=>item.id===el.dataset.phaseId);if(phase){phase[el.dataset.phaseField]=el.value;saveState();}});
+  if(el.matches('[data-intensive-month-field]') && ['TEXTAREA','INPUT'].includes(el.tagName) && el.type!=='number' && el.type!=='date')scheduleInputSave(`int-month:${el.dataset.monthId}:${el.dataset.intensiveMonthField}`,()=>{const month=state.intensiveProgramme.months.find(item=>item.id===el.dataset.monthId);if(month){month[el.dataset.intensiveMonthField]=el.value;saveState();}});
+  if(el.matches('[data-intensive-month-plan]'))scheduleInputSave(`int-month-plan:${el.dataset.monthId}:${el.dataset.intensiveMonthPlan}`,()=>{const month=state.intensiveProgramme.months.find(item=>item.id===el.dataset.monthId);if(month){month.plan ||= {};month.plan[el.dataset.intensiveMonthPlan]=el.value;saveState();}});
+  if(el.matches('[data-intensive-month-goal="evidence"]'))scheduleInputSave(`int-month-goal:${el.dataset.monthId}:${el.dataset.goalKey}`,()=>{const month=state.intensiveProgramme.months.find(item=>item.id===el.dataset.monthId);if(month?.goals?.[el.dataset.goalKey]){month.goals[el.dataset.goalKey].evidence=el.value;saveState();}});
+  if(el.matches('[data-intensive-month-week]') && el.tagName==='TEXTAREA')scheduleInputSave(`int-month-week:${el.dataset.monthId}:${el.dataset.weekId}:${el.dataset.intensiveMonthWeek}`,()=>{const month=state.intensiveProgramme.months.find(item=>item.id===el.dataset.monthId);const week=month?.weeks.find(item=>item.id===el.dataset.weekId);if(week){week[el.dataset.intensiveMonthWeek]=el.value;saveState();}});
+  if(el.matches('[data-intensive-month-review]') && el.tagName==='TEXTAREA')scheduleInputSave(`int-month-review:${el.dataset.monthId}:${el.dataset.intensiveMonthReview}`,()=>{const month=state.intensiveProgramme.months.find(item=>item.id===el.dataset.monthId);if(month){month.review[el.dataset.intensiveMonthReview]=el.value;saveState();}});
+  if(el.matches('[data-skill-field="evidence"]'))scheduleInputSave(`int-skill:${el.dataset.skillId}`,()=>{const skill=state.intensiveProgramme.skills.find(item=>item.id===el.dataset.skillId);if(skill){skill.evidence=el.value;saveState();}});
+  if(el.matches('[data-standard-evidence]'))scheduleInputSave(`int-standard:${el.dataset.standardEvidence}`,()=>{const item=state.intensiveProgramme.completionStandards.find(entry=>entry.id===el.dataset.standardEvidence);if(item){item.evidence=el.value;saveState();}});
 });
 
 document.addEventListener('submit', async event => {

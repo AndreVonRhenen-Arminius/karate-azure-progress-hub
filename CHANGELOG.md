@@ -2,6 +2,43 @@
 
 All notable changes to Karate & Azure Progress Hub are recorded here.
 
+## [1.9.0] — 2026-07-12
+
+### Added
+
+- Fixed weekly focus pattern: Microsoft cloud study on Monday, Wednesday, Friday and Sunday; Jion and 3rd Dan training on Tuesday, Thursday and Saturday.
+- Intensive 30–42 month Microsoft cloud career programme.
+- Full certification sequence from AZ-104 through SC-500.
+- Continuous PowerShell, Graph, Azure CLI, Git, CI/CD, Microsoft 365, Linux and German competency tracking.
+- Five-stage certification-phase model and ten phase records.
+- Forty-two expandable monthly plans with five weekly goals per month.
+- Detailed monthly knowledge, lab, assessment, portfolio, automation and German templates.
+- Five specialised weekly session records across four technical study days.
+- Technical hours, German hours/days, labs, assessments, independent work and portfolio reporting.
+- Completion forecast based on weighted progress and recorded history.
+- Exam-booking gate requiring labs, independent performance, consistent scores, portfolio and delayed retention.
+- Recovery-week tracking and one-click scheduling.
+- Energy, concentration, enjoyment, sleep, family, confidence, stress and rushed-lab controls.
+- One-click 25% target reduction for the next week when capacity is low.
+- Warning thresholds for insufficient hours, labs, assessments, German, increasing weak areas and excessive workload.
+- Career-application milestones and final competency checklist.
+
+### Changed
+
+- State schema increased from version 5 to version 6 using an additive migration.
+- Azure day labels now describe the wider Microsoft Cloud Study programme.
+- Tuesday and Thursday karate tasks are explicitly post-class Jion/Dan 3 sessions; Saturday is a dedicated session.
+- The programme dashboard now distinguishes pace, quality, readiness, recovery and forecast.
+- PWA cache and asset references updated to version 1.9.0.
+
+### Preserved
+
+- Existing Supabase authentication and `user_app_state` contract.
+- Existing `supabase-schema.sql`.
+- Microsoft login, restricted OneDrive app-folder permission, and backup filename.
+- Existing `js/microsoft-config.js` and bundled MSAL runtime.
+- Existing local, OneDrive, Supabase, Azure and karate progress data.
+
 ## [1.8.0] — 2026-07-12
 
 ### Added

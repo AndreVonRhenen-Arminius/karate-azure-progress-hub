@@ -667,3 +667,90 @@ code { color:#b9d8ff; background:rgba(93,168,255,.09); border:1px solid rgba(93,
   .wide-dialog { max-height:94vh; }
 }
 .focus-detail dl > div { display: contents; }
+
+/* v1.9 intensive Microsoft cloud programme */
+.programme-hero { border-color:rgba(93,168,255,.34); background:linear-gradient(140deg,rgba(34,76,126,.22),rgba(14,22,37,.98) 54%,rgba(94,44,112,.12)); }
+.intensity-grid .metric-card { min-height:132px; }
+.metric-card span { display:block; color:var(--muted); font-size:.74rem; text-transform:uppercase; letter-spacing:.08em; font-weight:850; }
+.metric-card strong { display:block; font-size:1.25rem; margin:10px 0 7px; }
+.metric-card small { color:var(--muted); line-height:1.4; }
+.warning-panel { margin-top:16px; border-color:rgba(239,111,108,.36); background:linear-gradient(145deg,rgba(159,42,53,.11),rgba(14,22,37,.97)); }
+.warning-panel h3 { color:#f19aa2; }
+.warning-text { color:#f0b45f; font-weight:760; }
+.phase-roadmap { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.phase-card { display:grid; gap:12px; }
+.phase-card.active-phase { border-color:rgba(66,201,138,.48); box-shadow:inset 3px 0 0 var(--green); }
+.phase-card-head { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:start; }
+.phase-card-head h3 { margin:8px 0 5px; }
+.phase-card-head p { margin:0; color:var(--muted); }
+.phase-card-head > strong { font-size:1.35rem; }
+.intensive-week-card { border-color:rgba(93,168,255,.3); }
+.toggle-row { display:flex; flex-wrap:wrap; gap:18px; padding:12px 0; }
+.toggle-row label, .checkbox-label { display:flex; align-items:center; gap:8px; }
+.toggle-row input, .checkbox-label input { width:18px; height:18px; accent-color:var(--green); }
+.session-list { display:grid; gap:10px; margin:14px 0; }
+.session-card { border:1px solid var(--line); border-radius:13px; background:rgba(5,10,21,.28); overflow:hidden; }
+.session-card > summary { cursor:pointer; list-style:none; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px 14px; font-weight:780; }
+.session-card > summary::-webkit-details-marker { display:none; }
+.session-body { padding:0 14px 14px; border-top:1px solid var(--line); }
+.quality-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:13px 0; }
+.section-heading.compact { margin-top:21px; }
+.skill-grid article { display:grid; gap:10px; }
+.intensive-month-list { max-width:100%; }
+.intensive-month > summary { display:flex; justify-content:space-between; gap:14px; align-items:center; }
+.intensive-month > summary::after { display:none; }
+.roadmap-month-label { display:block; color:var(--muted); font-size:.76rem; margin-bottom:5px; }
+.roadmap-summary-meta { display:flex; flex-wrap:wrap; gap:7px; justify-content:flex-end; }
+.roadmap-month-body { padding:15px 16px 17px; border-top:1px solid var(--line); }
+.monthly-goal-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; margin-top:14px; }
+.goal-card { border:1px solid var(--line); border-radius:12px; padding:12px; background:rgba(255,255,255,.018); }
+.goal-card.complete { border-color:rgba(66,201,138,.4); background:rgba(66,201,138,.045); }
+.goal-card p { color:var(--muted); font-size:.8rem; line-height:1.45; }
+.goal-check { display:flex; align-items:center; gap:8px; }
+.goal-check input { width:18px; height:18px; accent-color:var(--green); }
+.goal-card textarea { min-height:64px; margin-top:8px; }
+.compact-numbers { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.roadmap-week-body { padding:0 12px 13px; }
+.monthly-review { margin-top:13px; border:1px solid rgba(242,184,75,.22); border-radius:12px; background:rgba(242,184,75,.035); }
+.monthly-review > summary { cursor:pointer; padding:12px; font-weight:800; }
+.monthly-review > .form-grid, .monthly-review > div { padding:0 12px 12px; }
+.exam-readiness-card { border-color:rgba(242,184,75,.3); }
+.standard-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; }
+.standard-item { display:grid; gap:10px; }
+.standard-item.complete { border-color:rgba(66,201,138,.42); opacity:.88; }
+.standard-item label { display:flex; gap:9px; align-items:flex-start; font-weight:760; }
+.standard-item input { width:18px; height:18px; accent-color:var(--green); margin-top:2px; }
+.standard-item textarea { min-height:62px; }
+
+@media (max-width:1100px) {
+  .phase-roadmap, .quality-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:760px) {
+  .bottom-nav { grid-template-columns:repeat(6,1fr); }
+  .bottom-nav button small { font-size:.58rem; }
+  .phase-roadmap, .monthly-goal-grid, .standard-grid, .quality-grid { grid-template-columns:1fr; }
+  .intensive-month > summary, .phase-card-head { display:grid; }
+  .roadmap-summary-meta { justify-content:flex-start; }
+  .compact-numbers { grid-template-columns:1fr 1fr; }
+}
+
+/* v1.9 detailed intensive planning */
+.grid.five, .workload-grid { grid-template-columns:repeat(5,minmax(0,1fr)); }
+.programme-rules, .recovery-protocol { margin-top:14px; }
+.programme-rules { border-color:rgba(93,168,255,.28); }
+.recovery-protocol { border-color:rgba(66,201,138,.32); background:linear-gradient(145deg,rgba(66,201,138,.055),rgba(14,22,37,.98)); }
+.recovery-protocol ul { margin:0; padding-left:20px; color:#ccd5e3; line-height:1.65; }
+.stage-list { display:flex; flex-wrap:wrap; gap:7px; }
+.monthly-plan { margin:14px 0; border:1px solid rgba(93,168,255,.22); border-radius:12px; background:rgba(93,168,255,.025); }
+.monthly-plan > summary { cursor:pointer; padding:12px; font-weight:800; }
+.monthly-plan-sections { display:grid; gap:13px; padding:0 12px 13px; }
+.monthly-plan-sections section { padding:11px; border:1px solid var(--line); border-radius:11px; background:rgba(5,10,21,.25); }
+.monthly-plan-sections h4 { margin:0 0 10px; color:#d8e3f2; }
+.session-body > .form-grid { margin-top:12px; }
+.session-body > label, .session-body > .checkbox-label { margin-top:11px; }
+@media (max-width:1100px) {
+  .grid.five, .workload-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@media (max-width:760px) {
+  .grid.five, .workload-grid { grid-template-columns:1fr; }
+}

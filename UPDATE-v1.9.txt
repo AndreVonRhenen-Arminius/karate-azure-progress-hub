@@ -1,0 +1,10 @@
+KARATE & AZURE PROGRESS HUB — UPDATE v1.9.0
+
+- Microsoft cloud study: Monday, Wednesday, Friday, Sunday.
+- Jion and 3rd Dan training: Tuesday, Thursday, Saturday.
+- Added the full 30–42 month intensive certification programme.
+- Added 42 monthly plans, weekly session templates, German, quality controls, warnings, recovery weeks, forecast, exam gates, career milestones, and completion standards.
+- State schema updated additively from 5 to 6.
+- Microsoft login, OneDrive, Supabase, and existing progress remain compatible.
+
+Read INSTALLATION.md before deploying.

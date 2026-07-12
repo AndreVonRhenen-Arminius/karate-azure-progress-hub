@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#111827">
-  <meta name="description" content="Alternating AZ-104 study and karate training tracker with one main task per day, expandable monthly and weekly goals, and optional OneDrive or Supabase sync.">
+  <meta name="description" content="Intensive Microsoft cloud, German, kata and JKA 3rd Dan progress tracker with one main task per day and optional OneDrive or Supabase sync.">
   <title>Karate & Azure Progress Hub — Mastery Coach</title>
-  <link rel="manifest" href="manifest.webmanifest?v=1.8.0">
+  <link rel="manifest" href="manifest.webmanifest?v=1.9.0">
   <link rel="icon" href="icons/icon-192.png" sizes="192x192">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=1.8.0">
+  <link rel="stylesheet" href="styles.css?v=1.9.0">
 </head>
 <body>
   <div id="app-shell">
@@ -18,12 +18,13 @@
         <div class="brand-mark">KA</div>
         <div>
           <strong>Progress Hub</strong>
-          <small>Karate + AZ-104</small>
+          <small>Karate + Microsoft Cloud</small>
         </div>
       </div>
       <nav id="side-nav" class="nav-list">
         <button data-view="today" class="active"><span>⌂</span>Today</button>
         <button data-view="week"><span>▦</span>Weekly Plan</button>
+        <button data-view="programme"><span>◫</span>Cloud Programme</button>
         <button data-view="azure"><span>☁</span>AZ-104</button>
         <button data-view="dan"><span>拳</span>3rd Dan</button>
         <button data-view="kata"><span>型</span>Kata</button>
@@ -52,6 +53,7 @@
 
       <section id="view-today" class="view active"></section>
       <section id="view-week" class="view"></section>
+      <section id="view-programme" class="view"></section>
       <section id="view-azure" class="view"></section>
       <section id="view-dan" class="view"></section>
       <section id="view-kata" class="view"></section>
@@ -63,6 +65,7 @@
     <nav id="bottom-nav" class="bottom-nav" aria-label="Mobile navigation">
       <button data-view="today" class="active"><span>⌂</span><small>Today</small></button>
       <button data-view="week"><span>▦</span><small>Week</small></button>
+      <button data-view="programme"><span>◫</span><small>Plan</small></button>
       <button data-view="azure"><span>☁</span><small>AZ-104</small></button>
       <button data-view="kata"><span>型</span><small>Kata</small></button>
       <button data-view="progress"><span>↗</span><small>Progress</small></button>
@@ -149,7 +152,7 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script src="vendor/msal-browser.min.js?v=5.17.0"></script>
-  <script src="js/microsoft-config.js?v=1.8.0"></script>
-  <script type="module" src="app.js?v=1.8.0"></script>
+  <script src="js/microsoft-config.js?v=1.9.0"></script>
+  <script type="module" src="app.js?v=1.9.0"></script>
 </body>
 </html>
