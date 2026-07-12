@@ -1,4 +1,4 @@
-# Release Validation — v1.9.0
+# Release Validation — v1.9.1
 
 ## Passed
 
@@ -11,6 +11,8 @@
 - Monday/Wednesday/Friday/Sunday Microsoft cloud schedule
 - Tuesday/Thursday/Saturday Jion and Dan 3 schedule
 - One main task per day and no fixed task times
+- Rolling seven-day planner begins on its selected start date and produces seven consecutive calendar dates
+- Weekly Plan uses today plus the next six days by default and supports automatic New Zealand date rollover
 - AZ-104 ARM Unit 5 starting position
 - Jion sequence/readiness separation
 - Six Azure mastery stages

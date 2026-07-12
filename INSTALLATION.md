@@ -1,4 +1,4 @@
-# Install or Update Karate & Azure Progress Hub v1.9.0
+# Install or Update Karate & Azure Progress Hub v1.9.1
 
 These instructions update an existing GitHub Pages installation without replacing Microsoft login, OneDrive backup, Supabase configuration, or saved progress.
 
@@ -17,9 +17,9 @@ These instructions update an existing GitHub Pages installation without replacin
 
 ## Part 2 — Extract the update
 
-1. Download `karate-azure-progress-hub-v1.9.0.zip`.
+1. Download `karate-azure-progress-hub-v1.9.1.zip`.
 2. Right-click it and select **Extract All**.
-3. Open the extracted `karate-azure-progress-hub-v1.9.0` folder.
+3. Open the extracted `karate-azure-progress-hub-v1.9.1` folder.
 4. Confirm it contains `index.html`, `app.js`, `styles.css`, `service-worker.js`, `js`, `vendor`, and `tests`.
 
 ## Part 3 — Preserve production configuration
@@ -38,7 +38,7 @@ Before uploading:
 1. Double-click `run-local.bat`.
 2. Open `http://localhost:8080/`.
 3. Do not double-click `index.html`; Microsoft login and PWA behaviour require HTTP or HTTPS.
-4. Check that the app displays version **1.9.0** and schema **6** in Settings.
+4. Check that the app displays version **1.9.1** and schema **6** in Settings.
 5. Confirm the weekly plan shows:
    - Monday: Microsoft Cloud Study
    - Tuesday: Karate
@@ -56,13 +56,13 @@ For local Microsoft login, `http://localhost:8080/` must already be registered a
 1. Open the GitHub repository that hosts the app.
 2. Open the repository root.
 3. Select **Add file → Upload files**.
-4. Drag in all files and folders from the extracted v1.9.0 folder.
+4. Drag in all files and folders from the extracted v1.9.1 folder.
 5. Allow GitHub to replace files with matching names.
 6. Confirm your configured `js/microsoft-config.js` values are still present.
 7. Confirm any separate `js/config.js` is still present.
 8. Commit with a message such as:
 
-   `Update Karate and Cloud Progress Hub to v1.9.0`
+   `Update Karate and Cloud Progress Hub to v1.9.1`
 
 ## Part 6 — Confirm deployment
 
@@ -81,7 +81,7 @@ For local Microsoft login, `http://localhost:8080/` must already be registered a
 5. Reopen the installed PWA.
 6. Open **Settings** and confirm:
 
-   `App version 1.9.0 · State schema 6`
+   `App version 1.9.1 · State schema 6`
 
 Do not clear browser site data. Schema 6 migrates the saved state automatically.
 
@@ -99,16 +99,18 @@ Check that these remain present:
 
 If data appears missing, do not immediately create replacement records. Check the active cloud provider and compare local/cloud timestamps first.
 
-## Part 9 — Confirm the new weekly schedule
+## Part 9 — Confirm the rolling seven-day schedule
 
 1. Open **Weekly Plan**.
-2. Confirm Monday, Wednesday, Friday, and Sunday are Microsoft cloud study days.
-3. Confirm Tuesday and Thursday show post-class Jion and 3rd Dan training.
-4. Confirm Saturday shows dedicated Jion and 3rd Dan training.
-5. Confirm each date shows only one main task.
-6. Confirm no fixed clock time appears.
+2. Confirm the first card uses today’s New Zealand date.
+3. Confirm the following six cards use the next six consecutive dates.
+4. Confirm **Previous 7 days**, **Start today**, and **Next 7 days** work correctly.
+5. Confirm the weekday rules still assign Monday, Wednesday, Friday, and Sunday to Microsoft cloud study.
+6. Confirm Tuesday and Thursday show post-class Jion and 3rd Dan training.
+7. Confirm Saturday shows dedicated Jion and 3rd Dan training.
+8. Confirm each date shows only one main task and no fixed clock time.
 
-Date-specific overrides remain possible, but replacing a date that already has progress requires confirmation.
+The live range advances automatically when the `Pacific/Auckland` date changes. Date-specific overrides remain possible, but replacing a date that already has progress requires confirmation.
 
 ## Part 10 — Configure the intensive programme
 
@@ -162,7 +164,7 @@ No database migration or change to `supabase-schema.sql` is required.
 2. Open the website in the browser.
 3. Press `Ctrl + F5`.
 4. Reopen the installed app.
-5. Confirm `service-worker.js` uses cache `ka-progress-hub-v1.9.0`.
+5. Confirm `service-worker.js` uses cache `ka-progress-hub-v1.9.1`.
 
 ### Microsoft redirect error
 

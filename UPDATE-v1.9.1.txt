@@ -1,0 +1,10 @@
+KARATE & AZURE PROGRESS HUB — VERSION 1.9.1
+
+This maintenance update changes the Weekly Plan into a rolling seven-day planner.
+
+- The first displayed date is today in Pacific/Auckland.
+- The next six dates follow consecutively.
+- The planner advances automatically when the date changes while the app is open.
+- Previous and future seven-day ranges remain available.
+- Start today returns to the current rolling range.
+- Existing daily progress, cloud login, OneDrive, Supabase and state schema 6 remain unchanged.

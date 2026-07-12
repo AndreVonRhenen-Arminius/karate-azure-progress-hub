@@ -2,7 +2,7 @@
 
 ## Current release
 
-- Application version: **1.9.0**
+- Application version: **1.9.1**
 - State schema: **6**
 - Architecture: static HTML, CSS, and JavaScript PWA
 - Build step: none
@@ -27,6 +27,7 @@ Tuesday and Thursday are post-karate-class Jion/Dan 3 sessions. Saturday is a de
 6. Missed work is rescheduled to the next compatible day and never stacked onto an occupied date.
 7. Historical tasks are saved snapshots and are not rewritten when future priorities change.
 8. The programme remains editable through weekday defaults and date-specific overrides, but existing progress requires confirmation before replacement.
+9. The Weekly Plan is a rolling seven-day view beginning on the current `Pacific/Auckland` date. It advances automatically when the date changes, while manual previous/next navigation remains available.
 
 ## Intensive programme model
 
@@ -131,6 +132,6 @@ Before packaging a release:
 8. Verify AZ-104 and Jion seeded progress is unchanged.
 9. Compare protected file hashes against the source release.
 10. Check for embedded secrets.
-11. Verify the service-worker cache and asset query strings are version 1.9.0.
+11. Verify the service-worker cache and asset query strings are version 1.9.1.
 12. Test ZIP integrity.
 13. Test live Microsoft and Supabase login only in the deployed environment with valid credentials.

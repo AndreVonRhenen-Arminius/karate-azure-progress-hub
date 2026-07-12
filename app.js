@@ -8,7 +8,7 @@ const MICROSOFT_GRAPH_BASE = 'https://graph.microsoft.com/v1.0';
 const MICROSOFT_GRAPH_SCOPES = ['Files.ReadWrite.AppFolder'];
 const ONEDRIVE_STATE_FILE = 'karate-azure-progress-state.json';
 
-const APP_VERSION = '1.9.0';
+const APP_VERSION = '1.9.1';
 const STATE_VERSION = 6;
 const PROGRAMME_START_DATE = '2026-07-11';
 
@@ -990,6 +990,8 @@ let isSyncing = false;
 let installPrompt = null;
 let inputSaveTimers = new Map();
 let selectedDateKey = getNZDateKey();
+let weeklyPlanStartKey = getNZDateKey();
+let lastKnownTodayKey = weeklyPlanStartKey;
 let timerDuration = 45 * 60;
 let timerRemaining = timerDuration;
 let timerInterval = null;
@@ -998,7 +1000,7 @@ let timerEndAt = null;
 
 const pageTitles = {
   today: ['YOUR PLAN', 'Today'],
-  week: ['MONDAY TO SUNDAY', 'Weekly Plan'],
+  week: ['ROLLING 7-DAY PLAN', 'Weekly Plan'],
   azure: ['CERTIFICATION STUDY', 'AZ-104'],
   dan: ['JKA SYLLABUS', '3rd Dan Preparation'],
   kata: ['SEQUENCE & RETENTION', 'Kata Library'],
@@ -1098,6 +1100,21 @@ function getWeekStart(key = getNZDateKey()) {
   const diff = day === 0 ? -6 : 1 - day;
   date.setDate(date.getDate() + diff);
   return calendarDateKey(date);
+}
+
+function getRollingPlanDates(startKey = weeklyPlanStartKey) {
+  return Array.from({ length: 7 }, (_, index) => addDays(startKey, index));
+}
+
+function syncDateContext(currentTodayKey = getNZDateKey()) {
+  if (currentTodayKey === lastKnownTodayKey) return false;
+  const previousTodayKey = lastKnownTodayKey;
+  const weeklyPlanWasFollowingToday = weeklyPlanStartKey === previousTodayKey;
+  const selectedDayWasToday = selectedDateKey === previousTodayKey;
+  lastKnownTodayKey = currentTodayKey;
+  if (weeklyPlanWasFollowingToday) weeklyPlanStartKey = currentTodayKey;
+  if (selectedDayWasToday) selectedDateKey = currentTodayKey;
+  return true;
 }
 
 function dayTypeLabel(value) {
@@ -2058,20 +2075,21 @@ function renderToday() {
 }
 
 function renderWeek() {
-  const start = getWeekStart(selectedDateKey);
+  syncDateContext();
+  const start = weeklyPlanStartKey;
   const today = getNZDateKey();
-  const days = Array.from({ length: 7 }, (_, index) => addDays(start, index));
+  const days = getRollingPlanDates(start);
   const weekGoal = findRoadmapWeekForDate(start);
   document.getElementById('view-week').innerHTML = `
     <div class="date-navigation">
-      <button class="secondary-btn" data-action="previous-week">← Previous week</button>
-      <button class="ghost-btn" data-action="current-week" ${start === getWeekStart(today) ? 'disabled' : ''}>Current week</button>
-      <button class="secondary-btn" data-action="next-week">Next week →</button>
+      <button class="secondary-btn" data-action="previous-week">← Previous 7 days</button>
+      <button class="ghost-btn" data-action="current-week" ${start === today ? 'disabled' : ''}>Start today</button>
+      <button class="secondary-btn" data-action="next-week">Next 7 days →</button>
     </div>
     <div class="hero">
-      <p class="eyebrow">EDITABLE ALTERNATING WEEK · ${escapeHTML(formatDateKey(start, { day:'numeric', month:'long', year:'numeric' }).toUpperCase())}</p>
-      <h2>Alternating Azure and karate plan</h2>
-      <p>Only one main task is allowed per day. Changing the day type replaces the generated task for that day; it never adds a second task.</p>
+      <p class="eyebrow">ROLLING 7-DAY PLAN · STARTING ${escapeHTML(formatDateKey(start, { day:'numeric', month:'long', year:'numeric' }).toUpperCase())}</p>
+      <h2>Azure and karate plan from today forward</h2>
+      <p>The default view starts on today and shows the next six days. It rolls forward automatically when the New Zealand date changes. Only one main task is allowed per day.</p>
       ${weekGoal ? `<div class="hero-meta"><span class="badge blue">Roadmap: ${escapeHTML(weekGoal.month.label)} · ${escapeHTML(weekGoal.week.label)}</span><span class="badge green">${weekGoal.progress}% goals complete</span></div>` : ''}
     </div>
     <div class="week-grid editable-week-grid">
@@ -3273,9 +3291,9 @@ document.addEventListener('click', async event => {
   if (action === 'previous-day') { selectedDateKey = addDays(selectedDateKey, -1); renderToday(); return; }
   if (action === 'next-day') { selectedDateKey = addDays(selectedDateKey, 1); renderToday(); return; }
   if (action === 'go-today') { selectedDateKey = getNZDateKey(); renderToday(); return; }
-  if (action === 'previous-week') { selectedDateKey = addDays(getWeekStart(selectedDateKey), -7); renderWeek(); return; }
-  if (action === 'next-week') { selectedDateKey = addDays(getWeekStart(selectedDateKey), 7); renderWeek(); return; }
-  if (action === 'current-week') { selectedDateKey = getNZDateKey(); renderWeek(); return; }
+  if (action === 'previous-week') { weeklyPlanStartKey = addDays(weeklyPlanStartKey, -7); renderWeek(); return; }
+  if (action === 'next-week') { weeklyPlanStartKey = addDays(weeklyPlanStartKey, 7); renderWeek(); return; }
+  if (action === 'current-week') { weeklyPlanStartKey = getNZDateKey(); renderWeek(); return; }
   if (action === 'open-day') { selectedDateKey = actionEl.dataset.date || getNZDateKey(); showView('today'); return; }
   if (action === 'start-task') { const record=getDailyRecord(selectedDateKey); if(record.status==='not-started'||record.status==='partial'){record.status='in-progress';record.startedAt ||= new Date().toISOString();saveState({render:true});toast('Task started.');} return; }
   if (action === 'mark-next-step') { const record=getDailyRecord(selectedDateKey); const task=record.task; const index=task.checklist.findIndex((_,i)=>!record.checks[taskSubKey(task.id,i)]); if(index<0)return toast('All checklist steps are already marked.'); record.checks[taskSubKey(task.id,index)]=true; record.status='in-progress'; record.startedAt ||= new Date().toISOString(); saveState({render:true}); return; }
@@ -3410,7 +3428,10 @@ window.addEventListener('offline', () => {
   if ((cloudProvider === 'onedrive' && microsoftAccount) || (cloudProvider === 'supabase' && cloudUser)) updateSyncPill('offline','Offline · changes saved');
 });
 document.addEventListener('visibilitychange', () => {
-  if(document.visibilityState!=='visible' || !navigator.onLine) return;
+  if (document.visibilityState !== 'visible') return;
+  const dateChanged = syncDateContext();
+  if (dateChanged && ['today', 'week'].includes(currentView)) renderCurrentView();
+  if (!navigator.onLine) return;
   if(cloudProvider==='onedrive' && microsoftAccount) pullOneDrive({initial:true});
   if(cloudProvider==='supabase' && cloudUser) pullCloud({initial:true});
 });
@@ -3436,6 +3457,8 @@ updateProviderStatus();
 initCloud();
 initMicrosoft();
 setInterval(() => {
+  const dateChanged = syncDateContext();
+  if (dateChanged && ['today', 'week'].includes(currentView)) renderCurrentView();
   if(!navigator.onLine || cloudDirty) return;
   if(cloudProvider==='onedrive' && microsoftAccount) pullOneDrive({initial:true});
   if(cloudProvider==='supabase' && cloudUser) pullCloud({initial:true});

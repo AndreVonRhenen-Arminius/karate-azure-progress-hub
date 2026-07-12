@@ -1,4 +1,4 @@
-# Karate & Azure Progress Hub — v1.9.0
+# Karate & Azure Progress Hub — v1.9.1
 
 An offline-first Progressive Web App for two coordinated goals:
 
@@ -6,6 +6,10 @@ An offline-first Progressive Web App for two coordinated goals:
 2. An intensive 30–42 month Microsoft cloud career programme on Monday, Wednesday, Friday, and Sunday.
 
 The app retains one main task per day, local-first data storage, Microsoft login and OneDrive backup, Supabase synchronisation, AZ-104 mastery records, Jion and grading records, evidence, history, and monthly/weekly progress reporting.
+
+## Rolling seven-day plan
+
+The Weekly Plan opens on the current New Zealand date and shows that date plus the next six days. The displayed dates roll forward automatically when the `Pacific/Auckland` date changes, including when the app remains open across midnight. Previous and future seven-day ranges can still be reviewed manually, and **Start today** returns the planner to the live rolling range. Progress remains stored against the actual calendar date.
 
 ## Fixed weekly programme
 

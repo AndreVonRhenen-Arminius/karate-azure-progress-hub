@@ -1,8 +1,8 @@
-KARATE & AZURE PROGRESS HUB v1.9.0
+KARATE & AZURE PROGRESS HUB v1.9.1
 
 1. Read INSTALLATION.md.
 2. Export a JSON backup from the existing app.
 3. Preserve configured js/microsoft-config.js and any deployed js/config.js.
 4. Upload the extracted files to the GitHub Pages repository root.
-5. Refresh the PWA and confirm App version 1.9.0 / State schema 6.
+5. Refresh the PWA and confirm App version 1.9.1 / State schema 6.
 6. Confirm OneDrive or Supabase sync before continuing normal use.

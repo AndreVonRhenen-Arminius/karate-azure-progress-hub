@@ -53,12 +53,16 @@ vm.runInContext(`globalThis.testApi = {
   getState: () => state,
   setState: value => { state = value; },
   setSelectedDate: value => { selectedDateKey = value; },
+  setWeeklyPlanStart: value => { weeklyPlanStartKey = value; },
+  getWeeklyPlanStart: () => weeklyPlanStartKey,
+  setLastKnownToday: value => { lastKnownTodayKey = value; },
+  getSelectedDate: () => selectedDateKey,
   defaultState, mergeDefaults, dayCompletion, getDailyRecord, getPlanForDate, getTaskForDate,
   getDayTypeForDate, getPlanModeForDate, renderToday, renderWeek, renderAzure, renderDan,
   renderKata, renderProgramme, renderProgress, renderNotes, renderSettings, getAzurePriority, getDanPriority,
   getKataPriority, recordAzureReview, updateKataProgressFromSections, getNextKataInterval,
   findNextSuitableDates, applyTaskCompletion, moduleContentPercent, moduleMasteryPercent, pathContentPercent,
-  pathMasteryPercent, currentAzureModule, currentAzureUnit, currentKata, addDays,
+  pathMasteryPercent, currentAzureModule, currentAzureUnit, currentKata, addDays, getRollingPlanDates, syncDateContext,
   DAY_PLANS, DEFAULT_WEEKLY_DAY_TYPES, AZURE_STAGE_DEFS, DAY_TYPE_OPTIONS, APP_VERSION,
   STATE_VERSION, MICROSOFT_GRAPH_SCOPES, oneDriveStateUrl, getCurrentRedirectUri,
   loadCloudProvider, ONEDRIVE_STATE_FILE, activeProgrammePhase, studySessionForDate, getIntensiveWeek, getWeekIntensityMetrics, overallProgrammeProgress, programmeForecast, examReadiness, recoveryWeekDue, programmeWarnings, programmePhaseForMonth, stageForProgrammeMonth, weekRequiresReduction
@@ -66,7 +70,7 @@ vm.runInContext(`globalThis.testApi = {
 
 const api = context.testApi;
 const initial = api.getState();
-assert.equal(api.APP_VERSION, '1.9.0');
+assert.equal(api.APP_VERSION, '1.9.1');
 assert.equal(api.STATE_VERSION, 6);
 assert.equal(initial.version, 6);
 assert.deepEqual(Object.keys(initial.daily), [], 'rendering must not create progress records');
@@ -87,6 +91,27 @@ assert.equal(initial.intensiveProgramme.months[0].goals.independent.target, 2);
 assert.equal(initial.intensiveProgramme.months[0].goals.assessments.target, 2);
 assert.equal(initial.intensiveProgramme.months[0].goals.german.targetHours, 10);
 assert.equal(initial.intensiveProgramme.months[0].weeks.length, 5);
+
+// The weekly planner is a rolling seven-day view beginning on its selected start date.
+assert.deepEqual(Array.from(api.getRollingPlanDates('2026-07-13')), [
+  '2026-07-13','2026-07-14','2026-07-15','2026-07-16','2026-07-17','2026-07-18','2026-07-19'
+]);
+assert.deepEqual(Array.from(api.getRollingPlanDates('2026-07-16')), [
+  '2026-07-16','2026-07-17','2026-07-18','2026-07-19','2026-07-20','2026-07-21','2026-07-22'
+]);
+api.setWeeklyPlanStart('2026-07-13');
+api.renderWeek();
+const rollingWeekHtml = getElement('view-week').innerHTML;
+assert.ok(rollingWeekHtml.includes('ROLLING 7-DAY PLAN'));
+assert.ok(rollingWeekHtml.includes('13 Jul'));
+assert.ok(rollingWeekHtml.includes('19 Jul'));
+assert.ok(!rollingWeekHtml.includes('>6 Jul<'));
+api.setWeeklyPlanStart('2026-07-13');
+api.setSelectedDate('2026-07-13');
+api.setLastKnownToday('2026-07-13');
+assert.equal(api.syncDateContext('2026-07-14'), true);
+assert.equal(api.getWeeklyPlanStart(), '2026-07-14', 'a live rolling plan must advance to the new date');
+assert.equal(api.getSelectedDate(), '2026-07-14', 'Today view must advance when it was following the previous date');
 
 // Editable alternating defaults contain one category per day and preserve a rest day.
 const defaults = JSON.parse(JSON.stringify(api.DEFAULT_WEEKLY_DAY_TYPES));
@@ -288,7 +313,7 @@ assert.ok(todayHtml.includes('Kata focus'));
 assert.ok(todayHtml.includes('Grading-section focus'));
 assert.equal(Object.keys(api.getState().daily).length, 0);
 api.renderWeek();
-assert.ok(getElement('view-week').innerHTML.toLowerCase().includes('editable alternating week'));
+assert.ok(getElement('view-week').innerHTML.toLowerCase().includes('rolling 7-day plan'));
 assert.ok(getElement('view-week').innerHTML.includes('Only one main task'));
 api.renderAzure();
 const azureHtml = getElement('view-azure').innerHTML;
@@ -345,7 +370,7 @@ const html = fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8');
 assert.ok(html.includes('id="task-completion-dialog"'));
 assert.ok(html.includes('id="task-completion-form"'));
 assert.ok(html.includes('id="reschedule-dialog"'));
-assert.ok(html.includes('app.js?v=1.9.0'));
+assert.ok(html.includes('app.js?v=1.9.1'));
 assert.ok(html.includes('id="view-programme"'));
 assert.ok(html.includes('data-view="programme"'));
 assert.ok(!/05:30|22:00|10:00\s*pm/i.test(code));

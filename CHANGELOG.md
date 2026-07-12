@@ -2,6 +2,22 @@
 
 All notable changes to Karate & Azure Progress Hub are recorded here.
 
+## [1.9.1] — 2026-07-13
+
+### Changed
+
+- Weekly Plan now opens as a rolling seven-day range beginning on the current New Zealand date rather than the Monday of a fixed calendar week.
+- The range shows today plus the next six days and retains previous/next seven-day navigation.
+- The centre navigation action is now **Start today**.
+- The Today and Weekly Plan views detect a `Pacific/Auckland` date change while the app remains open and move forward automatically when they were following the previous current date.
+- PWA cache and asset references updated to version 1.9.1.
+
+### Preserved
+
+- State schema remains version 6; no data migration is required.
+- Daily progress remains attached to exact calendar-date keys.
+- Existing Supabase authentication, Microsoft login, OneDrive backup, configuration, and stored data remain unchanged.
+
 ## [1.9.0] — 2026-07-12
 
 ### Added
