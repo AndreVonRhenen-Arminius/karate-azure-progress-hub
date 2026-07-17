@@ -1,0 +1,36 @@
+KARATE & AZURE PROGRESS HUB — VERSION 1.4.0 UPDATE
+
+MAIN CHANGES
+- Browse and record previous or future daily sessions.
+- Open individual days from the Weekly Plan.
+- Preserve the programme mode used for each active day.
+- Keep historical completion stable when the default mode changes.
+- Move completed planned kata into retention.
+- Improve timer accuracy and text-area autosave reliability.
+
+HOW TO UPDATE GITHUB
+1. Make a backup of the current repository.
+2. Extract this ZIP.
+3. Open the existing karate-azure-progress-hub repository.
+4. Select Add file > Upload files.
+5. Upload all files and folders from inside the extracted project folder.
+6. Allow GitHub to replace files with the same names.
+7. Commit with the message: Update Progress Hub to v1.4.0
+8. Wait for the GitHub Pages deployment to show a green tick.
+
+INSTALLED APP UPDATE
+Phone:
+- Fully close the installed app.
+- Reopen it while connected to the internet.
+- If the previous version remains, open the website in Chrome and refresh once.
+
+Windows:
+- Close the installed app completely.
+- Reopen it while connected to the internet.
+- If needed, press Ctrl+R once or refresh the website in Edge.
+
+DATA AND CLOUD SYNC
+- Existing local and Supabase data remain compatible.
+- Existing Supabase authentication is unchanged.
+- State version 3 adds the normal/minimum programme mode to active daily records.
+- Wait for the app to show Synced before moving to another device.
