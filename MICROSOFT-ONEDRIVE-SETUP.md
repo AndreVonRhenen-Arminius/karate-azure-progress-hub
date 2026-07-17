@@ -1,158 +1,107 @@
-<!doctype html>
-<html lang="en-NZ">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#111827">
-  <meta name="description" content="Friday-night Azure and flexible weekend Azure, Jion kata and JKA 3rd Dan progress tracker with optional OneDrive or Supabase sync.">
-  <title>Karate & Azure Progress Hub — Mastery Coach</title>
-  <link rel="manifest" href="manifest.webmanifest?v=1.9.2">
-  <link rel="icon" href="icons/icon-192.png" sizes="192x192">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=1.9.2">
-</head>
-<body>
-  <div id="app-shell">
-    <aside class="sidebar" aria-label="Main navigation">
-      <div class="brand">
-        <div class="brand-mark">KA</div>
-        <div>
-          <strong>Progress Hub</strong>
-          <small>Karate + Microsoft Cloud</small>
-        </div>
-      </div>
-      <nav id="side-nav" class="nav-list">
-        <button data-view="today" class="active"><span>⌂</span>Today</button>
-        <button data-view="week"><span>▦</span>Weekly Plan</button>
-        <button data-view="programme"><span>◫</span>Cloud Programme</button>
-        <button data-view="azure"><span>☁</span>AZ-104</button>
-        <button data-view="dan"><span>拳</span>3rd Dan</button>
-        <button data-view="kata"><span>型</span>Kata</button>
-        <button data-view="progress"><span>↗</span>Progress</button>
-        <button data-view="notes"><span>✎</span>Notes & Reviews</button>
-        <button data-view="settings"><span>⚙</span>Settings</button>
-      </nav>
-      <div class="sidebar-footer">
-        <div id="sync-pill" class="sync-pill local">Local only</div>
-        <button id="install-btn" class="secondary-btn hidden">Install app</button>
-      </div>
-    </aside>
+# Microsoft sign-in and OneDrive setup
 
-    <main class="main-content">
-      <header class="topbar">
-        <div>
-          <p class="eyebrow" id="page-eyebrow">YOUR PLAN</p>
-          <h1 id="page-title">Today</h1>
-        </div>
-        <div class="topbar-actions">
-          <button id="timer-btn" class="icon-btn" title="Open session timer" aria-label="Open session timer">⏱</button>
-          <button id="sync-btn" class="icon-btn" title="Sync now" aria-label="Synchronise now">↻</button>
-          <div id="account-badge" class="account-badge">A</div>
-        </div>
-      </header>
+Version 1.9.3 requires a Microsoft Entra single-page application registration before Microsoft sign-in can work.
 
-      <section id="view-today" class="view active"></section>
-      <section id="view-week" class="view"></section>
-      <section id="view-programme" class="view"></section>
-      <section id="view-azure" class="view"></section>
-      <section id="view-dan" class="view"></section>
-      <section id="view-kata" class="view"></section>
-      <section id="view-progress" class="view"></section>
-      <section id="view-notes" class="view"></section>
-      <section id="view-settings" class="view"></section>
-    </main>
+## 1. Register the application
 
-    <nav id="bottom-nav" class="bottom-nav" aria-label="Mobile navigation">
-      <button data-view="today" class="active"><span>⌂</span><small>Today</small></button>
-      <button data-view="week"><span>▦</span><small>Week</small></button>
-      <button data-view="programme"><span>◫</span><small>Plan</small></button>
-      <button data-view="azure"><span>☁</span><small>AZ-104</small></button>
-      <button data-view="kata"><span>型</span><small>Kata</small></button>
-      <button data-view="progress"><span>↗</span><small>Progress</small></button>
-    </nav>
-  </div>
+1. Open the Microsoft Entra admin centre.
+2. Go to **Identity → Applications → App registrations**.
+3. Select **New registration**.
+4. Name it `Karate Azure Progress Hub`.
+5. For broad personal and organisational account support, choose **Accounts in any organisational directory and personal Microsoft accounts**. A single-tenant registration can be used instead when only one organisation should sign in.
+6. Complete the registration.
+7. Copy the **Application (client) ID**. This is the value entered into the app. Do not create or use a client secret.
 
-  <dialog id="timer-dialog" class="dialog">
-    <form method="dialog" class="dialog-card timer-card">
-      <div class="dialog-header">
-        <div>
-          <p class="eyebrow">SESSION TIMER</p>
-          <h2>Focus timer</h2>
-        </div>
-        <button value="cancel" class="icon-btn" aria-label="Close timer">✕</button>
-      </div>
-      <label>Session label
-        <input id="timer-label" type="text" value="Focused session" maxlength="80">
-      </label>
-      <div class="timer-presets">
-        <button type="button" data-minutes="20">20 min</button>
-        <button type="button" data-minutes="25">25 min</button>
-        <button type="button" data-minutes="45" class="selected">45 min</button>
-        <button type="button" data-minutes="60">60 min</button>
-      </div>
-      <div id="timer-display" class="timer-display">45:00</div>
-      <div class="timer-actions">
-        <button type="button" id="timer-start" class="primary-btn">Start</button>
-        <button type="button" id="timer-reset" class="secondary-btn">Reset</button>
-      </div>
-    </form>
-  </dialog>
+## 2. Configure the Single-page application platform
 
-  <dialog id="task-completion-dialog" class="dialog">
-    <form id="task-completion-form" class="dialog-card wide-dialog">
-      <div class="dialog-header">
-        <div>
-          <p class="eyebrow">TASK RESULT</p>
-          <h2 id="task-completion-title">Complete task</h2>
-        </div>
-        <button type="button" class="icon-btn" data-action="close-task-completion" aria-label="Close completion form">✕</button>
-      </div>
-      <div id="task-completion-fields"></div>
-      <div class="dialog-actions">
-        <button type="button" class="secondary-btn" data-action="close-task-completion">Cancel</button>
-        <button type="submit" class="primary-btn">Save result</button>
-      </div>
-    </form>
-  </dialog>
+1. Open the app registration's **Authentication** page.
+2. Select **Add a platform**.
+3. Choose **Single-page application**.
+4. Add the exact deployed app URL, including its path and trailing slash when applicable. Example:
 
-  <dialog id="reschedule-dialog" class="dialog">
-    <form id="reschedule-form" class="dialog-card">
-      <div class="dialog-header">
-        <div>
-          <p class="eyebrow">RESCHEDULE</p>
-          <h2>Move this task</h2>
-        </div>
-        <button type="button" class="icon-btn" data-action="close-reschedule" aria-label="Close reschedule form">✕</button>
-      </div>
-      <p id="reschedule-description" class="muted"></p>
-      <label>New date
-        <input id="reschedule-date" name="date" type="date" required>
-      </label>
-      <div>
-        <span class="field-label">Suggested suitable days</span>
-        <div id="reschedule-suggestions" class="suggestion-buttons"></div>
-      </div>
-      <div class="dialog-actions">
-        <button type="button" class="secondary-btn" data-action="close-reschedule">Cancel</button>
-        <button type="submit" class="primary-btn">Move task</button>
-      </div>
-    </form>
-  </dialog>
+   `https://YOUR-GITHUB-NAME.github.io/karate-azure-progress-hub/`
 
-  <dialog id="confirm-dialog" class="dialog">
-    <form method="dialog" class="dialog-card">
-      <h2 id="confirm-title">Confirm</h2>
-      <p id="confirm-message"></p>
-      <div class="dialog-actions">
-        <button value="cancel" class="secondary-btn">Cancel</button>
-        <button id="confirm-ok" value="default" class="danger-btn">Continue</button>
-      </div>
-    </form>
-  </dialog>
+5. For local testing, also add:
 
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="vendor/msal-browser.min.js?v=5.17.0"></script>
-  <script src="js/microsoft-config.js?v=1.9.2"></script>
-  <script type="module" src="app.js?v=1.9.2"></script>
-</body>
-</html>
+   `http://localhost:8080/`
+
+6. Save the changes.
+
+The redirect URL shown under **Settings → Microsoft application** must exactly match one of these registered SPA URLs.
+
+## 3. Add Microsoft Graph permission
+
+1. Open **API permissions** in the app registration.
+2. Select **Add a permission**.
+3. Choose **Microsoft Graph**.
+4. Choose **Delegated permissions**.
+5. Add:
+
+   `Files.ReadWrite.AppFolder`
+
+6. Save the permission.
+
+Depending on the Microsoft 365 tenant's consent policy, an administrator may need to approve the permission for work or school accounts.
+
+## 4. Configure the deployed app
+
+Use either method below.
+
+### Method A — Settings screen
+
+1. Open the app.
+2. Go to **Settings → Microsoft OneDrive**.
+3. Enter the Application (client) ID.
+4. Leave the authority as:
+
+   `https://login.microsoftonline.com/common`
+
+5. Confirm the redirect URI.
+6. Save the configuration and allow the app to reload.
+
+### Method B — Deployment configuration file
+
+Edit `js/microsoft-config.js`:
+
+```javascript
+window.KA_MICROSOFT_CONFIG = Object.freeze({
+  clientId: 'YOUR-APPLICATION-CLIENT-ID',
+  authority: 'https://login.microsoftonline.com/common',
+  redirectUri: 'https://YOUR-GITHUB-NAME.github.io/karate-azure-progress-hub/'
+});
+```
+
+The client ID is a public application identifier. Never place a client secret, certificate, refresh token or access token in this file.
+
+## 5. Sign in and initialise OneDrive
+
+1. Open **Settings**.
+2. Set **Active sync provider** to **Microsoft OneDrive**.
+3. Select **Use selected provider**.
+4. Select **Sign in with Microsoft**.
+5. Approve access to the app folder.
+
+On first use, the app creates or updates:
+
+`OneDrive/Apps/Karate Azure Progress Hub/karate-azure-progress-state.json`
+
+The visible app-folder name is based on the display name configured in Microsoft Entra and may differ slightly.
+
+## 6. Test the synchronisation
+
+1. Change one Azure or karate progress item.
+2. Wait for the sidebar to show a successful OneDrive sync.
+3. Select **Sync OneDrive now** in Settings.
+4. Open the app on a second device using the same URL and Microsoft account.
+5. Sign in and confirm the progress loads.
+
+Use **Pull OneDrive to this device** only when the cloud copy should replace local data. Use **Push this device to OneDrive** only when the local copy should replace the cloud file.
+
+## Security design
+
+- Authentication uses MSAL Browser and the OAuth 2.0 authorisation code flow with PKCE.
+- No client secret is stored in the PWA.
+- Microsoft Graph access is delegated to the signed-in user.
+- `Files.ReadWrite.AppFolder` limits file access to the application's own OneDrive folder.
+- Local data remains available offline.
+- Supabase authentication and data remain separate and unchanged.

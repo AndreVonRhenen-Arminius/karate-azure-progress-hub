@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111827">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <title>Repair Progress Hub cache</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; }
+    body { min-height:100vh; margin:0; display:grid; place-items:center; background:#0b1020; color:#f8fafc; }
+    main { width:min(560px, calc(100% - 32px)); padding:28px; border:1px solid #334155; border-radius:18px; background:#111827; box-shadow:0 20px 60px rgba(0,0,0,.35); }
+    h1 { margin:0 0 12px; font-size:1.5rem; }
+    p { color:#cbd5e1; line-height:1.55; }
+    .status { margin-top:18px; padding:12px 14px; border-radius:12px; background:#172033; }
+    button { margin-top:18px; padding:11px 16px; border:1px solid #60a5fa; border-radius:10px; background:#1d4ed8; color:white; font-weight:700; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Repairing the app cache</h1>
+    <p>This removes only Progress Hub service-worker caches and registrations. It does not clear localStorage, imported progress, or cloud data.</p>
+    <div id="status" class="status">Starting repair…</div>
+    <button id="retry" type="button" hidden>Try again</button>
+  </main>
+  <script>
+    const status = document.getElementById('status');
+    const retry = document.getElementById('retry');
+    async function repair() {
+      retry.hidden = true;
+      try {
+        status.textContent = 'Removing old service workers…';
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(registrations.map(registration => registration.unregister()));
+        }
+        status.textContent = 'Removing old Progress Hub caches…';
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.filter(key => key.startsWith('ka-progress-hub-')).map(key => caches.delete(key)));
+        }
+        status.textContent = 'Repair complete. Reloading Progress Hub…';
+        setTimeout(() => location.replace('./?repaired=1&v=1.9.3'), 700);
+      } catch (error) {
+        console.error(error);
+        status.textContent = `Repair could not complete: ${error.message}`;
+        retry.hidden = false;
+      }
+    }
+    retry.addEventListener('click', repair);
+    repair();
+  </script>
+</body>
+</html>

@@ -1,8 +1,51 @@
-KARATE & AZURE PROGRESS HUB v1.9.1
+KARATE & AZURE PROGRESS HUB — VERSION 1.3 UPDATE
 
-1. Read INSTALLATION.md.
-2. Export a JSON backup from the existing app.
-3. Preserve configured js/microsoft-config.js and any deployed js/config.js.
-4. Upload the extracted files to the GitHub Pages repository root.
-5. Refresh the PWA and confirm App version 1.9.1 / State schema 6.
-6. Confirm OneDrive or Supabase sync before continuing normal use.
+This update changes the active plan from evening sessions to morning sessions.
+
+Programme start date:
+Saturday 11 July 2026
+
+Normal morning start:
+5:30 am
+
+Office-day finish:
+7:00 am
+
+HOW TO UPDATE GITHUB
+
+1. Extract Karate-Azure-Progress-Hub-v1.3.zip.
+2. Open your GitHub repository: karate-azure-progress-hub.
+3. Select Add file > Upload files.
+4. Upload all files and folders from inside the extracted karate-azure-progress-hub folder.
+5. Allow GitHub to replace files with the same names.
+6. Commit the changes with the message: Update to morning programme v1.3
+7. Wait for the GitHub Pages deployment to show a green tick.
+
+INSTALLED APP UPDATE
+
+You do not need to uninstall or install the PWA again.
+
+Phone:
+- Fully close the app.
+- Open it again while connected to the internet.
+- If the old plan still appears, open the website in Chrome and refresh once, then reopen the installed app.
+
+Windows PC:
+- Close the installed app completely.
+- Open it again while connected to the internet.
+- If the old plan still appears, press Ctrl+R once or open the website in Edge and refresh.
+
+The installed phone and PC apps use the same GitHub Pages website, so replacing the GitHub files updates every installed copy.
+
+DATA AND CLOUD SYNC
+
+- Existing Supabase configuration and sign-in are retained on each device.
+- Existing notes and progress are retained.
+- The new schedule and start date are applied automatically.
+- Wait for the app to show Synced before moving to another device.
+
+
+HOTFIX 1.3.1
+- Forces fresh app assets with versioned URLs.
+- Uses network-first loading for HTML, JavaScript and CSS.
+- Prevents the old evening plan from remaining stuck in the PWA cache.

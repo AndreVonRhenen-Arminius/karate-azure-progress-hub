@@ -70,9 +70,9 @@ vm.runInContext(`globalThis.testApi = {
 
 const api = context.testApi;
 const initial = api.getState();
-assert.equal(api.APP_VERSION, '1.9.1');
-assert.equal(api.STATE_VERSION, 6);
-assert.equal(initial.version, 6);
+assert.equal(api.APP_VERSION, '1.9.3');
+assert.equal(api.STATE_VERSION, 7);
+assert.equal(initial.version, 7);
 assert.deepEqual(Object.keys(initial.daily), [], 'rendering must not create progress records');
 assert.equal(api.getPlanModeForDate(), 'alternating');
 assert.equal(initial.intensiveProgramme.targetRangeMin, 30);
@@ -80,7 +80,9 @@ assert.equal(initial.intensiveProgramme.targetRangeMax, 42);
 assert.equal(initial.intensiveProgramme.months.length, 42);
 assert.equal(initial.intensiveProgramme.activePhaseId, 'az-104');
 assert.equal(api.activeProgrammePhase().id, 'az-104');
-assert.equal(api.studySessionForDate('2026-07-13').id, 'session-1');
+assert.equal(api.studySessionForDate('2026-07-17').id, 'session-1');
+assert.equal(api.studySessionForDate('2026-07-18').id, 'session-2-3');
+assert.equal(api.studySessionForDate('2026-07-19').id, 'session-4-5');
 assert.equal(api.programmePhaseForMonth(1).id, 'az-104');
 assert.equal(api.programmePhaseForMonth(6).id, 'sc-300');
 assert.equal(api.programmePhaseForMonth(24).id, 'terraform-004');
@@ -113,17 +115,17 @@ assert.equal(api.syncDateContext('2026-07-14'), true);
 assert.equal(api.getWeeklyPlanStart(), '2026-07-14', 'a live rolling plan must advance to the new date');
 assert.equal(api.getSelectedDate(), '2026-07-14', 'Today view must advance when it was following the previous date');
 
-// Editable alternating defaults contain one category per day and preserve a rest day.
+// Default schedule reserves Monday–Thursday and places all planned work on Friday–Sunday.
 const defaults = JSON.parse(JSON.stringify(api.DEFAULT_WEEKLY_DAY_TYPES));
-assert.equal(defaults.Monday, 'azure');
-assert.equal(defaults.Tuesday, 'karate');
-assert.equal(defaults.Wednesday, 'azure');
-assert.equal(defaults.Thursday, 'karate');
+assert.equal(defaults.Monday, 'rest');
+assert.equal(defaults.Tuesday, 'rest');
+assert.equal(defaults.Wednesday, 'rest');
+assert.equal(defaults.Thursday, 'rest');
 assert.equal(defaults.Friday, 'azure');
-assert.equal(defaults.Saturday, 'karate');
-assert.equal(defaults.Sunday, 'azure');
+assert.equal(defaults.Saturday, 'weekend-combined');
+assert.equal(defaults.Sunday, 'weekend-combined');
 for (const type of Object.values(defaults)) {
-  assert.ok(['azure','karate','rest','azure-review','karate-review'].includes(type));
+  assert.ok(['azure','karate','rest','azure-review','karate-review','weekend-combined'].includes(type));
 }
 for (const [mode, days] of Object.entries(api.DAY_PLANS)) {
   for (const [day, plan] of Object.entries(days)) {
@@ -153,52 +155,61 @@ assert.equal(jion.gradingReadiness, 0);
 assert.equal(jion.sections[0].level, 5);
 assert.ok(jion.sections.slice(1).every(section => section.level === 0));
 
-// Each generated day has exactly one main task and never combines categories.
+// Each date has one day plan; weekend plans explicitly contain Azure, kata and 3rd Dan blocks.
 const monday = '2026-07-13';
-const tuesday = '2026-07-14';
-const wednesday = '2026-07-15';
+const friday = '2026-07-17';
+const saturday = '2026-07-18';
+const sunday = '2026-07-19';
 const mondayPlan = api.getPlanForDate(monday);
-const tuesdayPlan = api.getPlanForDate(tuesday);
-const wednesdayPlan = api.getPlanForDate(wednesday);
+const fridayPlan = api.getPlanForDate(friday);
+const saturdayPlan = api.getPlanForDate(saturday);
+const sundayPlan = api.getPlanForDate(sunday);
 assert.equal(mondayPlan.tasks.length, 1);
-assert.equal(tuesdayPlan.tasks.length, 1);
-assert.equal(wednesdayPlan.tasks.length, 1);
-assert.equal(mondayPlan.tasks[0].category, 'azure');
-assert.equal(tuesdayPlan.tasks[0].category, 'karate');
-assert.equal(wednesdayPlan.tasks[0].category, 'azure');
-assert.ok(mondayPlan.tasks[0].title.includes('ARM-template Unit 5'));
-assert.ok(mondayPlan.tasks[0].checklist.some(step => step.includes('allowed value')));
-assert.ok(mondayPlan.tasks[0].checklist.some(step => step.includes('Clean up')));
-assert.ok(tuesdayPlan.tasks[0].title.includes('Jion'));
-assert.ok(tuesdayPlan.tasks[0].title.includes('3rd Dan'));
-assert.ok(wednesdayPlan.tasks[0].title.includes('Guided Lab'));
+assert.equal(fridayPlan.tasks.length, 1);
+assert.equal(saturdayPlan.tasks.length, 1);
+assert.equal(sundayPlan.tasks.length, 1);
+assert.equal(mondayPlan.tasks[0].category, 'rest');
+assert.equal(fridayPlan.tasks[0].category, 'azure');
+assert.equal(saturdayPlan.tasks[0].category, 'combined');
+assert.equal(sundayPlan.tasks[0].category, 'combined');
+assert.ok(fridayPlan.tasks[0].title.includes('ARM-template Unit 5'));
+assert.ok(fridayPlan.tasks[0].checklist.some(step => step.includes('allowed value')));
+assert.ok(fridayPlan.tasks[0].checklist.some(step => step.includes('Clean up')));
+assert.ok(saturdayPlan.tasks[0].title.includes('Azure'));
+assert.ok(saturdayPlan.tasks[0].title.includes('Jion'));
+assert.ok(saturdayPlan.tasks[0].title.includes('3rd Dan'));
+assert.ok(saturdayPlan.tasks[0].checklist.some(step => step.startsWith('AZURE')));
+assert.ok(saturdayPlan.tasks[0].checklist.some(step => step.startsWith('KATA')));
+assert.ok(saturdayPlan.tasks[0].checklist.some(step => step.startsWith('3RD DAN')));
+assert.equal(saturdayPlan.tasks[0].duration, 'Flexible across the day — no scheduled time');
 assert.equal(Object.keys(api.getState().daily).length, 0, 'previewing tasks must not create daily data');
 
 // Recording progress creates only the selected day record and supports partial completion.
-const record = api.getDailyRecord(monday);
+const record = api.getDailyRecord(friday);
 assert.equal(Object.keys(api.getState().daily).length, 1);
 assert.equal(record.task.category, 'azure');
 record.checks[`${record.task.id}::0`] = true;
-assert.ok(api.dayCompletion(monday) > 0 && api.dayCompletion(monday) < 100);
+assert.ok(api.dayCompletion(friday) > 0 && api.dayCompletion(friday) < 100);
 record.task.checklist.forEach((_, index) => { record.checks[`${record.task.id}::${index}`] = true; });
-assert.equal(api.dayCompletion(monday), 100);
+assert.equal(api.dayCompletion(friday), 100);
 
 // Missed-task suggestions stay in the same category and skip unsuitable days.
-const nextAzure = Array.from(api.findNextSuitableDates(monday, 'azure', 3));
+const nextAzure = Array.from(api.findNextSuitableDates(friday, 'azure', 3));
 assert.ok(nextAzure.length >= 1);
-assert.ok(nextAzure.every(key => api.getDayTypeForDate(key).startsWith('azure')));
-const nextKarate = Array.from(api.findNextSuitableDates(tuesday, 'karate', 3));
-assert.ok(nextKarate.every(key => api.getDayTypeForDate(key).startsWith('karate')));
+assert.ok(nextAzure.every(key => api.getDayTypeForDate(key) === 'azure'));
+const nextWeekend = Array.from(api.findNextSuitableDates(saturday, 'weekend-combined', 3));
+assert.ok(nextWeekend.length >= 1);
+assert.ok(nextWeekend.every(key => api.getDayTypeForDate(key) === 'weekend-combined'));
 
 // Full task completion requires evidence and cannot prematurely complete the ARM Learn stage.
 api.setState(api.defaultState());
-api.getDailyRecord(monday);
+api.getDailyRecord(friday);
 const formLike = values => {
   const map = new Map(Object.entries(values));
   return { get: key => map.get(key), entries: () => map.entries() };
 };
-assert.throws(() => api.applyTaskCompletion(monday, formLike({ finished:'yes', evidence:'', confidence:'3', masteryStage:'learn' })), /Add evidence/);
-api.applyTaskCompletion(monday, formLike({
+assert.throws(() => api.applyTaskCompletion(friday, formLike({ finished:'yes', evidence:'', confidence:'3', masteryStage:'learn' })), /Add evidence/);
+api.applyTaskCompletion(friday, formLike({
   finished:'yes', summary:'Completed Unit 5', evidence:'Allowed deployment succeeded; invalid value failed; endpoint captured; resources removed.',
   confidence:'3', masteryStage:'learn', notUnderstood:'', resourcesCreated:'yes', resourcesCleaned:'yes', scheduleReview:'yes', technicalMinutes:'90', portfolioMinutes:'0', germanMinutes:'30', labCompleted:'yes', assessmentCompleted:'no'
 }));
@@ -207,7 +218,7 @@ assert.equal(completedArm.units.filter(unit => unit.complete).length, 5);
 assert.equal(completedArm.complete, false, 'units 6 and 7 must remain outstanding');
 assert.equal(completedArm.masteryStages.learn.complete, false, 'Learn cannot be complete until all module units are complete');
 assert.equal(completedArm.masteryStages.learn.partial, true);
-assert.equal(api.getState().daily[monday].status, 'completed', 'the Unit 5 daily task itself can be complete');
+assert.equal(api.getState().daily[friday].status, 'completed', 'the Unit 5 daily task itself can be complete');
 const intensiveWeek = api.getIntensiveWeek('2026-07-13');
 const intensity = api.getWeekIntensityMetrics('2026-07-13');
 assert.equal(intensiveWeek.sessions['session-1'].status, 'completed');
@@ -221,21 +232,27 @@ assert.ok(Object.prototype.hasOwnProperty.call(intensiveWeek.sessions['session-4
 assert.ok(Object.prototype.hasOwnProperty.call(intensiveWeek.sessions['session-5'], 'gitActivity'));
 assert.ok(Object.prototype.hasOwnProperty.call(intensiveWeek.german, 'daysCompleted'));
 
-// Karate completion records both sides and evidence without making Jion grading-ready.
+// Flexible weekend completion records Azure, Jion and 3rd Dan evidence together.
 api.setState(api.defaultState());
-api.getDailyRecord(tuesday);
-api.applyTaskCompletion(tuesday, formLike({
-  finished:'yes', summary:'Dedicated Jion session', evidence:'Video reference 001', confidence:'3', karateSection:'Kata', kata:'Jion',
-  improved:'Sequence flow', weak:'Transitions', rightRating:'3', leftRating:'2', instructorFeedback:'Keep the front knee stable',
-  mainCorrection:'Improve transitions', scheduleReview:'yes'
+api.getDailyRecord(saturday);
+api.applyTaskCompletion(saturday, formLike({
+  finished:'yes', summary:'Completed all Saturday focus blocks', evidence:'Azure output and Jion video reference 001', confidence:'3',
+  masteryStage:'perform', notUnderstood:'', resourcesCreated:'yes', resourcesCleaned:'yes', technicalMinutes:'180', portfolioMinutes:'0', germanMinutes:'0',
+  labCompleted:'yes', assessmentCompleted:'no', scheduleAzureReview:'yes', karateSection:'Kata', kata:'Jion', improved:'Sequence flow', weak:'Transitions',
+  rightRating:'3', leftRating:'2', instructorFeedback:'Keep the front knee stable', mainCorrection:'Improve transitions', scheduleKarateReview:'yes'
 }));
 const completedJion = api.currentKata();
 assert.equal(completedJion.gradingReadiness, 0);
 assert.equal(completedJion.mainCorrection, 'Improve transitions');
-assert.equal(completedJion.evidence, 'Video reference 001');
-const linkedGrading = api.getState().syllabus.find(item => item.id === api.getState().daily[tuesday].task.refs.syllabusId);
+assert.equal(completedJion.evidence, 'Azure output and Jion video reference 001');
+const linkedGrading = api.getState().syllabus.find(item => item.id === api.getState().daily[saturday].task.refs.syllabusId);
 assert.equal(linkedGrading.ratings.right, 3);
 assert.equal(linkedGrading.ratings.left, 2);
+const saturdayWeek = api.getIntensiveWeek('2026-07-13');
+assert.equal(saturdayWeek.sessions['session-2'].status, 'completed');
+assert.equal(saturdayWeek.sessions['session-3'].status, 'completed');
+assert.equal(saturdayWeek.sessions['session-2'].durationHours, 1.5);
+assert.equal(saturdayWeek.sessions['session-3'].durationHours, 1.5);
 
 // Old state is migrated additively and custom progress is retained.
 const migrated = api.mergeDefaults({
@@ -246,14 +263,15 @@ const migrated = api.mergeDefaults({
   daily: { '2026-07-01': { notes:'Existing daily note', evidence:'Existing evidence', checks:{'old::0':true} } },
   katas: [{ id:'jion', notes:'Existing Jion note', sequenceProgress:100, status:'sequence-known' }]
 });
-assert.equal(migrated.version, 6);
+assert.equal(migrated.version, 7);
 assert.equal(migrated.notes[0].id, 'kept-note');
 assert.equal(migrated.daily['2026-07-01'].notes, 'Existing daily note');
 assert.equal(migrated.daily['2026-07-01'].evidence, 'Existing evidence');
 assert.equal(migrated.katas.find(kata => kata.id === 'jion').notes, 'Existing Jion note');
-assert.equal(migrated.settings.weeklyDayTypes.Monday, 'azure');
-assert.equal(migrated.settings.weeklyDayTypes.Tuesday, 'karate');
-assert.equal(migrated.settings.weeklyDayTypes.Saturday, 'karate');
+assert.equal(migrated.settings.weeklyDayTypes.Monday, 'rest');
+assert.equal(migrated.settings.weeklyDayTypes.Tuesday, 'rest');
+assert.equal(migrated.settings.weeklyDayTypes.Saturday, 'weekend-combined');
+assert.equal(migrated.settings.weeklyDayTypes.Sunday, 'weekend-combined');
 assert.equal(migrated.roadmap.months.length, 6);
 assert.ok(migrated.roadmap.months.every(month => month.weeks.length >= 4));
 assert.equal(migrated.intensiveProgramme.months.length, 42);
@@ -262,6 +280,25 @@ assert.equal(migrated.intensiveProgramme.skills.length, 10);
 assert.equal(migrated.intensiveProgramme.months[23].phaseId, 'terraform-004');
 assert.equal(migrated.intensiveProgramme.months[41].phaseId, 'consolidation');
 assert.ok(migrated.intensiveProgramme.months[0].plan.cleanupRequirements !== undefined);
+
+// Schema 6 schedule migration preserves progressed records and regenerates only unstarted future plans.
+const migratedSchedule = api.mergeDefaults({
+  version: 6,
+  settings: { weeklyDayTypes: { Monday:'azure', Tuesday:'karate', Wednesday:'azure', Thursday:'karate', Friday:'azure', Saturday:'karate', Sunday:'azure' } },
+  scheduleOverrides: { '2026-07-18':'karate', '2026-07-19':'azure' },
+  daily: {
+    '2026-07-18': { dayType:'karate', status:'not-started', checks:{}, notes:'', evidence:'', task:{ id:'old-sat', category:'karate', checklist:['Old'] } },
+    '2026-07-19': { dayType:'azure', status:'in-progress', checks:{'old::0':true}, notes:'Progress must remain', evidence:'Evidence', task:{ id:'old-sun', category:'azure', checklist:['Old'] } }
+  }
+});
+assert.equal(migratedSchedule.settings.weeklyDayTypes.Monday, 'rest');
+assert.equal(migratedSchedule.settings.weeklyDayTypes.Friday, 'azure');
+assert.equal(migratedSchedule.settings.weeklyDayTypes.Saturday, 'weekend-combined');
+assert.equal(migratedSchedule.daily['2026-07-18'].dayType, 'weekend-combined');
+assert.equal(migratedSchedule.daily['2026-07-18'].task, null);
+assert.equal(migratedSchedule.scheduleOverrides['2026-07-18'], undefined);
+assert.equal(migratedSchedule.daily['2026-07-19'].dayType, 'azure', 'progressed future record must remain unchanged');
+assert.equal(migratedSchedule.daily['2026-07-19'].notes, 'Progress must remain');
 
 // Warning, recovery and exam gates are evidence-based.
 api.setState(api.defaultState());
@@ -304,7 +341,7 @@ assert.equal(api.getNextKataInterval(14), 30);
 
 // All principal views render the new structures without creating phantom records.
 api.setState(api.defaultState());
-api.setSelectedDate(monday);
+api.setSelectedDate(friday);
 api.renderToday();
 const todayHtml = getElement('view-today').innerHTML;
 assert.ok(todayHtml.toLowerCase().includes('today’s main task'));
@@ -312,9 +349,19 @@ assert.ok(todayHtml.includes('Cloud study focus'));
 assert.ok(todayHtml.includes('Kata focus'));
 assert.ok(todayHtml.includes('Grading-section focus'));
 assert.equal(Object.keys(api.getState().daily).length, 0);
+api.setSelectedDate(saturday);
+api.renderToday();
+const saturdayHtml = getElement('view-today').innerHTML;
+assert.ok(saturdayHtml.includes('Flexible across the day — no scheduled time'));
+assert.ok(saturdayHtml.includes('<span>Azure</span>'));
+assert.ok(saturdayHtml.includes('<span>Kata</span>'));
+assert.ok(saturdayHtml.includes('<span>3rd Dan</span>'));
+assert.ok(saturdayHtml.includes('AZURE —'));
+assert.ok(saturdayHtml.includes('KATA —'));
+assert.ok(saturdayHtml.includes('3RD DAN —'));
 api.renderWeek();
 assert.ok(getElement('view-week').innerHTML.toLowerCase().includes('rolling 7-day plan'));
-assert.ok(getElement('view-week').innerHTML.includes('Only one main task'));
+assert.ok(getElement('view-week').innerHTML.includes('Saturday and Sunday each contain Azure, Jion kata and 3rd Dan'));
 api.renderAzure();
 const azureHtml = getElement('view-azure').innerHTML;
 assert.ok(azureHtml.includes('Content completion'));
@@ -370,7 +417,7 @@ const html = fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8');
 assert.ok(html.includes('id="task-completion-dialog"'));
 assert.ok(html.includes('id="task-completion-form"'));
 assert.ok(html.includes('id="reschedule-dialog"'));
-assert.ok(html.includes('app.js?v=1.9.1'));
+assert.ok(html.includes('app.js?v=1.9.3'));
 assert.ok(html.includes('id="view-programme"'));
 assert.ok(html.includes('data-view="programme"'));
 assert.ok(!/05:30|22:00|10:00\s*pm/i.test(code));

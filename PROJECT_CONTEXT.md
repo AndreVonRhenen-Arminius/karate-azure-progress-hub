@@ -1,185 +1,144 @@
-# Install or Update Karate & Azure Progress Hub v1.9.2
+# Project Context — Karate & Azure Progress Hub
 
-These instructions update an existing GitHub Pages installation without replacing Microsoft login, OneDrive backup, Supabase configuration, or saved progress.
+## Current release
 
-## Part 1 — Create a safe backup
+- Application version: **1.9.3**
+- State schema: **7**
+- Architecture: static HTML, CSS, and JavaScript PWA
+- Build step: none
+- Primary timezone: Pacific/Auckland
 
-1. Open the current live app.
-2. Open **Settings**.
-3. Under **Backup and restore**, select **Export backup**.
-4. Save the JSON file somewhere safe.
-5. Check the current cloud provider.
-6. If using OneDrive, select **Sync OneDrive now** and confirm success.
-7. If using Supabase, sign in and complete a normal sync.
-8. Download a ZIP of the current GitHub repository or create a backup branch.
-9. Copy your current `js/microsoft-config.js` if it contains your Microsoft client ID and redirect URI.
-10. Preserve `js/config.js` if your repository contains one. The release ZIP does not include that file.
+## v1.9.3 repair baseline
 
-## Part 2 — Extract the update
+The user-provided deployment archive had cross-assigned file contents: `index.html` contained `vendor/msal-browser.min.js`, `service-worker.js` contained Markdown documentation, and several other root assets were similarly misnamed. Version 1.9.3 restores the intact v1.9.2 application baseline, changes only the application/cache version, retains the optional MSAL redirect bridge files, and adds a non-destructive `repair.html` cache reset page. State schema 7 and all data contracts are unchanged.
 
-1. Download `karate-azure-progress-hub-v1.9.2.zip`.
-2. Right-click it and select **Extract All**.
-3. Open the extracted `karate-azure-progress-hub-v1.9.2` folder.
-4. Confirm it contains `index.html`, `app.js`, `styles.css`, `service-worker.js`, `js`, `vendor`, and `tests`.
+## Product purpose
 
-## Part 3 — Preserve production configuration
+The app coordinates Microsoft cloud study, Jion kata, and JKA 3rd Dan preparation around André’s available days:
 
-Before uploading:
+- Monday–Thursday: no scheduled study or karate work.
+- Friday night: Azure/Microsoft cloud study only.
+- Saturday: flexible Azure, Jion kata, and 3rd Dan work.
+- Sunday: flexible Azure, Jion kata, and 3rd Dan work.
 
-1. Open the extracted `js/microsoft-config.js`.
-2. Compare it with your deployed copy.
-3. Keep your existing production client ID, authority, and exact redirect URI.
-4. Do not add a Microsoft client secret.
-5. If your repository has `js/config.js`, leave that file in the repository and do not overwrite it.
-6. Do not alter your Supabase URL, publishable key, authentication settings, table, or RLS policies.
+Saturday and Sunday have no fixed clock time or required order. Each weekend date has one combined day plan containing three clearly separated required focus blocks.
 
-## Part 4 — Optional local test
+## Scheduling invariants
 
-1. Double-click `run-local.bat`.
-2. Open `http://localhost:8080/`.
-3. Do not double-click `index.html`; Microsoft login and PWA behaviour require HTTP or HTTPS.
-4. Check that the app displays version **1.9.2** and schema **7** in Settings.
-5. Confirm the weekly plan shows:
-   - Monday–Thursday: Unscheduled / recovery
-   - Friday: Azure only
-   - Saturday: Azure + Jion kata + 3rd Dan
-   - Sunday: Azure + Jion kata + 3rd Dan
-6. Open Saturday and Sunday and confirm the plan says **Flexible across the day — no scheduled time**.
-7. Open **Cloud Programme** and confirm the intensive roadmap appears.
+1. Monday to Thursday generate recovery/unscheduled plans.
+2. Friday generates Azure only.
+3. Saturday and Sunday each show Azure, Jion kata, and 3rd Dan training.
+4. Weekend blocks have no fixed start time and may be completed in any order.
+5. Weekend completion records Azure practical evidence, kata correction/retention, and Dan 3 right/left ratings in one form.
+6. Historical tasks are saved snapshots and are not rewritten.
+7. Schema-7 migration replaces only unstarted future schedule records; completed or started records remain intact.
+8. Missed Friday work reschedules to another Friday Azure day. Missed weekend work reschedules to another combined Saturday or Sunday.
+9. The Weekly Plan remains a rolling seven-day view beginning on the current `Pacific/Auckland` date.
 
-For local Microsoft login, `http://localhost:8080/` must already be registered as a Single-page application redirect URI in Microsoft Entra.
+## Intensive programme model
 
-## Part 5 — Upload to GitHub
+The programme target is 30–42 months with a normal 10–14 hour weekly commitment:
 
-1. Open the GitHub repository that hosts the app.
-2. Open the repository root.
-3. Select **Add file → Upload files**.
-4. Drag in all files and folders from the extracted v1.9.2 folder.
-5. Allow GitHub to replace files with matching names.
-6. Confirm your configured `js/microsoft-config.js` values are still present.
-7. Confirm any separate `js/config.js` is still present.
-8. Commit with a message such as:
+- 8–11 technical hours;
+- 2–3 German hours;
+- 16-hour maximum normal week;
+- three-hour maximum uninterrupted technical session;
+- recovery week after 6–8 intensive weeks.
 
-   `Update Karate and Cloud Progress Hub to v1.9.2`
+Certification sequence:
 
-## Part 6 — Confirm deployment
+`AZ-104 → SC-300 → MD-102 → MS-102 → AZ-700 → Bicep and Terraform → Terraform Associate 004 → AZ-305 → SC-500`
 
-1. Open the repository **Actions** tab.
-2. Wait for the GitHub Pages deployment to complete successfully.
-3. Open **Settings → Pages**.
-4. Confirm the correct branch and root folder are still selected.
-5. Open the live app URL.
+Continuous skills:
 
-## Part 7 — Refresh the installed PWA
+PowerShell, Microsoft Graph, Azure CLI, Git, CI/CD, Exchange Online, SharePoint Online, Microsoft Teams, Linux fundamentals, and German to B2.
 
-1. Close every browser tab and installed app window for this app.
-2. Reopen the live website in a browser.
-3. On Windows, press `Ctrl + F5` once.
-4. Close the browser tab.
-5. Reopen the installed PWA.
-6. Open **Settings** and confirm:
+Each phase follows Foundation, Learn and Understand, Perform and Build, Test and Diagnose, and Exam and Retention. Short phases use integrated stage labels while preserving all five outcome types.
 
-   `App version 1.9.2 · State schema 7`
+## State schema 7
 
-Do not clear browser site data. Schema 6 data migrates to schema 7 automatically.
+Schema 7 retains the `intensiveProgramme` model and adds the Friday/weekend scheduling template:
 
-## Part 8 — Confirm existing data
+- programme targets and sustainability limits;
+- ten phase records;
+- continuous-skill competency records;
+- 42 monthly plans;
+- five weekly goals per programme month;
+- detailed weekly records indexed by Monday date;
+- five specialised session records distributed across Friday, Saturday, and Sunday;
+- a combined weekend task type that links Azure, Jion, and 3rd Dan evidence;
+- German weekly record;
+- quality and burnout ratings;
+- warning, pace, recovery, forecast, and exam-readiness inputs;
+- career milestones and final completion standards.
 
-Check that these remain present:
+Migration uses `mergeDefaults()` and is additive. Existing schema-6 Azure modules, mastery stages, labs, karate records, roadmap, notes, weekly reviews, OneDrive state, and Supabase state remain valid. Past and progressed daily records are retained; only unstarted future schedule records are regenerated using the new template.
 
-1. Previous daily history and evidence.
-2. AZ-104 learning paths, units, mastery stages, labs, scores, and reviews.
-3. ARM-template progress at Unit 5 of 7.
-4. Jion, Kihon, Kata, Kumite, right/left ratings, and instructor notes.
-5. Notes and weekly reviews.
-6. Microsoft or Supabase account settings.
-7. Existing monthly/weekly roadmap records.
+## Protected areas
 
-If data appears missing, do not immediately create replacement records. Check the active cloud provider and compare local/cloud timestamps first.
+Do not replace, remove, or redesign these unless André explicitly requests it:
 
-## Part 9 — Confirm the rolling seven-day schedule
+1. Existing Supabase authentication functions and state contract in `app.js`.
+2. `supabase-schema.sql`, the `user_app_state` table, and its RLS policies.
+3. Microsoft authentication, MSAL runtime, and OneDrive app-folder integration.
+4. OneDrive permission `Files.ReadWrite.AppFolder` and filename `karate-azure-progress-state.json`.
+5. Existing local, OneDrive, and Supabase user data.
+6. `js/microsoft-config.js` after production values are entered.
+7. `js/config.js` if it exists in a deployed repository. This release does not contain it.
+8. Existing authentication keys and browser-stored configuration.
 
-1. Open **Weekly Plan**.
-2. Confirm the first card uses today’s New Zealand date.
-3. Confirm the following six cards use the next six consecutive dates.
-4. Confirm **Previous 7 days**, **Start today**, and **Next 7 days** work correctly.
-5. Confirm Monday, Tuesday, Wednesday, and Thursday show unscheduled/recovery days.
-6. Confirm Friday shows Azure study only.
-7. Confirm Saturday and Sunday each show all three flexible blocks: Azure, Jion kata, and 3rd Dan training.
-8. Confirm Saturday and Sunday show “no scheduled time” and do not display a clock-based start time.
+Never add client secrets, passwords, service-role keys, access tokens, or refresh tokens to browser source code.
 
-The live range advances automatically when the `Pacific/Auckland` date changes. Date-specific overrides remain possible, but replacing a date that already has progress requires confirmation.
+## Main files
 
-## Part 10 — Configure the intensive programme
+- `index.html`: application shell, navigation, dialogs, and versioned asset references.
+- `styles.css`: responsive dashboard, Azure, karate, roadmap, and intensive-programme styles.
+- `app.js`: state, migration, scheduling, tasks, mastery, karate, intensive programme, reports, local backup, OneDrive, and Supabase.
+- `service-worker.js`: offline cache.
+- `manifest.webmanifest`: PWA metadata.
+- `js/microsoft-config.js`: public SPA client ID, authority, and redirect URI only.
+- `vendor/msal-browser.min.js`: pinned MSAL Browser runtime.
+- `supabase-schema.sql`: protected Supabase table and RLS definition.
+- `MICROSOFT-ONEDRIVE-SETUP.md`: Microsoft Entra setup.
+- `INSTALLATION.md`: deployment/update guide.
+- `tests/smoke-test.cjs`: state, migration, scheduling, rendering, mastery, and intensive-programme tests.
+- `tests/onedrive-sync-test.cjs`: mocked OneDrive read/write/conflict tests.
 
-1. Open **Cloud Programme**.
-2. Confirm AZ-104 is the active phase.
-3. Review the weekly workload standard.
-4. Open the current weekly record.
-5. Set the current phase stage and target progress.
-6. Enter this week’s five connected session objectives.
-7. Set technical and German targets.
-8. Record German on at least five days.
-9. Open the current month in the 42-month roadmap.
-10. Fill in its detailed knowledge, lab, assessment, portfolio/automation, and German plan.
-11. Enter evidence before marking monthly goals complete.
+## Current seeded Azure position
 
-## Part 11 — Use recovery and pace controls
+- Certification: AZ-104
+- Module: Deploy Azure infrastructure by using JSON ARM templates
+- Four of seven units complete
+- Unit 5 next: Add parameters and outputs to an ARM template
+- Preferred tool: PowerShell
+- Learn and Perform partial
+- Understand, Test, Review, and Retain not complete
 
-1. Record weekly energy, concentration, sleep impact, family impact, confidence, stress, and whether labs were rushed.
-2. When the dashboard recommends a lower workload, select **Apply a 25% reduced target next week**.
-3. After 6–8 intensive weeks, select **Schedule next week as recovery**.
-4. A recovery week sets a six-hour technical target, keeps German active, and prioritises review, one weak lab, documentation, and planning.
+Unit completion does not automatically equal mastery.
 
-## Part 12 — Confirm OneDrive
+## Current seeded karate position
 
-1. Open **Settings → Cloud synchronisation**.
-2. Confirm **Microsoft OneDrive** remains selected if it is your chosen provider.
-3. Confirm your Microsoft account is displayed.
-4. Select **Sync OneDrive now**.
-5. Confirm success.
-6. Check that the OneDrive app-folder file remains `karate-azure-progress-state.json`.
+- Current kata: Jion
+- Sequence known
+- Grading readiness not demonstrated
+- Embusen, stances, transitions, rhythm, timing, kime, speed/power, kiai, technical questions, and reliable grading performance remain separately assessed
 
-Use force pull or force push only when you know which copy should replace the other.
+Sequence knowledge does not equal grading readiness.
 
-## Part 13 — Confirm Supabase
+## Release validation
 
-If using Supabase:
+Before packaging a release:
 
-1. Open **Settings → Supabase**.
-2. Confirm the existing project URL and publishable key remain configured.
-3. Sign in using the existing account.
-4. Run a normal sync.
-5. Confirm cloud data loads.
-
-No database migration or change to `supabase-schema.sql` is required.
-
-## Troubleshooting
-
-### Old version still appears
-
-1. Close all app windows.
-2. Open the website in the browser.
-3. Press `Ctrl + F5`.
-4. Reopen the installed app.
-5. Confirm `service-worker.js` uses cache `ka-progress-hub-v1.9.2`.
-
-### Microsoft redirect error
-
-Confirm these are identical, including the trailing slash:
-
-- live browser URL;
-- SPA redirect URI in Microsoft Entra;
-- redirect URI in `js/microsoft-config.js` or app Settings.
-
-### Progress appears missing
-
-1. Stop entering new data.
-2. Check the active provider.
-3. Sign in to the same account used previously.
-4. Compare local and cloud update timestamps.
-5. Use the exported JSON backup only after confirming it is the correct copy.
-
-### A task appears on the wrong day
-
-Open **Weekly Plan** and change the date’s focus type. The app will warn before replacing recorded progress.
+1. Run JavaScript syntax checks.
+2. Run smoke and OneDrive tests.
+3. Verify Monday–Thursday are unscheduled, Friday is Azure only, and Saturday/Sunday each show Azure, Jion, and 3rd Dan blocks.
+4. Verify one task per day and no fixed task times.
+5. Verify schema-6 state migrates to schema 7 without data loss or rewriting progressed records.
+6. Verify all 42 programme months, ten phases, five weekly sessions, monthly templates, and German records render.
+7. Verify warning thresholds, recovery-week controls, forecast, and exam booking gate.
+8. Verify AZ-104 and Jion seeded progress is unchanged.
+9. Compare protected file hashes against the source release.
+10. Check for embedded secrets.
+11. Verify the service-worker cache and asset query strings are version 1.9.3.
+12. Test ZIP integrity.
+13. Test live Microsoft and Supabase login only in the deployed environment with valid credentials.

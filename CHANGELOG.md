@@ -1,8 +1,51 @@
 # Changelog
 
+## [1.9.3] — 2026-07-17
+
+### Fixed
+
+- Restored `index.html` after the uploaded deployment package placed the MSAL Browser bundle inside it.
+- Restored the correct `app.js`, `styles.css`, `service-worker.js`, `manifest.webmanifest`, documentation, launcher, and Supabase schema files.
+- Added `repair.html` to unregister old Progress Hub service workers and remove only Progress Hub caches without clearing localStorage.
+- Added a file-integrity regression test that verifies core files have the correct content type and cannot be silently cross-assigned again.
+- Updated the PWA cache and static asset references to version 1.9.3.
+
+### Preserved
+
+- State schema 7 and all existing progress records.
+- Friday Azure-only and flexible Saturday/Sunday Azure, Jion, and 3rd Dan schedule.
+- Microsoft login, OneDrive backup contract, Supabase authentication, and database schema.
+- Existing `js/microsoft-config.js` contents.
+
+## [1.9.2] — 2026-07-17
+
+### Changed
+
+- Replaced the previous seven-day alternating schedule with André’s current availability.
+- Monday through Thursday now default to unscheduled/recovery days.
+- Friday now generates Azure study only and is labelled as a Friday-night study session without a fixed clock time.
+- Saturday and Sunday now each generate one flexible combined day plan containing Azure, Jion kata, and 3rd Dan training blocks.
+- The five intensive technical sessions are distributed across Friday, Saturday, and Sunday.
+- Weekend completion now records Azure evidence, Jion correction/retention, and Dan 3 right/left ratings together.
+- Weekly Plan and Settings copy now describe the Friday/weekend structure.
+- PWA cache and asset references updated to version 1.9.2.
+
+### Migration
+
+- State schema increased from version 6 to version 7.
+- Existing Azure, karate, roadmap, OneDrive, Supabase, notes, and historical daily data remain compatible.
+- Past and already-started daily records are preserved.
+- Unstarted current/future records and date overrides are regenerated using the new weekly template.
+
+### Preserved
+
+- Supabase authentication and `supabase-schema.sql`.
+- Microsoft authentication, `js/microsoft-config.js`, MSAL, OneDrive permission, and backup filename.
+- Existing local and cloud data contracts.
+
 All notable changes to Karate & Azure Progress Hub are recorded here.
 
-## [1.9.1] — 2026-07-13
+## [1.9.2] — 2026-07-13
 
 ### Changed
 
@@ -10,7 +53,7 @@ All notable changes to Karate & Azure Progress Hub are recorded here.
 - The range shows today plus the next six days and retains previous/next seven-day navigation.
 - The centre navigation action is now **Start today**.
 - The Today and Weekly Plan views detect a `Pacific/Auckland` date change while the app remains open and move forward automatically when they were following the previous current date.
-- PWA cache and asset references updated to version 1.9.1.
+- PWA cache and asset references updated to version 1.9.2.
 
 ### Preserved
 

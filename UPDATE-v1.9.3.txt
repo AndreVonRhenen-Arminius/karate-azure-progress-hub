@@ -1,0 +1,14 @@
+KARATE & AZURE PROGRESS HUB — UPDATE v1.9.3
+
+PURPOSE
+- Repairs a corrupted deployment package where several filenames contained the contents of unrelated files.
+- Restores index.html, app.js, styles.css, service-worker.js, manifest.webmanifest and documentation.
+- Preserves the v1.9.2 schedule, state schema 7, Supabase integration, Microsoft login and OneDrive data contract.
+- Adds repair.html to remove only old Progress Hub service-worker caches and registrations without clearing localStorage.
+
+AFTER DEPLOYMENT
+1. Upload every file and folder in this release.
+2. Preserve any configured js/microsoft-config.js and separate js/config.js.
+3. Open https://YOUR-SITE/repair.html once.
+4. Allow the page to return to the app automatically.
+5. Confirm Settings shows version 1.9.3 and state schema 7.

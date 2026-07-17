@@ -1,63 +1,40 @@
-const CACHE_NAME = 'ka-progress-hub-v1.9.2';
-const CORE_ASSETS = [
-  './',
-  './index.html',
-  './styles.css?v=1.9.2',
-  './app.js?v=1.9.2',
-  './vendor/msal-browser.min.js?v=5.17.0',
-  './js/microsoft-config.js?v=1.9.2',
-  './manifest.webmanifest?v=1.9.2',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
-];
+# Release Validation — v1.9.3
 
-self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(CORE_ASSETS)));
-  self.skipWaiting();
-});
+## Root cause confirmed
 
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-    ))
-  );
-  self.clients.claim();
-});
+The uploaded deployment archive contained cross-assigned file contents. In particular:
 
-async function networkFirst(request) {
-  try {
-    const response = await fetch(request, { cache: 'no-store' });
-    if (response && response.status === 200) {
-      const cache = await caches.open(CACHE_NAME);
-      cache.put(request, response.clone());
-    }
-    return response;
-  } catch (error) {
-    return (await caches.match(request)) || (request.mode === 'navigate' ? caches.match('./index.html') : Response.error());
-  }
-}
+- `index.html` was byte-for-byte identical to `vendor/msal-browser.min.js`;
+- `service-worker.js` contained Microsoft setup Markdown rather than JavaScript;
+- `app.js` contained a Node smoke test rather than the application;
+- `styles.css` contained README Markdown rather than CSS;
+- `manifest.webmanifest` contained changelog Markdown rather than JSON.
 
-async function cacheFirst(request) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-  const response = await fetch(request);
-  if (response && response.status === 200) {
-    const cache = await caches.open(CACHE_NAME);
-    cache.put(request, response.clone());
-  }
-  return response;
-}
+This explains why the browser rendered minified MSAL source code.
 
-self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
-  const url = new URL(event.request.url);
-  if (url.origin !== self.location.origin) return;
+## Passed
 
-  if (event.request.mode === 'navigate' || ['script', 'style', 'manifest'].includes(event.request.destination)) {
-    event.respondWith(networkFirst(event.request));
-    return;
-  }
+- `node --check app.js`
+- `node --check service-worker.js`
+- `node tests/smoke-test.cjs`
+- `node tests/onedrive-sync-test.cjs`
+- `node tests/file-integrity-test.cjs`
+- `python -m json.tool manifest.webmanifest`
+- HTTP response for `/` returns `Content-Type: text/html`
+- `index.html` begins with `<!doctype html>`
+- `index.html` is not identical to the MSAL bundle
+- Versioned PWA cache updated to v1.9.3
+- `repair.html` removes only Progress Hub caches and service-worker registrations
+- State schema remains 7
+- `app.js` differs from the intact v1.9.2 source only by the application version string
+- `js/microsoft-config.js` checksum unchanged
+- `supabase-schema.sql` checksum unchanged
+- OneDrive mocked read, write, pull, push, and conflict tests passed
+- ZIP integrity passed
 
-  event.respondWith(cacheFirst(event.request));
-});
+## Requires deployed-environment confirmation
+
+- GitHub Pages deployment and `/repair.html` execution
+- Real Microsoft login and OneDrive synchronisation
+- Real Supabase login and synchronisation
+- Final desktop and mobile visual review

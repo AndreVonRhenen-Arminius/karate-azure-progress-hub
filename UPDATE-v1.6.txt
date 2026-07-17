@@ -1,43 +1,25 @@
--- Run this once in Supabase > SQL Editor.
--- It creates one private JSON state record per signed-in user.
+KARATE & AZURE PROGRESS HUB — UPDATE v1.6.0
 
-create table if not exists public.user_app_state (
-  user_id uuid primary key references auth.users(id) on delete cascade,
-  state jsonb not null default '{}'::jsonb,
-  updated_at timestamptz not null default now()
-);
+MAIN CHANGES
+- Removed fixed task start and finish times.
+- Reduced every day to one flexible main task.
+- Added clear kata and 3rd Dan grading focus panels.
+- Added adaptive next-focus recommendations.
+- Added Azure mastery, evidence, active recall and review scheduling.
+- Added structured Azure lab journals.
+- Added 3rd Dan technique quality assessments.
+- Added kata section tracking and retention scheduling.
 
-alter table public.user_app_state enable row level security;
+SAFE UPDATE
+- Existing local and Supabase data are merged and preserved.
+- Supabase authentication is unchanged.
+- supabase-schema.sql is unchanged.
+- No js/config.js existed and none was added or replaced.
 
-create policy "Users can read their own app state"
-on public.user_app_state
-for select
-using ((select auth.uid()) = user_id);
+TEST BEFORE DEPLOYMENT
+node --check app.js
+node --check service-worker.js
+node tests/smoke-test.cjs
 
-create policy "Users can insert their own app state"
-on public.user_app_state
-for insert
-with check ((select auth.uid()) = user_id);
-
-create policy "Users can update their own app state"
-on public.user_app_state
-for update
-using ((select auth.uid()) = user_id)
-with check ((select auth.uid()) = user_id);
-
-create or replace function public.set_updated_at()
-returns trigger
-language plpgsql
-security invoker
-set search_path = ''
-as $$
-begin
-  new.updated_at = now();
-  return new;
-end;
-$$;
-
-drop trigger if exists set_user_app_state_updated_at on public.user_app_state;
-create trigger set_user_app_state_updated_at
-before update on public.user_app_state
-for each row execute function public.set_updated_at();
+DEPLOYMENT
+Upload all files from this folder to the existing GitHub Pages repository, commit the replacements, then close and reopen the installed app.

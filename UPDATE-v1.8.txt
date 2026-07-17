@@ -1,40 +1,12 @@
-# Release Validation — v1.9.2
+KARATE & AZURE PROGRESS HUB — UPDATE v1.8.0
 
-## Passed
+Main update:
+- Alternating Azure and karate days
+- One task per day
+- Editable weekly focus types
+- Six-stage Azure mastery
+- Detailed Jion and 3rd Dan tracking
+- Expandable monthly and weekly roadmap
+- Evidence-based progress reports
 
-- `node --check app.js`
-- `node --check service-worker.js`
-- `node tests/smoke-test.cjs`
-- `node tests/onedrive-sync-test.cjs`
-- Schema 6 → 7 additive migration
-- Preservation of historical and already-started daily records
-- Regeneration of unstarted current/future plans using the new schedule
-- Monday–Thursday unscheduled/recovery defaults
-- Friday-night Azure-only default
-- Saturday and Sunday combined Azure, Jion kata, and 3rd Dan plans
-- No fixed clock time on Saturday or Sunday
-- Combined weekend completion updates Azure session evidence, Jion retention details, and Dan 3 right/left ratings
-- Friday Azure completion updates Session 1
-- Saturday technical time distributes across Guided Lab and Independent Lab records
-- Sunday remains linked to Test/Review and Portfolio/Automation records
-- Rolling seven-day planner and automatic New Zealand date rollover
-- AZ-104 ARM Unit 5 starting position
-- Jion sequence/readiness separation
-- Six Azure mastery stages
-- Forty-two programme months and ten phases
-- Five specialised weekly session records
-- German, quality, warnings, recovery, forecast, and exam-booking rules
-- OneDrive mocked read, write, first-use, forced pull, and push behaviour
-- `supabase-schema.sql` checksum unchanged from v1.9.1
-- `js/microsoft-config.js` checksum unchanged from v1.9.1
-- Bundled MSAL runtime and licence checksums unchanged from v1.9.1
-- Microsoft, OneDrive, Supabase, and authentication function bodies unchanged from v1.9.1
-- Versioned PWA cache and static assets
-- No fixed task start-time strings in active source
-
-## Requires deployed-environment confirmation
-
-- Real Microsoft login and OneDrive synchronisation
-- Real Supabase login and synchronisation
-- GitHub Pages service-worker update behaviour
-- Final visual review on the user’s desktop and mobile devices
+See INSTALLATION.md before replacing files in an existing deployment.

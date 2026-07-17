@@ -1,164 +1,162 @@
-param(
-    [int]$Port = 8080
-)
+# Karate & Azure Progress Hub — v1.9.3
 
-$ErrorActionPreference = 'Stop'
-$root = Split-Path -Parent $MyInvocation.MyCommand.Path
-$rootFull = [System.IO.Path]::GetFullPath($root + [System.IO.Path]::DirectorySeparatorChar)
-$listener = $null
+An offline-first Progressive Web App for two coordinated goals:
 
-function Get-MimeType {
-    param([string]$Path)
+1. Azure study on Friday night.
+2. Flexible Azure, Jion kata, and 3rd Dan training on Saturday and Sunday.
 
-    switch ([System.IO.Path]::GetExtension($Path).ToLowerInvariant()) {
-        '.html'        { 'text/html; charset=utf-8' }
-        '.htm'         { 'text/html; charset=utf-8' }
-        '.css'         { 'text/css; charset=utf-8' }
-        '.js'          { 'application/javascript; charset=utf-8' }
-        '.json'        { 'application/json; charset=utf-8' }
-        '.webmanifest' { 'application/manifest+json; charset=utf-8' }
-        '.png'         { 'image/png' }
-        '.jpg'         { 'image/jpeg' }
-        '.jpeg'        { 'image/jpeg' }
-        '.svg'         { 'image/svg+xml' }
-        '.ico'         { 'image/x-icon' }
-        '.txt'         { 'text/plain; charset=utf-8' }
-        default        { 'application/octet-stream' }
-    }
-}
+Monday to Thursday remain unscheduled. Friday has one Azure task. Each weekend day has one flexible day plan containing three required focus blocks: Azure, Jion kata, and 3rd Dan training. The app retains local-first data storage, Microsoft login and OneDrive backup, Supabase synchronisation, AZ-104 mastery records, Jion and grading records, evidence, history, and monthly/weekly progress reporting.
 
-function Send-Response {
-    param(
-        [System.Net.Sockets.NetworkStream]$Stream,
-        [int]$StatusCode,
-        [string]$StatusText,
-        [byte[]]$Body,
-        [string]$ContentType = 'text/plain; charset=utf-8',
-        [bool]$HeadOnly = $false
-    )
+## Corruption repair in v1.9.3
 
-    $headers = @(
-        "HTTP/1.1 $StatusCode $StatusText",
-        "Content-Type: $ContentType",
-        "Content-Length: $($Body.Length)",
-        'Cache-Control: no-cache',
-        'Connection: close',
-        '',
-        ''
-    ) -join "`r`n"
+Version 1.9.3 repairs a deployment package in which several filenames contained unrelated file contents. In the affected package, `index.html` contained the MSAL Browser bundle, causing the browser to display minified JavaScript instead of the app. The release restores the correct application files and adds `repair.html`, which removes only old Progress Hub service-worker registrations and caches while preserving localStorage and cloud data.
 
-    $headerBytes = [System.Text.Encoding]::ASCII.GetBytes($headers)
-    $Stream.Write($headerBytes, 0, $headerBytes.Length)
+## Rolling seven-day plan
 
-    if (-not $HeadOnly -and $Body.Length -gt 0) {
-        $Stream.Write($Body, 0, $Body.Length)
-    }
+The Weekly Plan opens on the current New Zealand date and shows that date plus the next six days. The displayed dates roll forward automatically when the `Pacific/Auckland` date changes, including when the app remains open across midnight. Previous and future seven-day ranges can still be reviewed manually, and **Start today** returns the planner to the live rolling range. Progress remains stored against the actual calendar date.
 
-    $Stream.Flush()
-}
+## Fixed weekly programme
 
-try {
-    $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, $Port)
-    $listener.Start()
+| Day | Main focus |
+|---|---|
+| Monday | Unscheduled / recovery |
+| Tuesday | Unscheduled / recovery |
+| Wednesday | Unscheduled / recovery |
+| Thursday | Unscheduled / recovery |
+| Friday | Friday-night Azure study |
+| Saturday | Flexible Azure + Jion kata + 3rd Dan training |
+| Sunday | Flexible Azure + Jion kata + 3rd Dan training |
 
-    $url = "http://localhost:$Port"
-    Write-Host ''
-    Write-Host 'Karate & Azure Progress Hub is running.' -ForegroundColor Green
-    Write-Host "Open: $url"
-    Write-Host 'Keep this window open while using the app.'
-    Write-Host 'Press Ctrl+C to stop the local server.'
-    Write-Host ''
+No clock time is assigned to Saturday or Sunday. The three weekend blocks may be completed in any order when the day allows, but all three remain visible and separately evidenced in the completion form.
 
-    Start-Process $url
+## Intensive Microsoft cloud programme
 
-    while ($true) {
-        $client = $listener.AcceptTcpClient()
+### Target
 
-        try {
-            $stream = $client.GetStream()
-            $reader = [System.IO.StreamReader]::new(
-                $stream,
-                [System.Text.Encoding]::ASCII,
-                $false,
-                4096,
-                $true
-            )
+- Completion range: 30–42 months.
+- Normal target: 10–14 total hours per week.
+- Technical target: 8–11 hours per week.
+- German target: 2–3 hours per week.
+- Maximum normal workload: 16 total hours per week.
+- Maximum uninterrupted technical session: 3 hours.
+- Recovery week: after 6–8 intensive weeks.
 
-            $requestLine = $reader.ReadLine()
-            if ([string]::IsNullOrWhiteSpace($requestLine)) {
-                continue
-            }
+### Certification sequence
 
-            do {
-                $line = $reader.ReadLine()
-            } while ($null -ne $line -and $line -ne '')
+`AZ-104 → SC-300 → MD-102 → MS-102 → AZ-700 → Bicep and Terraform → Terraform Associate 004 → AZ-305 → SC-500`
 
-            $parts = $requestLine.Split(' ')
-            if ($parts.Length -lt 2) {
-                $body = [System.Text.Encoding]::UTF8.GetBytes('Bad request')
-                Send-Response -Stream $stream -StatusCode 400 -StatusText 'Bad Request' -Body $body
-                continue
-            }
+### Continuous skills
 
-            $method = $parts[0].ToUpperInvariant()
-            $headOnly = $method -eq 'HEAD'
-            if ($method -ne 'GET' -and -not $headOnly) {
-                $body = [System.Text.Encoding]::UTF8.GetBytes('Method not allowed')
-                Send-Response -Stream $stream -StatusCode 405 -StatusText 'Method Not Allowed' -Body $body
-                continue
-            }
+PowerShell, Microsoft Graph, Azure CLI, Git, CI/CD, Exchange Online, SharePoint Online, Microsoft Teams, Linux fundamentals, and German to B2.
 
-            $requestTarget = ($parts[1] -split '\?')[0]
-            $decodedPath = [System.Uri]::UnescapeDataString($requestTarget)
-            if ($decodedPath -eq '/') {
-                $decodedPath = '/index.html'
-            }
+### Five-stage phase model
 
-            $relativePath = $decodedPath.TrimStart('/').Replace('/', [System.IO.Path]::DirectorySeparatorChar)
-            $fullPath = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($root, $relativePath))
+1. Foundation
+2. Learn and Understand
+3. Perform and Build
+4. Test and Diagnose
+5. Exam and Retention
 
-            if (-not $fullPath.StartsWith($rootFull, [System.StringComparison]::OrdinalIgnoreCase)) {
-                $body = [System.Text.Encoding]::UTF8.GetBytes('Forbidden')
-                Send-Response -Stream $stream -StatusCode 403 -StatusText 'Forbidden' -Body $body
-                continue
-            }
+Each phase records progress, objectives, exam date, required labs, independent performance, weak areas, practice scores, portfolio completion, retention, and exam result.
 
-            if ([System.IO.Directory]::Exists($fullPath)) {
-                $fullPath = [System.IO.Path]::Combine($fullPath, 'index.html')
-            }
+### Weekly records
 
-            if (-not [System.IO.File]::Exists($fullPath)) {
-                $body = [System.Text.Encoding]::UTF8.GetBytes('Not found')
-                Send-Response -Stream $stream -StatusCode 404 -StatusText 'Not Found' -Body $body
-                continue
-            }
+The Cloud Programme view includes five connected sessions across three available study days:
 
-            $body = [System.IO.File]::ReadAllBytes($fullPath)
-            $contentType = Get-MimeType -Path $fullPath
-            Send-Response -Stream $stream -StatusCode 200 -StatusText 'OK' -Body $body -ContentType $contentType -HeadOnly $headOnly
-        }
-        catch {
-            Write-Warning "Request failed: $($_.Exception.Message)"
-        }
-        finally {
-            if ($null -ne $reader) { $reader.Dispose() }
-            if ($null -ne $stream) { $stream.Dispose() }
-            $client.Close()
-        }
-    }
-}
-catch {
-    Write-Host ''
-    Write-Host 'The local app could not be started.' -ForegroundColor Red
-    Write-Host $_.Exception.Message
-    Write-Host ''
-    Write-Host "If port $Port is already in use, close the other server window and try again."
-    Write-Host 'Press any key to close.'
-    [void][System.Console]::ReadKey($true)
-    exit 1
-}
-finally {
-    if ($null -ne $listener) {
-        $listener.Stop()
-    }
-}
+- Friday: Learn and Understand
+- Saturday: Guided Lab and Independent Lab
+- Sunday: Test and Review, then Portfolio and Automation
+
+Each session stores its relevant modules, documentation, terminology, lab resources, possible cost, commands, errors, troubleshooting, validation, cleanup, scores, evidence, confidence, and duration.
+
+German is tracked separately by level, days studied, vocabulary, grammar, listening, speaking, reading, writing, technical topic, and total time.
+
+### Monthly and 42-month roadmap
+
+Every month contains:
+
+- knowledge goals;
+- 4–8 lab target;
+- at least two independent repetitions;
+- at least two assessed sessions;
+- top-three weak-area improvement;
+- one portfolio milestone;
+- one relevant automation/deployment improvement;
+- 8–12 German hours;
+- five expandable weekly plans;
+- a monthly review.
+
+The completion forecast recalculates from weighted phase progress and recorded weekly history.
+
+### Quality controls
+
+The app monitors:
+
+- two low-technical-hour weeks;
+- two weeks without a lab;
+- three weeks without an assessment;
+- three weeks of increasing weak areas;
+- two weeks below 90 German minutes;
+- two low-energy weeks;
+- weeks over 16 hours;
+- sessions over three hours.
+
+Energy, concentration, enjoyment, sleep impact, family impact, confidence, stress, and rushed-lab behaviour are rated from 1–5. A 25% reduced next week can be created when capacity is low.
+
+### Exam booking gate
+
+A phase is not ready to book based only on its target date. The gate requires:
+
+- all major objectives studied;
+- at least 80% of required labs complete;
+- important tasks performed independently;
+- no critical weak areas;
+- three recent scores of at least 80%;
+- portfolio substantially complete;
+- delayed retention check passed.
+
+## Existing progress retained
+
+- AZ-104 ARM-template module remains at Unit 5 of 7.
+- Azure content completion and six-stage mastery remain separate.
+- Jion sequence remains known but not automatically grading-ready.
+- Kihon, Kata, and Kumite evidence and right/left ratings remain available.
+- Existing daily history, notes, labs, reviews, cloud data, and settings are retained through an additive migration.
+
+## Cloud storage
+
+Available providers remain:
+
+- Local device only
+- Microsoft OneDrive app folder
+- Supabase
+
+OneDrive permission remains `Files.ReadWrite.AppFolder` and the state file remains `karate-azure-progress-state.json`.
+
+## Data compatibility
+
+- Local state key: `ka_progress_hub_state_v1`
+- State schema: version 7
+- Microsoft configuration key: `ka_progress_hub_microsoft_config_v1`
+- Active provider key: `ka_progress_hub_cloud_provider_v1`
+- Supabase configuration key: `ka_progress_hub_cloud_config_v1`
+- Supabase table: `user_app_state`
+
+Schema 7 is additive. It preserves all schema-6 progress and cloud data, changes the default future schedule, and regenerates only unstarted future day plans. Past and already-started records remain unchanged.
+
+## Installation
+
+Read `INSTALLATION.md` before replacing the deployed files. Export a JSON backup and preserve any production `js/config.js` and configured `js/microsoft-config.js` first.
+
+## Local test
+
+Run `run-local.bat`, then open `http://localhost:8080/`.
+
+Validation commands:
+
+```text
+node --check app.js
+node --check service-worker.js
+node tests/smoke-test.cjs
+node tests/onedrive-sync-test.cjs
+```
