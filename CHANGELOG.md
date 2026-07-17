@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.9.4] — 2026-07-17
+
+### Changed
+
+- Replaced broad AZ-104 placeholder topics with André's exact six-path Microsoft Learn order.
+- Recorded the two prerequisite modules as content-completed while retaining separate mastery evidence.
+- Set **Manage identities and governance in Azure** as the current path and **Understand Microsoft Entra ID** as the immediate next module.
+- Added a prominent **Microsoft Learn module completed** checkbox to every Azure module.
+- Added automatic current-module advancement in the required module and learning-path order.
+- Added a roadmap-position summary with path order, completed-module counts and current status.
+- Updated the PWA cache and static asset references to version 1.9.4.
+
+### Migration
+
+- Increased the state schema from 7 to 8.
+- Added compatibility mappings for legacy Azure module names and Azure lab references.
+- Removed obsolete placeholder modules from the active AZ-104 catalogue while preserving compatible evidence and unrelated application data.
+
+### Preserved
+
+- Friday Azure-only and flexible Saturday/Sunday Azure, Jion and 3rd Dan scheduling.
+- Microsoft login, OneDrive backup, Supabase authentication and database schema.
+- Existing daily history, karate records, notes, intensive programme data and cloud configuration.
+
 ## [1.9.3] — 2026-07-17
 
 ### Fixed

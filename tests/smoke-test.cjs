@@ -62,7 +62,7 @@ vm.runInContext(`globalThis.testApi = {
   renderKata, renderProgramme, renderProgress, renderNotes, renderSettings, getAzurePriority, getDanPriority,
   getKataPriority, recordAzureReview, updateKataProgressFromSections, getNextKataInterval,
   findNextSuitableDates, applyTaskCompletion, moduleContentPercent, moduleMasteryPercent, pathContentPercent,
-  pathMasteryPercent, currentAzureModule, currentAzureUnit, currentKata, addDays, getRollingPlanDates, syncDateContext,
+  pathMasteryPercent, currentAzureModule, currentAzureUnit, currentKata, setAzureModuleContentComplete, addDays, getRollingPlanDates, syncDateContext,
   DAY_PLANS, DEFAULT_WEEKLY_DAY_TYPES, AZURE_STAGE_DEFS, DAY_TYPE_OPTIONS, APP_VERSION,
   STATE_VERSION, MICROSOFT_GRAPH_SCOPES, oneDriveStateUrl, getCurrentRedirectUri,
   loadCloudProvider, ONEDRIVE_STATE_FILE, activeProgrammePhase, studySessionForDate, getIntensiveWeek, getWeekIntensityMetrics, overallProgrammeProgress, programmeForecast, examReadiness, recoveryWeekDue, programmeWarnings, programmePhaseForMonth, stageForProgrammeMonth, weekRequiresReduction
@@ -70,9 +70,9 @@ vm.runInContext(`globalThis.testApi = {
 
 const api = context.testApi;
 const initial = api.getState();
-assert.equal(api.APP_VERSION, '1.9.3');
-assert.equal(api.STATE_VERSION, 7);
-assert.equal(initial.version, 7);
+assert.equal(api.APP_VERSION, '1.9.4');
+assert.equal(api.STATE_VERSION, 8);
+assert.equal(initial.version, 8);
 assert.deepEqual(Object.keys(initial.daily), [], 'rendering must not create progress records');
 assert.equal(api.getPlanModeForDate(), 'alternating');
 assert.equal(initial.intensiveProgramme.targetRangeMin, 30);
@@ -134,18 +134,47 @@ for (const [mode, days] of Object.entries(api.DAY_PLANS)) {
   }
 }
 
-// Current Azure position is seeded exactly and content remains separate from mastery.
-const arm = api.currentAzureModule();
-assert.equal(arm.name, 'Deploy Azure infrastructure by using JSON ARM templates');
-assert.equal(arm.currentUnit, 5);
-assert.equal(arm.units.length, 7);
-assert.equal(arm.units.filter(unit => unit.complete).length, 4);
-assert.equal(api.currentAzureUnit(arm).name, 'Exercise — Add parameters and outputs to an ARM template');
-assert.equal(api.moduleContentPercent(arm), 57);
-assert.equal(api.moduleMasteryPercent(arm), 0);
-assert.equal(arm.masteryStages.learn.partial, true);
-assert.equal(arm.masteryStages.perform.partial, true);
+// Current Azure position follows the supplied Microsoft Learn order and keeps content separate from mastery.
+const azurePaths = initial.azPaths;
+assert.deepEqual(Array.from(azurePaths, path => path.name), [
+  'AZ-104: Prerequisites for Azure administrators',
+  'AZ-104: Manage identities and governance in Azure',
+  'AZ-104: Implement and manage storage in Azure',
+  'AZ-104: Deploy and manage Azure compute resources',
+  'AZ-104: Configure and manage virtual networks',
+  'AZ-104: Monitor and back up Azure resources'
+]);
+assert.deepEqual(Array.from(azurePaths[0].modules, module => module.name), [
+  'Introduction to Azure Cloud Shell',
+  'Deploy Azure infrastructure by using JSON ARM templates'
+]);
+assert.ok(azurePaths[0].modules.every(module => module.complete));
+assert.equal(azurePaths[0].status, 'complete');
+assert.deepEqual(Array.from(azurePaths[1].modules, module => module.name), [
+  'Understand Microsoft Entra ID',
+  'Create, configure, and manage identities',
+  'Describe the core architectural components of Azure',
+  'Azure Policy initiatives',
+  'Secure your Azure resources with Azure role-based access control',
+  'Allow users to reset their password with Microsoft Entra self-service password reset'
+]);
+const entraOverview = api.currentAzureModule();
+assert.equal(initial.azureFocus.currentPathId, 'az-identities');
+assert.equal(entraOverview.name, 'Understand Microsoft Entra ID');
+assert.equal(entraOverview.units.length, 1);
+assert.equal(entraOverview.units.filter(unit => unit.complete).length, 0);
+assert.equal(api.moduleContentPercent(entraOverview), 0);
+assert.equal(api.moduleMasteryPercent(entraOverview), 0);
+assert.equal(entraOverview.masteryStages.learn.complete, false);
 assert.deepEqual(Array.from(api.AZURE_STAGE_DEFS, entry => entry[0]), ['learn','understand','perform','test','review','retain']);
+api.setState(api.defaultState());
+assert.equal(api.setAzureModuleContentComplete('az-identities','az-identities-entra-overview',true), true);
+const checkedEntra = api.getState().azPaths.find(path => path.id === 'az-identities').modules[0];
+assert.equal(checkedEntra.complete, true);
+assert.equal(checkedEntra.masteryStages.learn.complete, true);
+assert.equal(checkedEntra.masteryStages.understand.complete, false, 'module content completion must not equal mastery');
+assert.equal(api.currentAzureModule().name, 'Create, configure, and manage identities');
+api.setState(initial);
 
 // Jion sequence knowledge is not treated as grading readiness.
 const jion = api.currentKata();
@@ -172,9 +201,10 @@ assert.equal(mondayPlan.tasks[0].category, 'rest');
 assert.equal(fridayPlan.tasks[0].category, 'azure');
 assert.equal(saturdayPlan.tasks[0].category, 'combined');
 assert.equal(sundayPlan.tasks[0].category, 'combined');
-assert.ok(fridayPlan.tasks[0].title.includes('ARM-template Unit 5'));
-assert.ok(fridayPlan.tasks[0].checklist.some(step => step.includes('allowed value')));
-assert.ok(fridayPlan.tasks[0].checklist.some(step => step.includes('Clean up')));
+assert.equal(fridayPlan.tasks[0].module, 'Understand Microsoft Entra ID');
+assert.equal(fridayPlan.tasks[0].learningPath, 'AZ-104: Manage identities and governance in Azure');
+assert.ok(fridayPlan.tasks[0].checklist.some(step => step.includes('official learning material')));
+assert.ok(fridayPlan.tasks[0].checklist.some(step => step.includes('Validate the result')));
 assert.ok(saturdayPlan.tasks[0].title.includes('Azure'));
 assert.ok(saturdayPlan.tasks[0].title.includes('Jion'));
 assert.ok(saturdayPlan.tasks[0].title.includes('3rd Dan'));
@@ -201,7 +231,7 @@ const nextWeekend = Array.from(api.findNextSuitableDates(saturday, 'weekend-comb
 assert.ok(nextWeekend.length >= 1);
 assert.ok(nextWeekend.every(key => api.getDayTypeForDate(key) === 'weekend-combined'));
 
-// Full task completion requires evidence and cannot prematurely complete the ARM Learn stage.
+// Full task completion requires evidence and advances to the next ordered Microsoft Learn module.
 api.setState(api.defaultState());
 api.getDailyRecord(friday);
 const formLike = values => {
@@ -210,21 +240,22 @@ const formLike = values => {
 };
 assert.throws(() => api.applyTaskCompletion(friday, formLike({ finished:'yes', evidence:'', confidence:'3', masteryStage:'learn' })), /Add evidence/);
 api.applyTaskCompletion(friday, formLike({
-  finished:'yes', summary:'Completed Unit 5', evidence:'Allowed deployment succeeded; invalid value failed; endpoint captured; resources removed.',
-  confidence:'3', masteryStage:'learn', notUnderstood:'', resourcesCreated:'yes', resourcesCleaned:'yes', scheduleReview:'yes', technicalMinutes:'90', portfolioMinutes:'0', germanMinutes:'30', labCompleted:'yes', assessmentCompleted:'no'
+  finished:'yes', summary:'Completed Understand Microsoft Entra ID', evidence:'Module completed; key Entra concepts explained in my own words.',
+  confidence:'3', masteryStage:'learn', notUnderstood:'', resourcesCreated:'no', resourcesCleaned:'not-applicable', scheduleReview:'yes', technicalMinutes:'90', portfolioMinutes:'0', germanMinutes:'30', labCompleted:'no', assessmentCompleted:'yes'
 }));
-let completedArm = api.currentAzureModule();
-assert.equal(completedArm.units.filter(unit => unit.complete).length, 5);
-assert.equal(completedArm.complete, false, 'units 6 and 7 must remain outstanding');
-assert.equal(completedArm.masteryStages.learn.complete, false, 'Learn cannot be complete until all module units are complete');
-assert.equal(completedArm.masteryStages.learn.partial, true);
-assert.equal(api.getState().daily[friday].status, 'completed', 'the Unit 5 daily task itself can be complete');
+const identitiesPath = api.getState().azPaths.find(path => path.id === 'az-identities');
+const completedEntra = identitiesPath.modules[0];
+assert.equal(completedEntra.complete, true);
+assert.equal(completedEntra.masteryStages.learn.complete, true);
+assert.equal(api.currentAzureModule().name, 'Create, configure, and manage identities');
+assert.equal(api.getState().daily[friday].status, 'completed');
 const intensiveWeek = api.getIntensiveWeek('2026-07-13');
 const intensity = api.getWeekIntensityMetrics('2026-07-13');
 assert.equal(intensiveWeek.sessions['session-1'].status, 'completed');
 assert.equal(intensity.technicalHours, 1.5);
 assert.equal(intensity.germanHours, 0.5);
-assert.equal(intensiveWeek.labsCompleted, 1);
+assert.equal(intensiveWeek.labsCompleted, 0);
+assert.equal(intensiveWeek.assessmentsCompleted, 1);
 assert.ok(Object.prototype.hasOwnProperty.call(intensiveWeek.sessions['session-1'], 'officialModule'));
 assert.ok(Object.prototype.hasOwnProperty.call(intensiveWeek.sessions['session-2'], 'possibleCost'));
 assert.ok(Object.prototype.hasOwnProperty.call(intensiveWeek.sessions['session-3'], 'independentResult'));
@@ -263,7 +294,7 @@ const migrated = api.mergeDefaults({
   daily: { '2026-07-01': { notes:'Existing daily note', evidence:'Existing evidence', checks:{'old::0':true} } },
   katas: [{ id:'jion', notes:'Existing Jion note', sequenceProgress:100, status:'sequence-known' }]
 });
-assert.equal(migrated.version, 7);
+assert.equal(migrated.version, 8);
 assert.equal(migrated.notes[0].id, 'kept-note');
 assert.equal(migrated.daily['2026-07-01'].notes, 'Existing daily note');
 assert.equal(migrated.daily['2026-07-01'].evidence, 'Existing evidence');
@@ -280,6 +311,40 @@ assert.equal(migrated.intensiveProgramme.skills.length, 10);
 assert.equal(migrated.intensiveProgramme.months[23].phaseId, 'terraform-004');
 assert.equal(migrated.intensiveProgramme.months[41].phaseId, 'consolidation');
 assert.ok(migrated.intensiveProgramme.months[0].plan.cleanupRequirements !== undefined);
+assert.equal(migrated.azureFocus.currentPathId, 'az-identities');
+assert.equal(migrated.azureFocus.currentModuleId, 'az-identities-entra-overview');
+assert.ok(migrated.azPaths.find(path => path.id === 'az-prerequisites').modules.every(module => module.complete));
+assert.deepEqual(Array.from(migrated.azPaths.find(path => path.id === 'az-monitor').modules, module => module.name), [
+  'Introduction to Azure Backup',
+  'Protect your virtual machines by using Azure Backup',
+  'Monitor your Azure virtual machines with Azure Monitor'
+]);
+assert.deepEqual(Array.from(migrated.azPaths, path => path.modules.length), [2,6,4,5,8,3]);
+assert.ok(!migrated.azPaths.flatMap(path => path.modules).some(module => module.name === 'Administrative units'));
+const migratedLegacyAzure = api.mergeDefaults({
+  version:7,
+  azureFocus:{currentPathId:'az-prerequisites',currentModuleId:'az-prerequisites-m4'},
+  azPaths:[
+    {id:'az-prerequisites',modules:[
+      {id:'az-prerequisites-m1',name:'Azure Cloud Shell',units:[{id:'az-prerequisites-m1-u1',number:1,name:'Old',complete:false}]},
+      {id:'az-prerequisites-m4',name:'Deploy Azure infrastructure by using JSON ARM templates',units:[
+        {id:'az-prerequisites-m4-u1',number:1,name:'Unit 1',complete:true},
+        {id:'az-prerequisites-m4-u2',number:2,name:'Unit 2',complete:true},
+        {id:'az-prerequisites-m4-u3',number:3,name:'Unit 3',complete:true},
+        {id:'az-prerequisites-m4-u4',number:4,name:'Unit 4',complete:true},
+        {id:'az-prerequisites-m4-u5',number:5,name:'Unit 5',complete:false},
+        {id:'az-prerequisites-m4-u6',number:6,name:'Unit 6',complete:false},
+        {id:'az-prerequisites-m4-u7',number:7,name:'Unit 7',complete:false}
+      ]}
+    ]},
+    {id:'az-identities',modules:[{id:'az-identities-m4',name:'Azure RBAC',units:[{id:'old',number:1,name:'Old',complete:false}]}]}
+  ],
+  azureLabs:[{id:'legacy-lab',pathId:'az-identities',moduleId:'az-identities-m4',moduleName:'Azure RBAC'}]
+});
+assert.ok(migratedLegacyAzure.azPaths.find(path => path.id === 'az-prerequisites').modules.every(module => module.complete));
+assert.equal(migratedLegacyAzure.azureFocus.currentModuleId, 'az-identities-entra-overview');
+assert.equal(migratedLegacyAzure.azureLabs[0].moduleId, 'az-identities-rbac');
+assert.equal(migratedLegacyAzure.azureLabs[0].moduleName, 'Secure your Azure resources with Azure role-based access control');
 
 // Schema 6 schedule migration preserves progressed records and regenerates only unstarted future plans.
 const migratedSchedule = api.mergeDefaults({
@@ -328,10 +393,10 @@ assert.equal(api.examReadiness(readyPhase).eligible, false);
 // Recall and kata retention logic still work.
 const fresh = api.defaultState();
 api.setState(fresh);
-const currentArm = api.currentAzureModule();
-assert.equal(api.recordAzureReview('az-prerequisites', currentArm.id, 'independent'), true);
-assert.equal(currentArm.lastRecallResult, 'independent');
-assert.ok(currentArm.nextReview > currentArm.lastReviewed);
+const currentEntra = api.currentAzureModule();
+assert.equal(api.recordAzureReview('az-identities', currentEntra.id, 'independent'), true);
+assert.equal(currentEntra.lastRecallResult, 'independent');
+assert.ok(currentEntra.nextReview > currentEntra.lastReviewed);
 const currentJion = api.currentKata();
 currentJion.sections.forEach(section => { section.level = 5; });
 api.updateKataProgressFromSections(currentJion);
@@ -366,7 +431,10 @@ api.renderAzure();
 const azureHtml = getElement('view-azure').innerHTML;
 assert.ok(azureHtml.includes('Content completion'));
 assert.ok(azureHtml.includes('Mastery'));
-assert.ok(azureHtml.includes('Exercise — Add parameters and outputs'));
+assert.ok(azureHtml.includes('Understand Microsoft Entra ID'));
+assert.ok(azureHtml.includes('Create, configure, and manage identities'));
+assert.ok(azureHtml.includes('Current AZ-104 roadmap position'));
+assert.ok(azureHtml.includes('Microsoft Learn module completed'));
 assert.ok(azureHtml.includes('Retain'));
 api.renderDan();
 assert.ok(getElement('view-dan').innerHTML.includes('Current grading section'));
@@ -417,7 +485,7 @@ const html = fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8');
 assert.ok(html.includes('id="task-completion-dialog"'));
 assert.ok(html.includes('id="task-completion-form"'));
 assert.ok(html.includes('id="reschedule-dialog"'));
-assert.ok(html.includes('app.js?v=1.9.3'));
+assert.ok(html.includes('app.js?v=1.9.4'));
 assert.ok(html.includes('id="view-programme"'));
 assert.ok(html.includes('data-view="programme"'));
 assert.ok(!/05:30|22:00|10:00\s*pm/i.test(code));

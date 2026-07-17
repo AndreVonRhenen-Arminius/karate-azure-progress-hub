@@ -1,0 +1,12 @@
+KARATE & AZURE PROGRESS HUB — UPDATE v1.9.4
+
+- Replaced broad AZ-104 placeholders with the supplied exact learning-path and module order.
+- Recorded Prerequisites for Azure administrators as content-completed.
+- Set Manage identities and governance as the current path.
+- Set Understand Microsoft Entra ID as the immediate next module.
+- Added a prominent module-content completion checkbox.
+- Added automatic next-module advancement in roadmap order.
+- Added a current roadmap-position summary.
+- Kept six-stage mastery separate from Microsoft Learn completion.
+- Added schema-8 migration and legacy Azure module/lab mapping.
+- Preserved cloud authentication, OneDrive, Supabase, karate and historical data.

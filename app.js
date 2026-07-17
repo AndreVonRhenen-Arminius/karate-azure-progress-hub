@@ -8,8 +8,8 @@ const MICROSOFT_GRAPH_BASE = 'https://graph.microsoft.com/v1.0';
 const MICROSOFT_GRAPH_SCOPES = ['Files.ReadWrite.AppFolder'];
 const ONEDRIVE_STATE_FILE = 'karate-azure-progress-state.json';
 
-const APP_VERSION = '1.9.3';
-const STATE_VERSION = 7;
+const APP_VERSION = '1.9.4';
+const STATE_VERSION = 8;
 const PROGRAMME_START_DATE = '2026-07-11';
 
 const STATUS_OPTIONS = [
@@ -161,40 +161,140 @@ const DEFAULT_AZ_PATHS = [
   {
     id: 'az-prerequisites',
     name: 'AZ-104: Prerequisites for Azure administrators',
-    targetWeeks: 'Weeks 1–2',
-    modules: ['Azure Cloud Shell', 'Azure PowerShell and CLI foundations', 'Azure Resource Manager foundations', 'Deploy Azure infrastructure by using JSON ARM templates']
+    targetWeeks: 'Completed',
+    modules: [
+      { id: 'az-prerequisites-m1', name: 'Introduction to Azure Cloud Shell' },
+      { id: 'az-prerequisites-m4', name: 'Deploy Azure infrastructure by using JSON ARM templates' }
+    ]
   },
   {
     id: 'az-identities',
     name: 'AZ-104: Manage identities and governance in Azure',
-    targetWeeks: 'Weeks 3–6',
-    modules: ['Microsoft Entra users and groups', 'Administrative units', 'Subscriptions and management groups', 'Azure RBAC', 'Azure Policy', 'Resource locks', 'Tags and cost management']
+    targetWeeks: 'Study next',
+    modules: [
+      { id: 'az-identities-entra-overview', name: 'Understand Microsoft Entra ID' },
+      { id: 'az-identities-manage-identities', name: 'Create, configure, and manage identities' },
+      { id: 'az-identities-core-architecture', name: 'Describe the core architectural components of Azure' },
+      { id: 'az-identities-policy-initiatives', name: 'Azure Policy initiatives' },
+      { id: 'az-identities-rbac', name: 'Secure your Azure resources with Azure role-based access control' },
+      { id: 'az-identities-sspr', name: 'Allow users to reset their password with Microsoft Entra self-service password reset' }
+    ]
   },
   {
     id: 'az-storage',
     name: 'AZ-104: Implement and manage storage in Azure',
-    targetWeeks: 'Weeks 7–9',
-    modules: ['Storage accounts', 'Storage security and access', 'Azure Blob Storage', 'Azure Files', 'Redundancy and replication', 'Lifecycle management']
+    targetWeeks: 'After identities and governance',
+    modules: [
+      { id: 'az-storage-accounts', name: 'Configure storage accounts' },
+      { id: 'az-storage-blob', name: 'Configure Azure Blob Storage' },
+      { id: 'az-storage-security', name: 'Configure Azure Storage security' },
+      { id: 'az-storage-files', name: 'Configure Azure Files' }
+    ]
   },
   {
     id: 'az-compute',
     name: 'AZ-104: Deploy and manage Azure compute resources',
-    targetWeeks: 'Weeks 10–14',
-    modules: ['ARM and Bicep deployment', 'Azure virtual machines', 'Availability options', 'VM extensions and disks', 'Azure Container Instances', 'Azure Container Apps', 'Azure App Service']
+    targetWeeks: 'After storage',
+    modules: [
+      { id: 'az-compute-vm-introduction', name: 'Introduction to Azure virtual machines' },
+      { id: 'az-compute-vm-availability', name: 'Configure virtual machine availability' },
+      { id: 'az-compute-app-service-plans', name: 'Configure Azure App Service plans' },
+      { id: 'az-compute-app-service', name: 'Configure Azure App Service' },
+      { id: 'az-compute-container-instances', name: 'Configure Azure Container Instances' }
+    ]
   },
   {
     id: 'az-networking',
-    name: 'AZ-104: Configure and manage virtual networks for Azure administrators',
-    targetWeeks: 'Weeks 15–18',
-    modules: ['VNets and subnets', 'VNet peering', 'Network security groups', 'Routing', 'Azure DNS', 'Load balancing', 'Network troubleshooting']
+    name: 'AZ-104: Configure and manage virtual networks',
+    targetWeeks: 'After compute',
+    modules: [
+      { id: 'az-networking-vnets', name: 'Configure virtual networks' },
+      { id: 'az-networking-nsgs', name: 'Configure network security groups' },
+      { id: 'az-networking-dns', name: 'Host your domain on Azure DNS' },
+      { id: 'az-networking-peering', name: 'Configure Azure Virtual Network peering' },
+      { id: 'az-networking-routes', name: 'Manage and control traffic flow with routes' },
+      { id: 'az-networking-load-balancer', name: 'Introduction to Azure Load Balancer' },
+      { id: 'az-networking-application-gateway', name: 'Introduction to Azure Application Gateway' },
+      { id: 'az-networking-network-watcher', name: 'Introduction to Azure Network Watcher' }
+    ]
   },
   {
     id: 'az-monitor',
     name: 'AZ-104: Monitor and back up Azure resources',
-    targetWeeks: 'Weeks 19–21',
-    modules: ['Azure Monitor', 'Metrics and logs', 'Alerts and action groups', 'Log Analytics', 'Network Watcher', 'Azure Backup', 'Azure Site Recovery']
+    targetWeeks: 'Final AZ-104 path',
+    modules: [
+      { id: 'az-monitor-backup-introduction', name: 'Introduction to Azure Backup' },
+      { id: 'az-monitor-protect-vms', name: 'Protect your virtual machines by using Azure Backup' },
+      { id: 'az-monitor-vm-monitoring', name: 'Monitor your Azure virtual machines with Azure Monitor' }
+    ]
   }
 ];
+
+const AZURE_MODULE_LEGACY_ALIASES = {
+  'az-prerequisites-m1': ['Azure Cloud Shell'],
+  'az-prerequisites-m4': ['Deploy Azure infrastructure by using JSON ARM templates'],
+  'az-identities-entra-overview': ['Microsoft Entra users and groups'],
+  'az-identities-manage-identities': ['Administrative units'],
+  'az-identities-core-architecture': ['Subscriptions and management groups'],
+  'az-identities-policy-initiatives': ['Azure Policy'],
+  'az-identities-rbac': ['Azure RBAC'],
+  'az-identities-sspr': ['Resource locks'],
+  'az-storage-accounts': ['Storage accounts', 'Redundancy and replication'],
+  'az-storage-blob': ['Azure Blob Storage', 'Lifecycle management'],
+  'az-storage-security': ['Storage security and access'],
+  'az-storage-files': ['Azure Files'],
+  'az-compute-vm-introduction': ['Azure virtual machines', 'VM extensions and disks'],
+  'az-compute-vm-availability': ['Availability options'],
+  'az-compute-app-service-plans': [],
+  'az-compute-app-service': ['Azure App Service'],
+  'az-compute-container-instances': ['Azure Container Instances', 'Azure Container Apps'],
+  'az-networking-vnets': ['VNets and subnets'],
+  'az-networking-nsgs': ['Network security groups'],
+  'az-networking-dns': ['Azure DNS'],
+  'az-networking-peering': ['VNet peering'],
+  'az-networking-routes': ['Routing'],
+  'az-networking-load-balancer': ['Load balancing'],
+  'az-networking-application-gateway': [],
+  'az-networking-network-watcher': ['Network troubleshooting'],
+  'az-monitor-backup-introduction': ['Azure Backup'],
+  'az-monitor-protect-vms': ['Azure Site Recovery'],
+  'az-monitor-vm-monitoring': ['Azure Monitor', 'Metrics and logs', 'Alerts and action groups', 'Log Analytics', 'Network Watcher']
+};
+
+const LEGACY_AZURE_LAB_MODULE_MAP = {
+  'az-identities-m1': 'az-identities-entra-overview',
+  'az-identities-m2': 'az-identities-manage-identities',
+  'az-identities-m3': 'az-identities-core-architecture',
+  'az-identities-m4': 'az-identities-rbac',
+  'az-identities-m5': 'az-identities-policy-initiatives',
+  'az-identities-m6': 'az-identities-sspr',
+  'az-storage-m1': 'az-storage-accounts',
+  'az-storage-m2': 'az-storage-security',
+  'az-storage-m3': 'az-storage-blob',
+  'az-storage-m4': 'az-storage-files',
+  'az-storage-m5': 'az-storage-accounts',
+  'az-storage-m6': 'az-storage-blob',
+  'az-compute-m2': 'az-compute-vm-introduction',
+  'az-compute-m3': 'az-compute-vm-availability',
+  'az-compute-m4': 'az-compute-vm-introduction',
+  'az-compute-m5': 'az-compute-container-instances',
+  'az-compute-m6': 'az-compute-container-instances',
+  'az-compute-m7': 'az-compute-app-service',
+  'az-networking-m1': 'az-networking-vnets',
+  'az-networking-m2': 'az-networking-peering',
+  'az-networking-m3': 'az-networking-nsgs',
+  'az-networking-m4': 'az-networking-routes',
+  'az-networking-m5': 'az-networking-dns',
+  'az-networking-m6': 'az-networking-load-balancer',
+  'az-networking-m7': 'az-networking-network-watcher',
+  'az-monitor-m1': 'az-monitor-vm-monitoring',
+  'az-monitor-m2': 'az-monitor-vm-monitoring',
+  'az-monitor-m3': 'az-monitor-vm-monitoring',
+  'az-monitor-m4': 'az-monitor-vm-monitoring',
+  'az-monitor-m5': 'az-monitor-vm-monitoring',
+  'az-monitor-m6': 'az-monitor-backup-introduction',
+  'az-monitor-m7': 'az-monitor-protect-vms'
+};
 
 const DEFAULT_SYLLABUS = [
   { id: 'kihon-1', group: 'Kihon', title: 'Kizami Zuki, Jodan Junzuki, Chudan Gyakuzuki', checkpoints: ['Free kamae', 'Correct target levels', 'Stable stepping', 'Hip rotation', 'Hikite and completion'] },
@@ -660,29 +760,37 @@ function defaultState() {
     },
     azureFocus: {
       certification: 'AZ-104: Microsoft Azure Administrator',
-      currentPathId: 'az-prerequisites',
-      currentModuleId: 'az-prerequisites-m4',
-      preferredTool: 'PowerShell',
-      weakArea: 'ARM template parameters, allowed values and outputs',
-      nextAction: 'Complete unit 5 using PowerShell and capture deployment, failure, output and cleanup evidence.'
+      currentPathId: 'az-identities',
+      currentModuleId: 'az-identities-entra-overview',
+      preferredTool: 'Microsoft Learn, Azure portal and PowerShell',
+      weakArea: 'Microsoft Entra ID fundamentals have not yet been verified.',
+      nextAction: 'Complete Understand Microsoft Entra ID before Create, configure, and manage identities.'
     },
     azPaths: DEFAULT_AZ_PATHS.map(path => ({
       ...path,
-      status: path.id === 'az-prerequisites' ? 'in-progress' : 'not-started',
-      confidence: 1,
+      status: path.id === 'az-prerequisites' ? 'complete' : path.id === 'az-identities' ? 'in-progress' : 'not-started',
+      confidence: path.id === 'az-prerequisites' ? 3 : 1,
       notes: '',
-      modules: path.modules.map((name, index) => {
-        const id = `${path.id}-m${index + 1}`;
-        const module = {
+      modules: path.modules.map(definition => {
+        const id = definition.id;
+        const name = definition.name;
+        const prerequisiteComplete = path.id === 'az-prerequisites';
+        const units = defaultAzureUnits(path.id, id, name).map(unit => ({ ...unit, complete: prerequisiteComplete }));
+        const stages = defaultMasteryStages();
+        stages.learn.complete = prerequisiteComplete;
+        stages.learn.partial = false;
+        stages.learn.notes = prerequisiteComplete ? 'Microsoft Learn module content completed. Practical mastery remains tracked separately.' : '';
+        stages.learn.confidence = prerequisiteComplete ? 3 : 1;
+        return {
           id,
           name,
-          complete: false,
-          masteryLevel: 0,
-          masteryStages: defaultMasteryStages(),
-          evidence: defaultEvidence(),
-          units: defaultAzureUnits(path.id, id, name),
-          currentUnit: 1,
-          preferredTool: '',
+          complete: prerequisiteComplete,
+          masteryLevel: prerequisiteComplete ? 1 : 0,
+          masteryStages: stages,
+          evidence: { ...defaultEvidence(), learned: prerequisiteComplete },
+          units,
+          currentUnit: prerequisiteComplete ? units.at(-1)?.number || 1 : 1,
+          preferredTool: id === 'az-prerequisites-m4' ? 'PowerShell' : '',
           assessmentScores: [],
           weakAreas: '',
           lastStudied: '',
@@ -693,20 +801,6 @@ function defaultState() {
           recallHistory: [],
           customQuestions: []
         };
-        if (id === 'az-prerequisites-m4') {
-          module.currentUnit = 5;
-          module.preferredTool = 'PowerShell';
-          module.weakAreas = 'Parameters, allowed values, outputs and validating expected failures.';
-          module.masteryStages.learn.partial = true;
-          module.masteryStages.learn.notes = 'Units 1–4 of 7 completed. Unit 5 has not yet been started.';
-          module.masteryStages.learn.confidence = 2;
-          module.masteryStages.perform.partial = true;
-          module.masteryStages.perform.notes = 'Initial ARM template deployment work completed; unit 5 evidence is still required.';
-          module.masteryStages.perform.confidence = 2;
-          module.evidence.practised = true;
-          module.masteryLevel = 1;
-        }
-        return module;
       })
     })),
     syllabus: DEFAULT_SYLLABUS.map(item => ({
@@ -780,6 +874,95 @@ function mergeMasteryStages(defaultStages, savedStages, legacyModule = {}) {
   return merged;
 }
 
+function normaliseAzureModuleName(value = '') {
+  return String(value).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+function findSavedAzureModule(defaultModule, savedModules = []) {
+  const modules = Array.isArray(savedModules) ? savedModules : [];
+  const byId = modules.find(module => module.id === defaultModule.id);
+  if (byId) return byId;
+  const expectedNames = [defaultModule.name, ...(AZURE_MODULE_LEGACY_ALIASES[defaultModule.id] || [])]
+    .map(normaliseAzureModuleName);
+  return modules.find(module => expectedNames.includes(normaliseAzureModuleName(module.name))) || {};
+}
+
+function mergeAzureModules(path, savedPath = {}) {
+  return path.modules.map(module => {
+    const savedModule = findSavedAzureModule(module, savedPath.modules || []);
+    const baseUnits = module.units || defaultAzureUnits(path.id, module.id, module.name);
+    const savedUnits = new Map((savedModule.units || []).map(unit => [unit.id, unit]));
+    const units = baseUnits.map(unit => ({ ...unit, ...(savedUnits.get(unit.id) || {}) }));
+    const complete = units.length ? units.every(unit => unit.complete) : Boolean(savedModule.complete ?? module.complete);
+    const stages = mergeMasteryStages(module.masteryStages, savedModule.masteryStages, savedModule);
+    const completedStages = Object.values(stages).filter(stage => stage.complete).length;
+    return {
+      ...module,
+      ...savedModule,
+      id: module.id,
+      name: module.name,
+      units,
+      complete,
+      masteryStages: stages,
+      masteryLevel: Math.max(Number(savedModule.masteryLevel || 0), Math.min(5, completedStages)),
+      evidence: { ...defaultEvidence(), ...(module.evidence || {}), ...(savedModule.evidence || {}) },
+      assessmentScores: Array.isArray(savedModule.assessmentScores) ? savedModule.assessmentScores : [],
+      recallHistory: Array.isArray(savedModule.recallHistory) ? savedModule.recallHistory : [],
+      customQuestions: Array.isArray(savedModule.customQuestions) ? savedModule.customQuestions : []
+    };
+  });
+}
+
+function updateAzurePathStatus(path) {
+  const completed = path.modules.filter(module => module.complete).length;
+  if (completed === path.modules.length && path.modules.length) path.status = 'complete';
+  else if (completed > 0 || path.status === 'in-progress') path.status = 'in-progress';
+  else path.status = 'not-started';
+}
+
+function setAzureFocusToNextIncomplete() {
+  for (const path of state.azPaths) {
+    const module = path.modules.find(item => !item.complete);
+    if (!module) continue;
+    state.azureFocus.currentPathId = path.id;
+    state.azureFocus.currentModuleId = module.id;
+    state.azureFocus.weakArea = module.weakAreas || `${module.name} has not yet been completed.`;
+    state.azureFocus.nextAction = `Complete ${module.name}, then record mastery evidence.`;
+    return module;
+  }
+  const lastPath = state.azPaths.at(-1);
+  const lastModule = lastPath?.modules.at(-1);
+  if (lastPath && lastModule) {
+    state.azureFocus.currentPathId = lastPath.id;
+    state.azureFocus.currentModuleId = lastModule.id;
+    state.azureFocus.nextAction = 'Complete the remaining mastery and retention evidence.';
+  }
+  return lastModule || null;
+}
+
+function setAzureModuleContentComplete(pathId, moduleId, complete) {
+  const path = findAZ(pathId);
+  const module = findAZModule(pathId, moduleId);
+  if (!path || !module) return false;
+  const checked = Boolean(complete);
+  module.units.forEach(unit => { unit.complete = checked; });
+  module.complete = checked;
+  module.currentUnit = checked ? (module.units.at(-1)?.number || 1) : (module.units.find(unit => !unit.complete)?.number || 1);
+  module.masteryStages.learn.complete = checked;
+  module.masteryStages.learn.partial = false;
+  module.masteryStages.learn.date = checked ? (module.masteryStages.learn.date || getNZDateKey()) : '';
+  module.evidence.learned = checked;
+  module.masteryLevel = Math.max(checked ? 1 : 0, Math.min(5, AZURE_STAGE_DEFS.filter(([id]) => module.masteryStages[id]?.complete).length));
+  updateAzurePathStatus(path);
+  if (checked) setAzureFocusToNextIncomplete();
+  else {
+    state.azureFocus.currentPathId = path.id;
+    state.azureFocus.currentModuleId = module.id;
+    state.azureFocus.nextAction = `Complete ${module.name}, then record mastery evidence.`;
+  }
+  return true;
+}
+
 function mergeRoadmap(baseRoadmap, savedRoadmap) {
   if (!savedRoadmap?.months) return baseRoadmap;
   const savedMonths = new Map(savedRoadmap.months.map(month => [month.id, month]));
@@ -823,32 +1006,15 @@ function mergeDefaults(saved) {
     azureFocus: { ...base.azureFocus, ...(saved.azureFocus || {}) }
   };
 
-  merged.azPaths = mergeCollection(base.azPaths, saved.azPaths, path => {
+  merged.azPaths = base.azPaths.map(path => {
     const savedPath = (saved.azPaths || []).find(entry => entry.id === path.id) || {};
     return {
       ...path,
       ...savedPath,
-      modules: mergeCollection(path.modules, savedPath.modules || [], module => {
-        const savedModule = (savedPath.modules || []).find(entry => entry.id === module.id) || {};
-        const baseUnits = module.units || defaultAzureUnits(path.id, module.id, module.name);
-        const savedUnits = new Map((savedModule.units || []).map(unit => [unit.id, unit]));
-        const units = baseUnits.map(unit => ({ ...unit, ...(savedUnits.get(unit.id) || {}) }));
-        const complete = units.length ? units.every(unit => unit.complete) : Boolean(savedModule.complete ?? module.complete);
-        const stages = mergeMasteryStages(module.masteryStages, savedModule.masteryStages, savedModule);
-        const completedStages = Object.values(stages).filter(stage => stage.complete).length;
-        return {
-          ...module,
-          ...savedModule,
-          units,
-          complete,
-          masteryStages: stages,
-          masteryLevel: Math.max(Number(savedModule.masteryLevel || 0), Math.min(5, completedStages)),
-          evidence: { ...defaultEvidence(), ...(module.evidence || {}), ...(savedModule.evidence || {}) },
-          assessmentScores: Array.isArray(savedModule.assessmentScores) ? savedModule.assessmentScores : [],
-          recallHistory: Array.isArray(savedModule.recallHistory) ? savedModule.recallHistory : [],
-          customQuestions: Array.isArray(savedModule.customQuestions) ? savedModule.customQuestions : []
-        };
-      })
+      id: path.id,
+      name: path.name,
+      targetWeeks: path.targetWeeks,
+      modules: mergeAzureModules(path, savedPath)
     };
   });
 
@@ -931,6 +1097,46 @@ function mergeDefaults(saved) {
   merged.notes = Array.isArray(saved.notes) ? saved.notes : [];
   merged.weeklyReviews = Array.isArray(saved.weeklyReviews) ? saved.weeklyReviews : [];
   if (!['normal', 'minimum'].includes(merged.settings.programmeMode)) merged.settings.programmeMode = 'normal';
+
+  if (Number(saved.version || 1) < 8) {
+    const prerequisites = merged.azPaths.find(path => path.id === 'az-prerequisites');
+    if (prerequisites) {
+      prerequisites.status = 'complete';
+      prerequisites.confidence = Math.max(3, Number(prerequisites.confidence || 1));
+      for (const module of prerequisites.modules) {
+        module.units.forEach(unit => { unit.complete = true; });
+        module.complete = true;
+        module.currentUnit = module.units.at(-1)?.number || 1;
+        module.masteryStages.learn.complete = true;
+        module.masteryStages.learn.partial = false;
+        module.masteryStages.learn.notes ||= 'Microsoft Learn module content completed. Practical mastery remains tracked separately.';
+        module.masteryStages.learn.confidence = Math.max(3, Number(module.masteryStages.learn.confidence || 1));
+        module.evidence.learned = true;
+        module.masteryLevel = Math.max(1, Number(module.masteryLevel || 0));
+      }
+    }
+    merged.azPaths.forEach(path => {
+      if (path.id === 'az-prerequisites') return;
+      updateAzurePathStatus(path);
+    });
+    const identities = merged.azPaths.find(path => path.id === 'az-identities');
+    if (identities && identities.status === 'not-started') identities.status = 'in-progress';
+    merged.azureFocus = {
+      ...merged.azureFocus,
+      certification: 'AZ-104: Microsoft Azure Administrator',
+      currentPathId: 'az-identities',
+      currentModuleId: 'az-identities-entra-overview',
+      preferredTool: 'Microsoft Learn, Azure portal and PowerShell',
+      weakArea: 'Microsoft Entra ID fundamentals have not yet been verified.',
+      nextAction: 'Complete Understand Microsoft Entra ID before Create, configure, and manage identities.'
+    };
+    merged.azureLabs = merged.azureLabs.map(lab => {
+      const moduleId = LEGACY_AZURE_LAB_MODULE_MAP[lab.moduleId] || lab.moduleId;
+      const path = merged.azPaths.find(item => item.id === lab.pathId);
+      const module = path?.modules.find(item => item.id === moduleId);
+      return { ...lab, moduleId, moduleName: module?.name || lab.moduleName };
+    });
+  }
 
   if (Number(saved.version || 1) < 7) {
     merged.settings.scheduleTemplateVersion = 2;
@@ -2206,7 +2412,16 @@ function renderAzure() {
         <div><span>Preferred tool</span><strong>${escapeHTML(state.azureFocus?.preferredTool || 'PowerShell')}</strong></div>
         <div><span>Next required action</span><strong>${escapeHTML(focus.nextAction)}</strong></div>
       </div>
-      <div class="inline-note warning">The ARM-template module remains incomplete until units 5, 6 and 7 are completed. Topic mastery remains separate from module content completion.</div>
+      <div class="inline-note warning">Prerequisites content is recorded as completed. Continue with <strong>Understand Microsoft Entra ID</strong> before <strong>Create, configure, and manage identities</strong>. Content completion remains separate from mastery.</div>
+    </article>
+
+    <div class="section-heading"><div><h2>Current AZ-104 roadmap position</h2><p>Follow the learning paths and modules in the displayed order.</p></div></div>
+    <article class="card roadmap-position-card">
+      <div class="roadmap-position-list">${state.azPaths.map((path,index) => {
+        const content = pathContentPercent(path);
+        const status = path.id === state.azureFocus?.currentPathId ? 'Next' : path.modules.every(module => module.complete) ? 'Completed' : 'Not started';
+        return `<div class="roadmap-position-row ${status === 'Next' ? 'current' : status === 'Completed' ? 'complete' : ''}"><span class="roadmap-order">${index + 1}</span><div><strong>${escapeHTML(path.name.replace('AZ-104: ', ''))}</strong><small>${path.modules.filter(module => module.complete).length}/${path.modules.length} modules · ${content}% content</small></div><span class="badge ${status === 'Completed' ? 'green' : status === 'Next' ? 'amber' : 'blue'}">${status}</span></div>`;
+      }).join('')}</div>
     </article>
 
     <div class="section-heading"><div><h2>Azure lab journal</h2><p>Record the configuration, validation, failure, diagnosis and cleanup.</p></div></div>
@@ -2248,9 +2463,11 @@ function renderAzureModule(path, module) {
   const currentUnit = currentAzureUnit(module);
   const current = module.id === state.azureFocus?.currentModuleId;
   const questions = getModuleRecallQuestions(module);
+  const moduleOrder = path.modules.findIndex(item => item.id === module.id) + 1;
   return `<article class="module-mastery-card ${current ? 'current-module' : ''}">
     <div class="module-master-head">
-      <div><strong>${escapeHTML(module.name)}</strong><div class="module-badges">${current ? '<span class="badge green">Current module</span>' : ''}<span class="badge blue">${completedUnits}/${module.units.length} units</span><span class="badge green">${mastery}% mastery</span><span class="badge ${module.nextReview && module.nextReview <= getNZDateKey() ? 'amber' : 'blue'}">${escapeHTML(reviewDueText(module.nextReview))}</span><span class="badge">${labCount} labs</span></div></div>
+      <div><strong>${escapeHTML(module.name)}</strong><div class="module-badges"><span class="badge blue">Module ${moduleOrder}</span>${current ? '<span class="badge green">Current module</span>' : ''}<span class="badge blue">${completedUnits}/${module.units.length} units</span><span class="badge green">${mastery}% mastery</span><span class="badge ${module.nextReview && module.nextReview <= getNZDateKey() ? 'amber' : 'blue'}">${escapeHTML(reviewDueText(module.nextReview))}</span><span class="badge">${labCount} labs</span></div></div>
+      <label class="module-complete-check"><input type="checkbox" data-az-module-complete="${path.id}" data-module-id="${module.id}" ${module.complete ? 'checked' : ''}><span>Microsoft Learn module completed</span></label>
     </div>
     <div class="dual-progress"><div><span>Content completion</span><div class="progress-line"><span style="width:${content}%"></span></div><strong>${content}%</strong></div><div><span>Mastery</span><div class="progress-line mastery-bar"><span style="width:${mastery}%"></span></div><strong>${mastery}%</strong></div></div>
     <details class="module-review" ${current ? 'open' : ''}><summary class="details-toggle">Open module details</summary>
@@ -3343,6 +3560,9 @@ function applyTaskCompletion(dateKey, data) {
       module.evidence.practised = module.evidence.practised || stageId === 'perform';
       module.evidence.verified = module.evidence.verified || stageId === 'test';
       module.masteryLevel = Math.min(5, AZURE_STAGE_DEFS.filter(([id]) => module.masteryStages[id]?.complete).length);
+      const path = findAZ(task.refs?.pathId);
+      if (path) updateAzurePathStatus(path);
+      if (module.complete) setAzureFocusToNextIncomplete();
       const scheduleAzureReview = String(data.get(task.category === 'combined' ? 'scheduleAzureReview' : 'scheduleReview')) === 'yes';
       if (scheduleAzureReview) {
         module.reviewIntervalDays = Math.max(3, Number(module.reviewIntervalDays || 0));
@@ -3446,7 +3666,8 @@ document.addEventListener('change', async event => {
   if (el.matches('[data-daily-check]')) { const record=getDailyRecord(el.dataset.date);record.checks[el.dataset.dailyCheck]=el.checked;if(el.checked&&record.status==='not-started')record.status='in-progress';saveState({render:true});return; }
   if (el.matches('[data-daily-field]')) { const record=getDailyRecord(el.dataset.date);record[el.dataset.dailyField]=['confidence','energy'].includes(el.dataset.dailyField)?Number(el.value):el.value;saveState();return; }
   if (el.matches('[data-az-status]')) { findAZ(el.dataset.azStatus).status=el.value;saveState();return; }
-  if (el.matches('[data-az-unit]')) { const module=findAZModule(el.dataset.azUnit,el.dataset.moduleId);const unit=module?.units.find(entry=>entry.id===el.dataset.unitId);if(!unit)return;unit.complete=el.checked;module.complete=module.units.every(entry=>entry.complete);const next=module.units.find(entry=>!entry.complete);module.currentUnit=next?.number||module.units.at(-1)?.number||1;if(module.complete){module.masteryStages.learn.complete=true;module.masteryStages.learn.partial=false;module.masteryStages.learn.date=getNZDateKey();module.evidence.learned=true;}else{module.masteryStages.learn.partial=module.units.some(entry=>entry.complete);}saveState({render:true});return; }
+  if (el.matches('[data-az-module-complete]')) { if(setAzureModuleContentComplete(el.dataset.azModuleComplete,el.dataset.moduleId,el.checked))saveState({render:true});return; }
+  if (el.matches('[data-az-unit]')) { const path=findAZ(el.dataset.azUnit);const module=findAZModule(el.dataset.azUnit,el.dataset.moduleId);const unit=module?.units.find(entry=>entry.id===el.dataset.unitId);if(!path||!module||!unit)return;unit.complete=el.checked;module.complete=module.units.every(entry=>entry.complete);const next=module.units.find(entry=>!entry.complete);module.currentUnit=next?.number||module.units.at(-1)?.number||1;if(module.complete){module.masteryStages.learn.complete=true;module.masteryStages.learn.partial=false;module.masteryStages.learn.date=module.masteryStages.learn.date||getNZDateKey();module.evidence.learned=true;setAzureFocusToNextIncomplete();}else{module.masteryStages.learn.complete=false;module.masteryStages.learn.partial=module.units.some(entry=>entry.complete);state.azureFocus.currentPathId=path.id;state.azureFocus.currentModuleId=module.id;state.azureFocus.nextAction=`Complete ${module.name}, then record mastery evidence.`;}updateAzurePathStatus(path);saveState({render:true});return; }
   if (el.matches('[data-az-stage]')) { const module=findAZModule(el.dataset.azStage,el.dataset.moduleId);const stage=module?.masteryStages?.[el.dataset.stageId];if(!stage)return;if(el.dataset.stageId==='learn'&&el.checked&&!module.units.every(unit=>unit.complete)){stage.complete=false;stage.partial=true;toast('Complete every module unit before marking Learn complete.');saveState({render:true});return;}stage.complete=el.checked;stage.partial=false;stage.date=el.checked?(stage.date||getNZDateKey()):'';module.masteryLevel=Math.min(5,AZURE_STAGE_DEFS.filter(([id])=>module.masteryStages[id]?.complete).length);saveState({render:true});return; }
   if (el.matches('[data-az-stage-field]')) { const module=findAZModule(el.dataset.pathId,el.dataset.moduleId);const stage=module?.masteryStages?.[el.dataset.stageId];if(!stage)return;stage[el.dataset.azStageField]=el.dataset.azStageField==='confidence'?Number(el.value):el.value;saveState();return; }
   if (el.matches('[data-dan-status]')) { findDan(el.dataset.danStatus).status=el.value;saveState();return; }

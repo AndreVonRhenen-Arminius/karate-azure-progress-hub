@@ -1,8 +1,11 @@
-KARATE & AZURE PROGRESS HUB v1.9.3
+KARATE & AZURE PROGRESS HUB v1.9.4
+STATE SCHEMA 8
 
-1. Read INSTALLATION.md.
-2. Export a JSON backup from the existing app.
-3. Preserve configured js/microsoft-config.js and any deployed js/config.js.
-4. Upload the extracted files to the GitHub Pages repository root.
-5. Refresh the PWA and confirm App version 1.9.1 / State schema 6.
-6. Confirm OneDrive or Supabase sync before continuing normal use.
+1. Export a JSON backup from the current app.
+2. Complete OneDrive or Supabase sync.
+3. Preserve js/microsoft-config.js and any deployed js/config.js.
+4. Upload all v1.9.4 files to the GitHub repository root.
+5. Wait for GitHub Pages deployment.
+6. Refresh with Ctrl+F5 or open repair.html if an old cache remains.
+7. Confirm Settings shows App version 1.9.4 and State schema 8.
+8. Confirm AZ-104 now starts with completed prerequisites and Understand Microsoft Entra ID as the next module.

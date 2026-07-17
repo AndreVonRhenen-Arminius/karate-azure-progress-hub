@@ -1,127 +1,100 @@
-# Karate & Azure Progress Hub — v1.9.3
+# Karate & Azure Progress Hub — v1.9.4
 
-An offline-first Progressive Web App for two coordinated goals:
+An offline-first Progressive Web App for:
 
-1. Azure study on Friday night.
-2. Flexible Azure, Jion kata, and 3rd Dan training on Saturday and Sunday.
+- Azure and Microsoft cloud study on Friday, Saturday and Sunday;
+- Jion kata and JKA 3rd Dan preparation on Saturday and Sunday;
+- evidence-based certification mastery, labs, reviews, retention and long-term career planning.
 
-Monday to Thursday remain unscheduled. Friday has one Azure task. Each weekend day has one flexible day plan containing three required focus blocks: Azure, Jion kata, and 3rd Dan training. The app retains local-first data storage, Microsoft login and OneDrive backup, Supabase synchronisation, AZ-104 mastery records, Jion and grading records, evidence, history, and monthly/weekly progress reporting.
+Monday to Thursday remain unscheduled. Friday contains Azure only. Saturday and Sunday each contain flexible Azure, Jion and 3rd Dan blocks with no fixed time.
 
-## Corruption repair in v1.9.3
+## AZ-104 ordered learning-path checklist
 
-Version 1.9.3 repairs a deployment package in which several filenames contained unrelated file contents. In the affected package, `index.html` contained the MSAL Browser bundle, causing the browser to display minified JavaScript instead of the app. The release restores the correct application files and adds `repair.html`, which removes only old Progress Hub service-worker registrations and caches while preserving localStorage and cloud data.
+Version 1.9.4 replaces the previous broad AZ-104 placeholders with André’s exact Microsoft Learn order.
 
-## Rolling seven-day plan
+### 1. Prerequisites for Azure administrators — content completed
 
-The Weekly Plan opens on the current New Zealand date and shows that date plus the next six days. The displayed dates roll forward automatically when the `Pacific/Auckland` date changes, including when the app remains open across midnight. Previous and future seven-day ranges can still be reviewed manually, and **Start today** returns the planner to the live rolling range. Progress remains stored against the actual calendar date.
+- Introduction to Azure Cloud Shell
+- Deploy Azure infrastructure by using JSON ARM templates
 
-## Fixed weekly programme
+### 2. Manage identities and governance in Azure — current path
+
+1. Understand Microsoft Entra ID — immediate next module
+2. Create, configure, and manage identities
+3. Describe the core architectural components of Azure
+4. Azure Policy initiatives
+5. Secure your Azure resources with Azure role-based access control
+6. Allow users to reset their password with Microsoft Entra self-service password reset
+
+### 3. Implement and manage storage in Azure
+
+1. Configure storage accounts
+2. Configure Azure Blob Storage
+3. Configure Azure Storage security
+4. Configure Azure Files
+
+### 4. Deploy and manage Azure compute resources
+
+1. Introduction to Azure virtual machines
+2. Configure virtual machine availability
+3. Configure Azure App Service plans
+4. Configure Azure App Service
+5. Configure Azure Container Instances
+
+### 5. Configure and manage virtual networks
+
+1. Configure virtual networks
+2. Configure network security groups
+3. Host your domain on Azure DNS
+4. Configure Azure Virtual Network peering
+5. Manage and control traffic flow with routes
+6. Introduction to Azure Load Balancer
+7. Introduction to Azure Application Gateway
+8. Introduction to Azure Network Watcher
+
+### 6. Monitor and back up Azure resources
+
+1. Introduction to Azure Backup
+2. Protect your virtual machines by using Azure Backup
+3. Monitor your Azure virtual machines with Azure Monitor
+
+Each module has a prominent **Microsoft Learn module completed** checkbox. Checking it records content completion only. Full mastery still requires:
+
+`Learn → Understand → Perform → Test → Review → Retain`
+
+The app automatically advances the current module in the defined order after module content is checked off.
+
+## Roadmap status
+
+- Prerequisites: completed
+- Manage identities and governance: next/current
+- Storage: not started
+- Compute: not started
+- Networking: not started
+- Monitor and backup: not started
+
+The AZ-104 page includes a roadmap-position summary showing path order, completed modules and the current path.
+
+## Weekly schedule
 
 | Day | Main focus |
 |---|---|
-| Monday | Unscheduled / recovery |
-| Tuesday | Unscheduled / recovery |
-| Wednesday | Unscheduled / recovery |
-| Thursday | Unscheduled / recovery |
-| Friday | Friday-night Azure study |
-| Saturday | Flexible Azure + Jion kata + 3rd Dan training |
-| Sunday | Flexible Azure + Jion kata + 3rd Dan training |
+| Monday–Thursday | Unscheduled / recovery |
+| Friday | Azure study only |
+| Saturday | Flexible Azure + Jion kata + 3rd Dan |
+| Sunday | Flexible Azure + Jion kata + 3rd Dan |
 
-No clock time is assigned to Saturday or Sunday. The three weekend blocks may be completed in any order when the day allows, but all three remain visible and separately evidenced in the completion form.
+The Weekly Plan starts on the current `Pacific/Auckland` date and displays the next seven days.
 
-## Intensive Microsoft cloud programme
+## Intensive cloud programme
 
-### Target
+The existing 30–42 month programme remains available, including:
 
-- Completion range: 30–42 months.
-- Normal target: 10–14 total hours per week.
-- Technical target: 8–11 hours per week.
-- German target: 2–3 hours per week.
-- Maximum normal workload: 16 total hours per week.
-- Maximum uninterrupted technical session: 3 hours.
-- Recovery week: after 6–8 intensive weeks.
-
-### Certification sequence
-
-`AZ-104 → SC-300 → MD-102 → MS-102 → AZ-700 → Bicep and Terraform → Terraform Associate 004 → AZ-305 → SC-500`
-
-### Continuous skills
-
-PowerShell, Microsoft Graph, Azure CLI, Git, CI/CD, Exchange Online, SharePoint Online, Microsoft Teams, Linux fundamentals, and German to B2.
-
-### Five-stage phase model
-
-1. Foundation
-2. Learn and Understand
-3. Perform and Build
-4. Test and Diagnose
-5. Exam and Retention
-
-Each phase records progress, objectives, exam date, required labs, independent performance, weak areas, practice scores, portfolio completion, retention, and exam result.
-
-### Weekly records
-
-The Cloud Programme view includes five connected sessions across three available study days:
-
-- Friday: Learn and Understand
-- Saturday: Guided Lab and Independent Lab
-- Sunday: Test and Review, then Portfolio and Automation
-
-Each session stores its relevant modules, documentation, terminology, lab resources, possible cost, commands, errors, troubleshooting, validation, cleanup, scores, evidence, confidence, and duration.
-
-German is tracked separately by level, days studied, vocabulary, grammar, listening, speaking, reading, writing, technical topic, and total time.
-
-### Monthly and 42-month roadmap
-
-Every month contains:
-
-- knowledge goals;
-- 4–8 lab target;
-- at least two independent repetitions;
-- at least two assessed sessions;
-- top-three weak-area improvement;
-- one portfolio milestone;
-- one relevant automation/deployment improvement;
-- 8–12 German hours;
-- five expandable weekly plans;
-- a monthly review.
-
-The completion forecast recalculates from weighted phase progress and recorded weekly history.
-
-### Quality controls
-
-The app monitors:
-
-- two low-technical-hour weeks;
-- two weeks without a lab;
-- three weeks without an assessment;
-- three weeks of increasing weak areas;
-- two weeks below 90 German minutes;
-- two low-energy weeks;
-- weeks over 16 hours;
-- sessions over three hours.
-
-Energy, concentration, enjoyment, sleep impact, family impact, confidence, stress, and rushed-lab behaviour are rated from 1–5. A 25% reduced next week can be created when capacity is low.
-
-### Exam booking gate
-
-A phase is not ready to book based only on its target date. The gate requires:
-
-- all major objectives studied;
-- at least 80% of required labs complete;
-- important tasks performed independently;
-- no critical weak areas;
-- three recent scores of at least 80%;
-- portfolio substantially complete;
-- delayed retention check passed.
-
-## Existing progress retained
-
-- AZ-104 ARM-template module remains at Unit 5 of 7.
-- Azure content completion and six-stage mastery remain separate.
-- Jion sequence remains known but not automatically grading-ready.
-- Kihon, Kata, and Kumite evidence and right/left ratings remain available.
-- Existing daily history, notes, labs, reviews, cloud data, and settings are retained through an additive migration.
+- AZ-104 → SC-300 → MD-102 → MS-102 → AZ-700 → Bicep/Terraform → Terraform Associate 004 → AZ-305 → SC-500;
+- PowerShell, Graph, Azure CLI, Git, CI/CD, Microsoft 365, Linux and German skills;
+- weekly technical/German targets;
+- labs, assessments, independent performance, portfolio and automation records;
+- recovery weeks, fatigue controls, forecasts and exam-readiness gates.
 
 ## Cloud storage
 
@@ -131,32 +104,27 @@ Available providers remain:
 - Microsoft OneDrive app folder
 - Supabase
 
-OneDrive permission remains `Files.ReadWrite.AppFolder` and the state file remains `karate-azure-progress-state.json`.
+OneDrive continues to use `Files.ReadWrite.AppFolder` and `karate-azure-progress-state.json`.
 
 ## Data compatibility
 
+- App version: `1.9.4`
+- State schema: `8`
 - Local state key: `ka_progress_hub_state_v1`
-- State schema: version 7
-- Microsoft configuration key: `ka_progress_hub_microsoft_config_v1`
-- Active provider key: `ka_progress_hub_cloud_provider_v1`
-- Supabase configuration key: `ka_progress_hub_cloud_config_v1`
 - Supabase table: `user_app_state`
 
-Schema 7 is additive. It preserves all schema-6 progress and cloud data, changes the default future schedule, and regenerates only unstarted future day plans. Past and already-started records remain unchanged.
+Schema 8 is additive. It replaces the AZ-104 module catalogue with the ordered roadmap, records prerequisite content as completed, sets **Understand Microsoft Entra ID** as the next module, maps compatible legacy module/lab references and preserves daily history, karate records, cloud data and configuration.
 
 ## Installation
 
-Read `INSTALLATION.md` before replacing the deployed files. Export a JSON backup and preserve any production `js/config.js` and configured `js/microsoft-config.js` first.
+Read `INSTALLATION.md`. Export a JSON backup before deploying, and preserve production values in `js/microsoft-config.js` and any existing `js/config.js`.
 
-## Local test
-
-Run `run-local.bat`, then open `http://localhost:8080/`.
-
-Validation commands:
+## Validation
 
 ```text
 node --check app.js
 node --check service-worker.js
 node tests/smoke-test.cjs
+node tests/file-integrity-test.cjs
 node tests/onedrive-sync-test.cjs
 ```

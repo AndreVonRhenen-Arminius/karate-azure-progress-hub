@@ -798,3 +798,41 @@ code { color:#b9d8ff; background:rgba(93,168,255,.09); border:1px solid rgba(93,
 @media (max-width: 760px) {
   .weekend-focus-grid { grid-template-columns: 1fr; }
 }
+
+/* v1.9.4 ordered AZ-104 learning-path checklist */
+.module-complete-check {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  max-width:245px;
+  padding:9px 10px;
+  border:1px solid rgba(93,168,255,.28);
+  border-radius:10px;
+  background:rgba(93,168,255,.055);
+  font-size:.76rem;
+  line-height:1.3;
+  cursor:pointer;
+}
+.module-complete-check input { width:18px; height:18px; flex:0 0 auto; accent-color:var(--green); }
+.roadmap-position-card { padding:12px; }
+.roadmap-position-list { display:grid; gap:8px; }
+.roadmap-position-row {
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr) auto;
+  align-items:center;
+  gap:11px;
+  padding:11px 12px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  background:rgba(255,255,255,.018);
+}
+.roadmap-position-row.current { border-color:rgba(242,184,75,.42); background:rgba(242,184,75,.055); }
+.roadmap-position-row.complete { border-color:rgba(66,201,138,.32); }
+.roadmap-order { display:grid; place-items:center; width:30px; height:30px; border-radius:50%; background:rgba(93,168,255,.12); font-weight:800; }
+.roadmap-position-row small { display:block; color:var(--muted); margin-top:3px; }
+@media (max-width:720px) {
+  .module-master-head { grid-template-columns:1fr; }
+  .module-complete-check { max-width:none; }
+  .roadmap-position-row { grid-template-columns:30px minmax(0,1fr); }
+  .roadmap-position-row > .badge { grid-column:2; justify-self:start; }
+}

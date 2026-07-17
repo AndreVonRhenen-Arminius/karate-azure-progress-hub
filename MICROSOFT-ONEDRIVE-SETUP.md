@@ -1,6 +1,6 @@
 # Microsoft sign-in and OneDrive setup
 
-Version 1.9.3 requires a Microsoft Entra single-page application registration before Microsoft sign-in can work.
+Version 1.9.4 requires a Microsoft Entra single-page application registration before Microsoft sign-in can work.
 
 ## 1. Register the application
 

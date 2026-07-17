@@ -106,19 +106,6 @@
     return iconSvg('template');
   }
 
-
-  function navToneClass(title){
-    const t = String(title || '').toLowerCase();
-    if (t.includes('case desk')) return 'nav-group-case';
-    if (t.includes('troubleshoot')) return 'nav-group-troubleshoot';
-    if (t.includes('technical')) return 'nav-group-technical';
-    if (t.includes('template')) return 'nav-group-template';
-    if (t.includes('knowledge')) return 'nav-group-knowledge';
-    if (t.includes('tool')) return 'nav-group-tools';
-    if (t.includes('archive')) return 'nav-group-archive';
-    return 'nav-group-default';
-  }
-
   function renderNavItem(item, depth){
     if (!item) return '';
     if (item.id) {
@@ -173,7 +160,7 @@
       const items = (group.items || []).filter(itemMatches);
       const inner = items.map(item => renderNavItem(item, 1)).join('');
       if (!inner.trim()) return '';
-      return `<div class="group ${navToneClass(group.title)}"><details><summary><span class="group-icon">${iconForGroup(group.title)}</span><span class="group-title">${esc(group.title || 'Group')}</span></summary><div class="navlist">${inner}</div></details></div>`;
+      return `<div class="group"><details><summary><span class="group-icon">${iconForGroup(group.title)}</span><span class="group-title">${esc(group.title || 'Group')}</span></summary><div class="navlist">${inner}</div></details></div>`;
     }).join('');
     restoreNavUiState();
     highlightActive();
@@ -1739,24 +1726,9 @@ function buildOutput(type, values, extra={}){
     return Math.abs(h).toString(36);
   }
 
-
-  function commandSafetyMeta(pageId, block){
-    const raw = String(block?.code || '');
-    const code = raw.split(/\n/).map(line => line.replace(/^\s*(?:#|\/\/).*$/, '').trim()).filter(Boolean).join('\n').toLowerCase();
-    const page = String(pageId || '').toLowerCase();
-    const disruptive = /(^|\n)\s*(?:reboot|reload|set factory(?:\s+reboot)?|request restart system|debug software restart|erase|format)(?:\s|$)|\bclear\s+(?:session|vpn|arp|mac|counter|counters)\b/.test(code);
-    const approval = /\b(?:write memory|manager connect|manager disconnect|configure terminal|conf t|commit(?: force)?|copy\s+\S+\s+flash|boot system|delete\s+\S+|set director|set scg|set ipaddr|set vlan)\b/.test(code) || /firmware|reset|backup-controller|commit-jobs/.test(page);
-    const advanced = /\b(?:tcpdump|packet-diag|packet capture|pcap|debug|test vpn|show session all filter)\b/.test(code) || /advanced|pcap|evidence|telemetry|auth-admin|management/.test(page);
-    if (disruptive) return {tone:'command-disruptive',label:'DISRUPTIVE — APPROVAL REQUIRED',description:'May interrupt service or clear operational state. Confirm impact, approval and rollback before use.'};
-    if (approval) return {tone:'command-approval',label:'CHANGE / APPROVAL REQUIRED',description:'Review the exact platform, impact and rollback. Do not run as routine T1 troubleshooting.'};
-    if (advanced) return {tone:'command-safe-t2',label:'T2 / ADVANCED — READ ONLY',description:'Use for deeper investigation. Capture the exact command, timestamp and output.'};
-    return {tone:'command-safe-t1',label:'T1 SAFE — READ ONLY',description:'Read-only check. Compare the result with the expected healthy state and record the evidence.'};
-  }
-
   function renderCode(pageId, block){
     const noteKey = sKey(pageId || 'page', 'cliWork', stableHash((block.title || '') + '|' + (block.code || '')));
-    const safety = commandSafetyMeta(pageId, block);
-    return `<div class="cli-section-wrap ${safety.tone}"><div class="command-safety-strip"><span class="command-safety-badge">${esc(safety.label)}</span><small>${esc(safety.description)}</small></div><div class="codewrap"><div class="code-actions"><button class="codebtn" type="button" data-copy-code="${esc(block.code || '')}">Copy</button></div><pre><code>${esc(block.code || '')}</code></pre></div>
+    return `<div class="cli-section-wrap"><div class="codewrap"><div class="code-actions"><button class="codebtn" type="button" data-copy-code="${esc(block.code || '')}">Copy</button></div><pre><code>${esc(block.code || '')}</code></pre></div>
       <div class="cli-workbox">
         <label>My CLI notes / working details</label>
         <textarea data-cli-work-area="${esc(noteKey)}" placeholder="Paste your own CLI notes, checks, or results here.">${esc(loadText(noteKey, ''))}</textarea>
@@ -1870,7 +1842,7 @@ function buildOutput(type, values, extra={}){
       const isActiveSlot = activeSlot > 0 && i === activeSlot;
       const label = used || isActiveSlot ? undefined : `Ticket ${i} — Empty`;
       const btn = renderTicketButton(pageId, formKey, i, isActiveSlot, label, !(used || isActiveSlot))
-        .replace('tabbtn ', `tabbtn ${isActiveSlot ? 'current-working-ticket active-case-ticket ' : 'parked-ticket parked-case-ticket '} `);
+        .replace('tabbtn ', `tabbtn ${isActiveSlot ? 'current-working-ticket ' : 'parked-ticket '} `);
 
       if (isActiveSlot) activeButtons.push(btn);
       else parkedButtons.push(btn);
@@ -1884,8 +1856,8 @@ function buildOutput(type, values, extra={}){
     return `<div class="ticket-groups">
       <div class="phone-call-ticket-wrap">${phoneCallButton}</div>
       <div class="ticket-search-wrap"><input class="ticket-search ticket-search-all" data-ticket-search="all" placeholder="Search ticket #" aria-label="Search ticket number across current and parked cases" /></div>
-      <details class="ticket-group current-working-group parked-cases-group"><summary><span class="ticket-group-title"><span class="semantic-status-dot parked" aria-hidden="true"></span>Park / Working on cases</span><span class="park-header-actions"><button class="park-clear-btn" type="button" data-clear-selected-parked title="Clear the currently selected parked case">Clear selected</button><button class="park-clear-btn park-clear-all-btn" type="button" data-clear-all-parked title="Clear all parked cases">Clear all</button></span><span class="ticket-count-wrap"><span class="ticket-count" data-ticket-count="working">${parkedButtons.filter(b => !b.includes(' hidden')).length}</span><span class="ticket-group-arrow" aria-hidden="true"></span></span></summary><div class="tabrow ticket-tabrow" data-ticket-group="working">${parkedButtons.join('')}</div></details>
-      <details class="ticket-group parked-ticket-group active-case-group"><summary><span class="ticket-group-title active-title"><span class="semantic-status-dot active" aria-hidden="true"></span>Current Active case</span> <span class="ticket-count" data-ticket-count="parked">${activeButtons.length}</span></summary><div class="tabrow ticket-tabrow" data-ticket-group="parked">${activeButtons.join('')}</div></details>
+      <details class="ticket-group current-working-group"><summary><span class="ticket-group-title">Park / Working on cases</span><span class="park-header-actions"><button class="park-clear-btn" type="button" data-clear-selected-parked title="Clear the currently selected parked case">Clear selected</button><button class="park-clear-btn park-clear-all-btn" type="button" data-clear-all-parked title="Clear all parked cases">Clear all</button></span><span class="ticket-count-wrap"><span class="ticket-count" data-ticket-count="working">${parkedButtons.filter(b => !b.includes(' hidden')).length}</span><span class="ticket-group-arrow" aria-hidden="true"></span></span></summary><div class="tabrow ticket-tabrow" data-ticket-group="working">${parkedButtons.join('')}</div></details>
+      <details class="ticket-group parked-ticket-group"><summary><span class="ticket-group-title active-title">Current Active case</span> <span class="ticket-count" data-ticket-count="parked">${activeButtons.length}</span></summary><div class="tabrow ticket-tabrow" data-ticket-group="parked">${activeButtons.join('')}</div></details>
       <div class="active-case-move-section"><button class="btn move-working-btn" type="button" data-move-slot-to-working>Move this case to Current Active case</button></div>
     </div>`;
   }
@@ -1897,32 +1869,6 @@ function buildOutput(type, values, extra={}){
       <div class="case-guidance-columns"><div><h4>Ask first</h4>${renderList(flow.questions)}</div><div><h4>Check next</h4>${renderList(flow.checks)}</div><div><h4>Record before deciding</h4>${renderList(flow.evidence)}</div></div>
       <div class="btnrow">${flow.links.map(([label,id])=>`<a class="btn secondary" href="#${esc(id)}">${esc(label)}</a>`).join('')}<a class="btn secondary" href="#troubleshooting-hub">All workflows</a></div>
     </div>`;
-  }
-
-
-  function caseEvidenceReadiness(values){
-    const v = withAliases(values || {});
-    const critical = [
-      ['Primary issue', v.issue_type],
-      ['Impact / scope', v.impact_scope],
-      ['Confirmed checks or findings', v.cli_findings],
-      ['Current decision / next action', v.resolution_or_next_step]
-    ];
-    const recommended = [
-      ['Ticket number', v.ticket_number],
-      ['When it started', v.started_when],
-      ['School', v.school_name]
-    ];
-    const missingCritical = critical.filter(([,value]) => !cleanup(value)).map(([label]) => label);
-    const missingRecommended = recommended.filter(([,value]) => !cleanup(value)).map(([label]) => label);
-    if (missingCritical.length) return {tone:'not-ready', icon:'✕', title:'Not ready for escalation', detail:`Missing: ${missingCritical.join(', ')}`};
-    if (missingRecommended.length) return {tone:'warning', icon:'!', title:'Evidence ready with warnings', detail:`Recommended: ${missingRecommended.join(', ')}`};
-    return {tone:'ready', icon:'✓', title:'Evidence ready', detail:'Core issue, scope, findings and next action are recorded.'};
-  }
-
-  function renderEvidenceReadiness(values){
-    const state = caseEvidenceReadiness(values);
-    return `<div class="evidence-readiness ${state.tone}" data-evidence-readiness><span class="evidence-readiness-icon" aria-hidden="true">${state.icon}</span><div><strong>${esc(state.title)}</strong><small>${esc(state.detail)}</small></div></div>`;
   }
 
   function renderSlotForm(pageId, block){
@@ -1939,44 +1885,38 @@ function buildOutput(type, values, extra={}){
     const evidence=pick(['cli_findings','missing_evidence','resolution_or_next_step']);
     const output=pick(['final_output']);
     const status=values.workflow_status||'Investigating';
-    return `<section class="case-desk active-case-shell ${statusClass(status)}" data-modern-case-desk>
+    return `<section class="case-desk" data-modern-case-desk>
       <div class="case-desk-top"><div><span class="eyebrow">DAILY CASE WORKSPACE</span><h2>Current and parked support cases</h2><p>One case record follows you through troubleshooting pages, evidence and final outputs.</p></div><div class="case-desk-state"><span class="status-pill ${statusClass(status)}" data-desk-status-pill>${esc(status)}</span></div></div>
       ${renderTicketGroups(pageId, block.formKey, block.slotCount || 100)}
       <div class="form case-stage-form" data-slot-form="${esc(block.formKey)}" data-page-id="${esc(pageId)}" data-template-type="${esc(block.templateType || '')}" data-slot-count="${esc(block.slotCount || 100)}">
         <nav class="case-stage-tabs" aria-label="Case workflow stages">
-          ${[['intake','1','Intake','Case details and impact'],['troubleshoot','2','Troubleshoot','Plan and working notes'],['evidence','3','Evidence','Results and decision'],['output','4','Output','Salesforce, customer or escalation']].map(([id,n,label,desc])=>`<button class="case-stage-tab stage-${id} ${phase===id?'active':''}" type="button" data-case-phase="${id}"><span>${n}</span><div><strong>${label}</strong><small>${desc}</small></div></button>`).join('')}
+          ${[['intake','1','Intake','Case details and impact'],['troubleshoot','2','Troubleshoot','Plan and working notes'],['evidence','3','Evidence','Results and decision'],['output','4','Output','Salesforce, customer or escalation']].map(([id,n,label,desc])=>`<button class="case-stage-tab ${phase===id?'active':''}" type="button" data-case-phase="${id}"><span>${n}</span><div><strong>${label}</strong><small>${desc}</small></div></button>`).join('')}
         </nav>
-        <section class="case-stage-panel stage-intake ${phase==='intake'?'active':''}" data-case-panel="intake">
+        <section class="case-stage-panel ${phase==='intake'?'active':''}" data-case-panel="intake">
           <div class="stage-heading"><div><span class="eyebrow">STAGE 1</span><h3>Intake and classification</h3><p>Import Salesforce details, confirm the customer impact, and select the primary issue.</p></div>${iconSvg('case')}</div>
           ${block.salesforceImport ? `<div class="sf-intake-card"><label>Paste Salesforce ticket text</label><textarea class="no-autoexpand sf-import-box" data-sf-import placeholder="Paste the raw Salesforce ticket text here, then import it into the case."></textarea><div class="btnrow"><button class="btn" type="button" data-sf-import-btn>Import Salesforce text</button><button class="btn secondary danger-clear" type="button" data-clear-slot>Clear case</button></div></div>` : ''}
           ${renderFormGrid(intake,values)}
           <div class="stage-next"><button class="btn" type="button" data-open-case-phase="troubleshoot">Continue to Troubleshoot →</button></div>
         </section>
-        <section class="case-stage-panel stage-troubleshoot ${phase==='troubleshoot'?'active':''}" data-case-panel="troubleshoot">
+        <section class="case-stage-panel ${phase==='troubleshoot'?'active':''}" data-case-panel="troubleshoot">
           <div class="stage-heading"><div><span class="eyebrow">STAGE 2</span><h3>Troubleshoot the reported symptom</h3><p>Use the guided workflow, record working notes, and move from the closest layer to the user.</p></div>${iconSvg('troubleshoot')}</div>
           <div data-case-guidance-host>${renderIssueGuidancePanel(values.issue_type||'Other')}</div>
           ${renderFormGrid(troubleshoot,values)}
           <div class="stage-next"><button class="btn secondary" type="button" data-open-case-phase="intake">← Intake</button><button class="btn" type="button" data-open-case-phase="evidence">Continue to Evidence →</button></div>
         </section>
-        <section class="case-stage-panel stage-evidence ${phase==='evidence'?'active':''}" data-case-panel="evidence">
+        <section class="case-stage-panel ${phase==='evidence'?'active':''}" data-case-panel="evidence">
           <div class="stage-heading"><div><span class="eyebrow">STAGE 3</span><h3>Evidence and technical decision</h3><p>Separate confirmed results from assumptions and identify exactly what remains missing.</p></div>${iconSvg('shield')}</div>
-          <div class="diagnostic-decision-grid">
-            <section class="diagnostic-card confirmed-facts"><div class="diagnostic-card-head"><span>CONFIRMED FACTS</span><small>Record observed output, not assumptions.</small></div>${renderFormGrid(pick(['cli_findings']),values)}</section>
-            <section class="diagnostic-card next-test"><div class="diagnostic-card-head"><span>MISSING EVIDENCE / NEXT TEST</span><small>State what still needs to be proved.</small></div>${renderFormGrid(pick(['missing_evidence']),values)}</section>
-            <section class="diagnostic-card current-decision"><div class="diagnostic-card-head"><span>CURRENT DECISION</span><small>Explain the next action and why.</small></div>${renderFormGrid(pick(['resolution_or_next_step']),values)}</section>
-          </div>
-          ${renderEvidenceReadiness(values)}
+          ${renderFormGrid(evidence,values)}
           <div class="evidence-mini-checks"><label><input type="checkbox"> Scope confirmed</label><label><input type="checkbox"> IP / MAC / VLAN captured</label><label><input type="checkbox"> Timestamp recorded</label><label><input type="checkbox"> Logs or CLI recorded</label><label><input type="checkbox"> Owner and next action clear</label></div>
           <div class="stage-next"><button class="btn secondary" type="button" data-open-case-phase="troubleshoot">← Troubleshoot</button><button class="btn" type="button" data-open-case-phase="output">Continue to Output →</button></div>
         </section>
-        <section class="case-stage-panel stage-output ${phase==='output'?'active':''}" data-case-panel="output">
+        <section class="case-stage-panel ${phase==='output'?'active':''}" data-case-panel="output">
           <div class="stage-heading"><div><span class="eyebrow">STAGE 4</span><h3>Create the case outcome</h3><p>Generate a Salesforce note, send the case to a customer template, or prepare an escalation.</p></div>${iconSvg('template')}</div>
           ${renderFormGrid(output,values)}
           <div class="btnrow generate-row"><button class="btn generate-main" type="button" data-generate-slot>Generate Runbook Output</button></div>
           <div class="send-template-row"><select class="search" data-send-target>${getSendTargetOptions()}</select><button class="btn" type="button" data-send-slot>Send to selected template</button></div>
           <div class="muted output-label">Generated output</div>${outputColumnsHTML(outputs)}
-          <div class="output-packet-actions"><button class="btn secondary" type="button" data-copy-salesforce-packet>Copy Salesforce packet</button><button class="btn secondary gemini-packet-btn" type="button" data-copy-gemini-packet>Copy redacted Gemini packet</button></div>
-          <div class="case-completion-actions"><a class="btn secondary" href="#email-resolved">Resolved email</a><a class="btn secondary escalation-action" href="#template-tier2">Tier 2 escalation</a><button class="btn archive-btn" type="button" data-archive-clear-slot>Move to Knowledgebase</button></div>
+          <div class="case-completion-actions"><a class="btn secondary" href="#email-resolved">Resolved email</a><a class="btn secondary" href="#template-tier2">Tier 2 escalation</a><button class="btn archive-btn" type="button" data-archive-clear-slot>Move to Knowledgebase</button></div>
           <div class="stage-next"><button class="btn secondary" type="button" data-open-case-phase="evidence">← Evidence</button><button class="btn secondary danger-clear" type="button" data-clear-slot>Clear case</button></div>
         </section>
         <div class="statusline case-save-status" data-slot-status>Saved locally.</div>
@@ -1996,17 +1936,12 @@ function buildOutput(type, values, extra={}){
     const status=form?.querySelector('[data-field="workflow_status"]');
     const updateStatusPill=()=>{const pill=root.querySelector('[data-desk-status-pill]');if(pill){pill.textContent=status?.value||'Investigating';pill.className='status-pill '+statusClass(status?.value);}};
     status?.addEventListener('change',updateStatusPill);
-    const readCurrentValues=()=>{const current={};form?.querySelectorAll('[data-field]').forEach(el=>current[el.dataset.field]=el.value);return withAliases(current);};
-    const updateEvidenceReadiness=()=>{const oldBox=root.querySelector('[data-evidence-readiness]');if(oldBox)oldBox.outerHTML=renderEvidenceReadiness(readCurrentValues());};
-    root.querySelector('[data-copy-salesforce-packet]')?.addEventListener('click',async e=>{await copyPlainText(buildCasePacket(readCurrentValues(),false),{disableHtmlBold:true});const b=e.currentTarget;const old=b.textContent;b.textContent='✓ Salesforce packet copied';setTimeout(()=>b.textContent=old,1400);});
-    root.querySelector('[data-copy-gemini-packet]')?.addEventListener('click',async e=>{await copyPlainText(buildGeminiPacket(readCurrentValues()),{disableHtmlBold:true});const b=e.currentTarget;const old=b.textContent;b.textContent='✓ Redacted packet copied';setTimeout(()=>b.textContent=old,1400);});
     updateGuidance();
     updateStatusPill();
-    updateEvidenceReadiness();
     let caseBarRefreshTimer=0;
     const scheduleCaseBarRefresh=()=>{clearTimeout(caseBarRefreshTimer);caseBarRefreshTimer=setTimeout(()=>{const oldBar=contentEl.querySelector('.active-case-bar');if(oldBar){oldBar.outerHTML=renderActiveCaseBar();bindActiveCaseBar();}},560);};
-    form?.addEventListener('input',()=>{scheduleCaseBarRefresh();updateEvidenceReadiness();});
-    form?.addEventListener('change',()=>{scheduleCaseBarRefresh();updateEvidenceReadiness();});
+    form?.addEventListener('input',scheduleCaseBarRefresh);
+    form?.addEventListener('change',scheduleCaseBarRefresh);
   }
 
 
@@ -3283,42 +3218,6 @@ function normaliseCaseTransferValues(values){
       makeSection('Current Decision / Next Action', values.resolution_or_next_step),
       makeSection('Current Salesforce Note', values.final_output)
     ].filter(Boolean).join('\n')) || 'No active case details are available yet.';
-  }
-
-
-  function buildGeminiPacket(values){
-    const v = withAliases(values || {});
-    return cleanup([
-      'ROLE',
-      'Act as a cautious Tier 2 support coach. Separate confirmed facts from assumptions. Prefer read-only checks. Do not invent results, topology, commands, or configuration. Label any potentially impactful action and explain the approval required.',
-      '',
-      'CASE CONTEXT — REDACTED',
-      'Case reference: Redacted',
-      'Customer / site: Redacted',
-      makeSection('Primary issue', v.issue_type),
-      makeSection('Impact / scope', v.impact_scope),
-      makeSection('When it started', v.started_when),
-      '',
-      'CONFIRMED FACTS AND RESULTS',
-      cleanup(v.cli_findings) || 'No confirmed technical results recorded yet.',
-      '',
-      'MISSING EVIDENCE / NEXT CHECKS',
-      cleanup(v.missing_evidence) || 'Not yet recorded.',
-      '',
-      'CURRENT DECISION / NEXT ACTION',
-      cleanup(v.resolution_or_next_step) || 'Not yet recorded.',
-      '',
-      'RESPONSE FORMAT REQUIRED',
-      '1. Confirmed facts',
-      '2. Assumptions or missing information',
-      '3. Most likely fault domains, ranked',
-      '4. Next three checks in order',
-      '5. Expected healthy and abnormal result for each check',
-      '6. How each result changes the investigation',
-      '7. Evidence to record',
-      '8. Escalation threshold',
-      '9. Unsafe or change-controlled actions to avoid'
-    ].filter(Boolean).join('\n'));
   }
 
   function renderActiveCaseBar(){
@@ -6352,19 +6251,13 @@ function collectFields(root){
     document.addEventListener('click',e=>{if(menu.open&&!menu.contains(e.target))menu.open=false;});
   }
   function refineActiveCase(){
-    let anyActiveCase=false;
     document.querySelectorAll('.parked-ticket-group').forEach(group=>{
       const row=group.querySelector('.ticket-tabrow');
       const hasCase=!!row?.querySelector('[data-slot-tab]');
-      if(hasCase) anyActiveCase=true;
       group.classList.toggle('active-case-empty',!hasCase);
       if(row&&!hasCase&&!row.querySelector('.active-empty-message')){
         row.innerHTML='<div class="active-empty-message"><strong>No active case</strong>Select a parked case and use the move button, or start a Phone Call / New Case.</div>';
       }
-    });
-    document.querySelectorAll('[data-modern-case-desk]').forEach(desk=>{
-      desk.classList.toggle('has-active-case',anyActiveCase);
-      desk.classList.toggle('no-active-case',!anyActiveCase);
     });
   }
   function refine(){buildViewMenu();refineActiveCase();}
