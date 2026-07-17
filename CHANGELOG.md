@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.9.6 — Root application repair
+
+- Restored the Karate & Azure Progress Hub `index.html` at the repository root.
+- Kept the Support Operations Runbook isolated under `Runbook/`.
+- Advanced the app and service-worker cache version to 1.9.6.
+- Added regression tests that fail if the Runbook entry page replaces the Progress Hub again.
+- Preserved state schema 8, Microsoft login, OneDrive sync, Supabase authentication, cloud data, and existing progress.
+
 ## [1.9.4] — 2026-07-17
 
 ### Changed

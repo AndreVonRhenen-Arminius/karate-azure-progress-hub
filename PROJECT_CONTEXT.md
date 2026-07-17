@@ -100,3 +100,7 @@ Never add client secrets, service-role keys, passwords or tokens to browser sour
 8. Verify Microsoft configuration and Supabase schema hashes are unchanged.
 9. Verify authentication and sync function bodies are unchanged.
 10. Test ZIP integrity and a rendered browser load.
+
+## v1.9.6 repair baseline
+
+The repository root must serve the Progress Hub `index.html`. The Support Operations Runbook is a separate application under `Runbook/` and must never be copied over the root entry page. File-integrity tests enforce this separation.

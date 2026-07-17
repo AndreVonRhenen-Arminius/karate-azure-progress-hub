@@ -41,7 +41,7 @@
           await Promise.all(keys.filter(key => key.startsWith('ka-progress-hub-')).map(key => caches.delete(key)));
         }
         status.textContent = 'Repair complete. Reloading Progress Hub…';
-        setTimeout(() => location.replace('./?repaired=1&v=1.9.4'), 700);
+        setTimeout(() => location.replace('./?repaired=1&v=1.9.6'), 700);
       } catch (error) {
         console.error(error);
         status.textContent = `Repair could not complete: ${error.message}`;

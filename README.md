@@ -1,4 +1,11 @@
-# Karate & Azure Progress Hub — v1.9.4
+# Karate & Azure Progress Hub — v1.9.6
+
+
+## v1.9.6 root-page repair
+
+Version 1.9.6 restores the Progress Hub as the repository root application. The uploaded repository had the Support Operations Runbook `index.html` copied over the root `index.html`, which caused GitHub Pages to load the Runbook shell while using the Progress Hub assets.
+
+The Runbook remains available under `Runbook/`. No authentication, OneDrive, Supabase, state schema, or stored progress data was changed. The service-worker cache was advanced to v1.9.6 so browsers fetch the repaired entry page.
 
 An offline-first Progressive Web App for:
 

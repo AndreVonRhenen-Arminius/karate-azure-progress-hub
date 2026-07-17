@@ -1,57 +1,158 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-NZ">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#0b1220" />
-  <title>Support Operations Runbook — André Von Rhenen</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="Friday-night Azure and flexible weekend Azure, Jion kata and JKA 3rd Dan progress tracker with optional OneDrive or Supabase sync.">
+  <title>Karate & Azure Progress Hub — Mastery Coach</title>
+  <link rel="manifest" href="manifest.webmanifest?v=1.9.6">
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css?v=1.9.6">
 </head>
 <body>
-  <header class="topbar modern-topbar">
-    <button id="btnSidebar" class="icon-button mobile-menu-button" type="button" aria-label="Open navigation" title="Open navigation">
-      <span></span><span></span><span></span>
-    </button>
-    <a class="brand" href="#runbook-home" aria-label="Runbook home">
-      <div class="logo">TR</div>
-      <div class="title">
-        <div class="h1">Support Operations</div>
-        <div class="sub">André's offline troubleshooting runbook</div>
+  <div id="app-shell">
+    <aside class="sidebar" aria-label="Main navigation">
+      <div class="brand">
+        <div class="brand-mark">KA</div>
+        <div>
+          <strong>Progress Hub</strong>
+          <small>Karate + Microsoft Cloud</small>
+        </div>
       </div>
-    </a>
-    <div class="top-search-wrap">
-      <span class="top-search-icon" aria-hidden="true">⌕</span>
-      <input id="search" class="search" placeholder="Filter navigation" aria-label="Filter navigation" />
-      <button id="btnClearNavSearch" class="search-clear" type="button" aria-label="Clear navigation search" title="Clear">×</button>
-    </div>
-    <nav class="top-actions" aria-label="Runbook actions">
-      <a class="btn top-action-link" href="#case-working-template" title="Open Case Desk">Case Desk</a>
-      <button id="btnGlobalSearch" class="btn" type="button" title="Search the whole runbook">Ctrl+K</button>
-      <button id="btnFavorite" class="btn" type="button">☆ Pin</button>
-      <button id="btnHome" class="btn icon-action" type="button" title="Operations Home" aria-label="Operations Home">⌂</button>
-      <button id="btnTheme" class="btn icon-action" type="button" title="Switch theme" aria-label="Switch theme">◐</button>
-    </nav>
-  </header>
-  <div class="layout">
-    <aside class="sidebar">
-      <div class="sidebar-heading"><span>Navigation</span></div>
-      <div id="nav"></div>
-      <div class="sidebar-foot">Case Desk → Troubleshoot → Evidence → Output</div>
+      <nav id="side-nav" class="nav-list">
+        <button data-view="today" class="active"><span>⌂</span>Today</button>
+        <button data-view="week"><span>▦</span>Weekly Plan</button>
+        <button data-view="programme"><span>◫</span>Cloud Programme</button>
+        <button data-view="azure"><span>☁</span>AZ-104</button>
+        <button data-view="dan"><span>拳</span>3rd Dan</button>
+        <button data-view="kata"><span>型</span>Kata</button>
+        <button data-view="progress"><span>↗</span>Progress</button>
+        <button data-view="notes"><span>✎</span>Notes & Reviews</button>
+        <button data-view="settings"><span>⚙</span>Settings</button>
+      </nav>
+      <div class="sidebar-footer">
+        <div id="sync-pill" class="sync-pill local">Local only</div>
+        <button id="install-btn" class="secondary-btn hidden">Install app</button>
+      </div>
     </aside>
-    <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
-    <main class="main"><div id="content"></div></main>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow" id="page-eyebrow">YOUR PLAN</p>
+          <h1 id="page-title">Today</h1>
+        </div>
+        <div class="topbar-actions">
+          <button id="timer-btn" class="icon-btn" title="Open session timer" aria-label="Open session timer">⏱</button>
+          <button id="sync-btn" class="icon-btn" title="Sync now" aria-label="Synchronise now">↻</button>
+          <div id="account-badge" class="account-badge">A</div>
+        </div>
+      </header>
+
+      <section id="view-today" class="view active"></section>
+      <section id="view-week" class="view"></section>
+      <section id="view-programme" class="view"></section>
+      <section id="view-azure" class="view"></section>
+      <section id="view-dan" class="view"></section>
+      <section id="view-kata" class="view"></section>
+      <section id="view-progress" class="view"></section>
+      <section id="view-notes" class="view"></section>
+      <section id="view-settings" class="view"></section>
+    </main>
+
+    <nav id="bottom-nav" class="bottom-nav" aria-label="Mobile navigation">
+      <button data-view="today" class="active"><span>⌂</span><small>Today</small></button>
+      <button data-view="week"><span>▦</span><small>Week</small></button>
+      <button data-view="programme"><span>◫</span><small>Plan</small></button>
+      <button data-view="azure"><span>☁</span><small>AZ-104</small></button>
+      <button data-view="kata"><span>型</span><small>Kata</small></button>
+      <button data-view="progress"><span>↗</span><small>Progress</small></button>
+    </nav>
   </div>
-  <div id="globalSearchOverlay" class="global-search-overlay" hidden>
-    <div class="global-search-panel">
-      <div class="global-search-head">
-        <div><strong>Command Centre</strong><div class="muted">Search pages, symptoms, commands, templates and case tools.</div></div>
-        <button id="btnCloseGlobalSearch" class="btn secondary" type="button">Close</button>
+
+  <dialog id="timer-dialog" class="dialog">
+    <form method="dialog" class="dialog-card timer-card">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">SESSION TIMER</p>
+          <h2>Focus timer</h2>
+        </div>
+        <button value="cancel" class="icon-btn" aria-label="Close timer">✕</button>
       </div>
-      <input id="globalSearchInput" class="search global-search-input" placeholder="Try: DNS, AP offline, show vlan, follow-up, escalation..." />
-      <div id="globalSearchResults" class="global-search-results"></div>
-    </div>
-  </div>
-  <script src="data.js"></script>
-  <script src="app.js"></script>
+      <label>Session label
+        <input id="timer-label" type="text" value="Focused session" maxlength="80">
+      </label>
+      <div class="timer-presets">
+        <button type="button" data-minutes="20">20 min</button>
+        <button type="button" data-minutes="25">25 min</button>
+        <button type="button" data-minutes="45" class="selected">45 min</button>
+        <button type="button" data-minutes="60">60 min</button>
+      </div>
+      <div id="timer-display" class="timer-display">45:00</div>
+      <div class="timer-actions">
+        <button type="button" id="timer-start" class="primary-btn">Start</button>
+        <button type="button" id="timer-reset" class="secondary-btn">Reset</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="task-completion-dialog" class="dialog">
+    <form id="task-completion-form" class="dialog-card wide-dialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">TASK RESULT</p>
+          <h2 id="task-completion-title">Complete task</h2>
+        </div>
+        <button type="button" class="icon-btn" data-action="close-task-completion" aria-label="Close completion form">✕</button>
+      </div>
+      <div id="task-completion-fields"></div>
+      <div class="dialog-actions">
+        <button type="button" class="secondary-btn" data-action="close-task-completion">Cancel</button>
+        <button type="submit" class="primary-btn">Save result</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="reschedule-dialog" class="dialog">
+    <form id="reschedule-form" class="dialog-card">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">RESCHEDULE</p>
+          <h2>Move this task</h2>
+        </div>
+        <button type="button" class="icon-btn" data-action="close-reschedule" aria-label="Close reschedule form">✕</button>
+      </div>
+      <p id="reschedule-description" class="muted"></p>
+      <label>New date
+        <input id="reschedule-date" name="date" type="date" required>
+      </label>
+      <div>
+        <span class="field-label">Suggested suitable days</span>
+        <div id="reschedule-suggestions" class="suggestion-buttons"></div>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="secondary-btn" data-action="close-reschedule">Cancel</button>
+        <button type="submit" class="primary-btn">Move task</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="confirm-dialog" class="dialog">
+    <form method="dialog" class="dialog-card">
+      <h2 id="confirm-title">Confirm</h2>
+      <p id="confirm-message"></p>
+      <div class="dialog-actions">
+        <button value="cancel" class="secondary-btn">Cancel</button>
+        <button id="confirm-ok" value="default" class="danger-btn">Continue</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="vendor/msal-browser.min.js?v=5.17.0"></script>
+  <script src="js/microsoft-config.js?v=1.9.6"></script>
+  <script type="module" src="app.js?v=1.9.6"></script>
 </body>
 </html>

@@ -70,7 +70,7 @@ vm.runInContext(`globalThis.testApi = {
 
 const api = context.testApi;
 const initial = api.getState();
-assert.equal(api.APP_VERSION, '1.9.4');
+assert.equal(api.APP_VERSION, '1.9.6');
 assert.equal(api.STATE_VERSION, 8);
 assert.equal(initial.version, 8);
 assert.deepEqual(Object.keys(initial.daily), [], 'rendering must not create progress records');
@@ -485,7 +485,7 @@ const html = fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8');
 assert.ok(html.includes('id="task-completion-dialog"'));
 assert.ok(html.includes('id="task-completion-form"'));
 assert.ok(html.includes('id="reschedule-dialog"'));
-assert.ok(html.includes('app.js?v=1.9.4'));
+assert.ok(html.includes('app.js?v=1.9.6'));
 assert.ok(html.includes('id="view-programme"'));
 assert.ok(html.includes('data-view="programme"'));
 assert.ok(!/05:30|22:00|10:00\s*pm/i.test(code));

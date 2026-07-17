@@ -8,7 +8,7 @@ const MICROSOFT_GRAPH_BASE = 'https://graph.microsoft.com/v1.0';
 const MICROSOFT_GRAPH_SCOPES = ['Files.ReadWrite.AppFolder'];
 const ONEDRIVE_STATE_FILE = 'karate-azure-progress-state.json';
 
-const APP_VERSION = '1.9.4';
+const APP_VERSION = '1.9.6';
 const STATE_VERSION = 8;
 const PROGRAMME_START_DATE = '2026-07-11';
 

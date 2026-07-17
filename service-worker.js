@@ -1,15 +1,15 @@
-const CACHE_NAME = 'ka-progress-hub-v1.9.4';
+const CACHE_NAME = 'ka-progress-hub-v1.9.6';
 const CORE_ASSETS = [
   './',
   './index.html',
   './repair.html',
-  './styles.css?v=1.9.4',
-  './app.js?v=1.9.4',
+  './styles.css?v=1.9.6',
+  './app.js?v=1.9.6',
   './vendor/msal-browser.min.js?v=5.17.0',
   './redirect.html',
   './vendor/msal-redirect-bridge.min.js?v=5.17.0',
-  './js/microsoft-config.js?v=1.9.4',
-  './manifest.webmanifest?v=1.9.4',
+  './js/microsoft-config.js?v=1.9.6',
+  './manifest.webmanifest?v=1.9.6',
   './icons/icon-192.png',
   './icons/icon-512.png'
 ];
